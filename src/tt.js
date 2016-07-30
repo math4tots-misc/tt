@@ -345,6 +345,7 @@ const symbols = [
   ";", "#", "$", "=",
   "+", "-", "*", "/", "%", "++", "--",
   "==", "!=", "<", ">", "<=", ">=", "!",
+  "+=", "-=", "*=", "/=", "%=",
 ].sort().reverse();
 const openParen = "(";
 const closeParen = ")";
@@ -532,6 +533,10 @@ function lex(uri, text) {
 }
 
 // parser
+
+const augmentAssignOperands = [
+  "+=", "-=",  "/=",  "*=", "%=",
+];
 
 class Parser {
   constructor(uri, text) {
@@ -890,6 +895,17 @@ class Parser {
             "name": name,
             "val": val,
           };
+        } else if (augmentAssignOperands.some(op => this.at(op))) {
+          const op = this.next().val;
+          const rhs = this.parseExpressionTemplate();
+          expr = {
+            "type": "AugmentAttributeTemplate",
+            "token": token,
+            "owner": expr,
+            "name": name,
+            "op": op,
+            "val": rhs,
+          };
         } else {
           expr = {
             "type": "GetAttributeTemplate",
@@ -938,6 +954,16 @@ class Parser {
           "token": token,
           "name": token.val,
           "val": val,
+        };
+      } else if (augmentAssignOperands.some(op => this.at(op))) {
+        const op = this.next().val;
+        const rhs = this.parseExpressionTemplate();
+        return {
+          "type": "AugmentAssignTemplate",
+          "token": token,
+          "name": token.val,
+          "op": op,
+          "val": rhs,
         };
       } else {
         return {

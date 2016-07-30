@@ -14,13 +14,12 @@ fn main() Void {
   print(typestr(Int));
 
   print([1, 2, 3]);
-  print([1, "hi"]);
 
   print(1 == 1);
   print(!(1 == 1));
 
   var total = 0;
-  for (var i = 0; i < 10000000; i = i+1) {
+  for (var i = 0; i < 10000000; i += 1) {
     total =  total + i;
   }
   print("total = " + str(total));
