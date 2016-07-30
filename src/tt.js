@@ -1413,6 +1413,15 @@ function annotate(modules) {
       }
       const exprs = node.exprs.map(
           expr => resolveExpression(expr, bindings, stack));
+      for (const expr of exprs) {
+        if (!expr.exprType.equals(exprs[0].exprType)) {
+          const frame = new InstantiationFrame(
+              expr.token, currentInstantiationContext);
+          throw new InstantiationError(
+            "Expected " + exprs[0].exprType.toString() + " but got " +
+            expr.exprType.toString(), [frame].concat(flatten(stack)));
+        }
+      }
       return {
         "type": "ListDisplay",
         "token": node.token,
