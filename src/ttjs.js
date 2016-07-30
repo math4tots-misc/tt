@@ -314,6 +314,9 @@ class Compiler {
     case "Assign":
       return "(var_" + node.name + " = " +
              this.compileExpression(node.val) + ")";
+    case "AugmentAssign":
+      return "(var_" + node.name + " " + node.op + " " +
+             this.compileExpression(node.val) + ")";
     default:
       throw new tt.CompileError(
           "Unrecognized expression: " + node.type, [node.token]);

@@ -956,7 +956,7 @@ class Parser {
           "val": val,
         };
       } else if (augmentAssignOperands.some(op => this.at(op))) {
-        const op = this.next().val;
+        const op = this.next().type;
         const rhs = this.parseExpressionTemplate();
         return {
           "type": "AugmentAssignTemplate",
@@ -1460,7 +1460,8 @@ function annotate(modules) {
       if (!val.exprType.equals(exprType)) {
         throw new InstantiationError(
             "Variable is type " + exprType.toString() + " but " +
-            "expression is of type " + val.exprType.toString());
+            "expression is of type " + val.exprType.toString(),
+            [frame].concat(flatten(stack)));
       }
       return {
         "type": "Assign",
@@ -1469,6 +1470,30 @@ function annotate(modules) {
         "val": val,
         "exprType": exprType,
       };
+    case "AugmentAssignTemplate": {
+      const exprType = getVariableType(node.name, stack);
+      if (!(exprType instanceof Typename) ||
+          (exprType.name !== "Int" && exprType.name !== "Float")) {
+        throw new InstantiationError(
+            "Augassign operations can only be done on int or float " +
+            "variables: " + exprType.toString(),
+            [frame].concat(flatten(stack)));
+      }
+      const val = resolveExpression(node.val, stack);
+      if (!val.exprType.equals(exprType)) {
+        throw new InstantiationError(
+            "Expected " + exprType.toString() + " but got " +
+            val.exprType.toString(), [frame].concat(flatten(stack)));
+      }
+      return {
+        "type": "AugmentAssign",
+        "token": node.token,
+        "name": node.name,
+        "op": node.op,
+        "val": val,
+        "exprType": exprType,
+      };
+    }
     default:
       throw new InstantiationError(
           "Unrecognized expression template: " + node.type, [frame]);
