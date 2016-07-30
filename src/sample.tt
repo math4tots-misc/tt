@@ -1,0 +1,43 @@
+
+class Sample[$T] {
+  var t $T;
+}
+
+fn main() Void {
+  foo(5);
+  print("Hello world!");
+  print(foo(12, 7));
+  print(str(5.3));
+  someFunction();
+  print(malloc(Sample[Int]));
+  // malloc(Int);
+  print(typestr(Int));
+
+  print([1, 2, 3]);
+
+  print(1 == 1);
+  print(!(1 == 1));
+
+  var total = 0;
+  for (var i = 0; i < 10000000; i = i+1) {
+    total =  total + i;
+  }
+  print("total = " + str(total));
+
+  return;
+}
+
+fn someFunction() Void {
+  bbbb(5);
+}
+
+fn bbbb(x Int) Void {
+  print(getStackTraceMessage());
+}
+
+fn foo(x Int) Void {
+}
+
+fn foo(x Int, y Int) Int {
+  return add(x, y);
+}

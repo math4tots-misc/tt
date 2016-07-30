@@ -1,0 +1,114 @@
+
+class native Void;
+class native Bool;
+class native Int;
+class native Float;
+class native String;
+class native List[$T];
+
+fn equals(x $T, y $T) Bool {
+  return x is y;
+}
+
+fn native logicalNot(x Bool) Bool;
+
+fn native isSameAs(x $T, y$T) Bool;
+
+fn native add(x Int, y Int) Int;
+fn native add(x Int, y Float) Float;
+fn native add(x Float, y Int) Float;
+fn native add(x Float, y Float) Float;
+fn native add(x String, y String) String;
+
+fn native len(x List[$T]) Int;
+fn native getItem(xs List[$T], i Int) $T;
+fn native setItem(xs List[$T], i Int, t $T) $T;
+
+fn native lessThan(x Int, y Int) Bool;
+fn greaterThanOrEqualTo(x Int, y Int) Bool {
+  return !(x < y);
+}
+fn greaterThan(x $T, y $T) Bool {
+  return y < x;
+}
+fn lessThanOrEqualTo(x $T, y $T) Bool {
+  return !(y < x);
+}
+
+fn native repr(x Bool) String;
+fn native repr(x Int) String;
+fn native repr(x Float) String;
+fn native repr(x String) String;
+fn repr(xs List[$T]) String {
+  var str = "[";
+  // TODO: Actually add the middle elements
+  for (var i = 0; i < len(xs); i = i+1) {
+    if (i > 0) {
+      str = str + ", ";
+    }
+    str = str + repr(xs[i]);
+  }
+  str = str + "]";
+  return str;
+}
+
+fn native getStackTraceMessage() String;
+fn native typestr($T) String;
+fn native print(x String) Void;
+
+fn repr(x $T) String {
+  return "<" + typestr($T) + " instance>";
+}
+
+fn str(x $T) String {
+  return repr(x);
+}
+
+fn print(x Int) Void {
+  print(str(x));
+}
+
+fn print(x $T) Void {
+  print(str(x));
+}
+
+// malloc
+fn native malloc($T) $T;
+
+fn mallocPrimitiveError($T) Void {
+  // #error "Cannot malloc primitive type: " + typestr($T);
+  #error "Cannot malloc primitive type";
+}
+
+fn malloc(Void) Void {
+  mallocPrimitiveError(Void);
+}
+
+fn malloc(Int) Int {
+  mallocPrimitiveError(Int);
+  return 0;
+}
+
+fn malloc(Float) Float {
+  mallocPrimitiveError(Float);
+}
+
+fn malloc(String) String {
+  mallocPrimitiveError(String);
+}
+
+fn malloc(List[$T]) List[$T] {
+  mallocPrimitiveError(List[$T]);
+}
+
+//// Once better metaprogramming tools are available,
+//// the following should be possible.
+// fn new($T) $T {
+//   #if defined(init($T)) {
+//     $T t = malloc($T);
+//     init(t);
+//     return t;
+//   } else {
+//     return malloc($T);
+//   }
+// }
