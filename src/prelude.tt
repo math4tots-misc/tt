@@ -22,7 +22,6 @@ fn lessThanOrEqualTo(x $T, y $T) Bool {
 
 fn repr(xs List[$T]) String {
   let str = "[";
-  // TODO: Actually add the middle elements
   for (let i = 0; i < len(xs); i = i+1) {
     if (i > 0) {
       str = str + ", ";
