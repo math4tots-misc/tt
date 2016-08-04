@@ -339,6 +339,8 @@ const keywords = [
   "return",
   "is", "not",
   "for", "if", "else", "while", "break", "continue",
+
+  "var", "const", "goto", "function", "def", "async", "await",
 ];
 const symbols = [
   "(", ")", "[", "]", "{", "}", ",",
