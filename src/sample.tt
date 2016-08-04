@@ -4,6 +4,7 @@ class Sample[$T] {
 }
 
 static {
+  let k = 178;
   print("I'm inside the static block!");
 }
 
@@ -11,7 +12,12 @@ static native """
   console.log("I'm inside a native static block!");
 """
 
+let someGlobal = 5;
+
 fn main() Void {
+  print("someGlobal = " + str(someGlobal));
+  someGlobal = 17;
+  print("someGlobal = " + str(someGlobal));
   foo(5);
   print("Hello world!");
   print(foo(12, 7));

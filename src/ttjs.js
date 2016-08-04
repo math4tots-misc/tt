@@ -79,6 +79,7 @@ class Compiler {
     this._program = tt.parseAndAnnotate(this._uriTextPairs);
     this._funcs = this._program.funcs;
     this._clss = this._program.clss;
+    this._decls = this._program.decls;
     this._currentFunctionContext = null;
 
     for (const func of this._funcs) {
@@ -134,6 +135,11 @@ class Compiler {
     result += "\n(function() {";
     result += '\n"use strict";';
     result += nativePrelude;
+    result += "\n// --- global variable declarations ---";
+    for (const decl of this._decls) {
+      result += this.compileStatement(decl);
+    }
+    result += "\n// --- function definitions ---";
     const funcs = this._funcs;
     for (const func of funcs) {
       result += this.compileFunction(func);

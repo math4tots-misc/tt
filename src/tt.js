@@ -578,13 +578,18 @@ class Parser {
     const token = this.peek();
     const functemps = [];
     const classtemps = [];
+    const decltemps = [];
     while (!this.at("EOF")) {
       if (this.at("static") || this.at("fn")) {
         functemps.push(this.parseFunctionTemplate());
       } else if (this.at("class")) {
         classtemps.push(this.parseClassTemplate());
+      } else if (this.at("let")) {
+        decltemps.push(this.parseStatementTemplate());
       } else {
-        throw new CompileError("Expected 'fn' or 'class'", [this.peek()]);
+        throw new CompileError(
+            "Expected function, class or variable declaration",
+            [this.peek()]);
       }
     }
     return {
@@ -592,6 +597,7 @@ class Parser {
       "token": token,
       "functemps": functemps,
       "classtemps": classtemps,
+      "decltemps": decltemps,
     };
   }
   parseClassTemplate() {
@@ -1064,6 +1070,7 @@ function annotate(modules) {
   // collect all the function templates.
   const functemps = [];
   const classtemps = [];
+  const decltemps = [];
   for (const mod of modules) {
     if (mod.type !== "UnexpandedModule") {
       throw new CompileError("Expected Module: " + mod, []);
@@ -1074,11 +1081,15 @@ function annotate(modules) {
     for (const classtemp of mod.classtemps) {
       classtemps.push(classtemp);
     }
+    for (const decltemp of mod.decltemps) {
+      decltemps.push(decltemp);
+    }
   }
 
   // expand functions as needed.
   const funcs = [];
   const clss = [];
+  const decls = [];
   const instantiationTable = Object.create(null);
   const instantiationQueue = [];  // It's a LIFO queue, shouldn't matter
   const classInstantiationTable = Object.create(null);
@@ -1105,10 +1116,10 @@ function annotate(modules) {
     return scope[name];
   }
 
-  function declareVariable(name, type, tokens) {
+  function declareVariable(name, type, frames) {
     if (Object.hasOwnProperty.apply(scope, [name])) {
-      throw new CompileError(
-          "Variable " + name + " already declared in scope", tokens || []);
+      throw new InstantiationError(
+          "Variable " + name + " already declared in scope", frames);
     }
     scope[name] = type;
   }
@@ -1632,12 +1643,16 @@ function annotate(modules) {
     }
   }
 
-  // Instantiate all static functions and main.
+  // Queue all static blocks for instantiation
+  for (const decltemp of decltemps) {
+    decls.push(resolveStatement(decltemp, Object.create(null), null));
+  }
   for (const functemp of functemps) {
     if (functemp.isStatic) {
       instantiationQueue.push([functemp.name, [], null]);
     }
   }
+  // Queue main for instantiation
   instantiationQueue.push(["main", [], null]);
   while (true) {
     if (instantiationQueue.length > 0) {
@@ -1657,6 +1672,7 @@ function annotate(modules) {
     "type": "Program",
     "funcs": funcs,
     "clss": clss,
+    "decls": decls,
   };
 }
 
