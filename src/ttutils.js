@@ -53,6 +53,22 @@ function asyncReadFile(path) {
   });
 }
 
+function asyncDir(path) {
+  // NOTE: I don't want require here to be picked up by browserify
+  const req = require;
+
+  return new Promise((resolve, reject) => {
+    const fs = req("fs");
+    fs.readdir(path, (err, files) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(files);
+      }
+    });
+  });
+}
+
 function sanitizeString(str) {
   let r = "";
   let i = 0;
@@ -78,6 +94,7 @@ function sanitizeString(str) {
 
 exports.asyncf = asyncf;
 exports.asyncReadFile = asyncReadFile;
+exports.asyncDir = asyncDir;
 exports.sanitizeString = sanitizeString;
 
 })(xxutils);

@@ -9,7 +9,8 @@
     "require",
     "module",
     "process",
-    "console"
+    "console",
+    "__dirname"
   ],
   "esversion": 6
 }
