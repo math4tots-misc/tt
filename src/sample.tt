@@ -3,6 +3,14 @@ class Sample[$T] {
   let t $T;
 }
 
+static {
+  print("I'm inside the static block!");
+}
+
+static native """
+  console.log("I'm inside a native static block!");
+"""
+
 fn main() Void {
   foo(5);
   print("Hello world!");

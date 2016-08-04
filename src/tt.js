@@ -545,6 +545,10 @@ class Parser {
     this._tokens = lex(uri, text);
     this._pos = 0;
     this._funcname = null;
+    this._staticBlockId = 0;
+  }
+  getNextStaticBlockId() {
+    return this._staticBlockId++;
   }
   peek(dx) {
     const pos = Math.min(this._pos + (dx || 0), this._tokens.length-1);
@@ -575,7 +579,7 @@ class Parser {
     const functemps = [];
     const classtemps = [];
     while (!this.at("EOF")) {
-      if (this.at("fn")) {
+      if (this.at("static") || this.at("fn")) {
         functemps.push(this.parseFunctionTemplate());
       } else if (this.at("class")) {
         classtemps.push(this.parseClassTemplate());
@@ -617,12 +621,19 @@ class Parser {
     };
   }
   parseFunctionTemplate() {
-    const token = this.expect("fn");
+    const token = this.peek();
+    const isStatic = !!this.consume("static");
+    if (!isStatic) {
+      this.expect("fn");
+    }
     const isNative = !!this.consume("native");
-    const name = this.expect("NAME").val;
+    const name = isStatic ?
+        "staticBlock__" + this.getNextStaticBlockId() :
+        this.expect("NAME").val;
     this._funcname = name;
-    const args = this.parseArgumentsTemplate();
-    const ret = this.parseTypeTemplate();
+    const args = isStatic ? [] : this.parseArgumentsTemplate();
+    const ret = isStatic ?
+        new TypenameTemplate(token, "Void") : this.parseTypeTemplate();
     let body = null;
     if (isNative) {
       body = this.expect("STRING").val;
@@ -633,6 +644,7 @@ class Parser {
     return {
       "type": "FunctionTemplate",
       "token": token,
+      "isStatic": isStatic,
       "isNative": isNative,
       "name": name,
       "args": args,
@@ -1146,6 +1158,7 @@ function annotate(modules) {
       return {
         "type": "Function",
         "token": token,
+        "isStatic": functemp.isStatic,
         "isNative": functemp.isNative,
         "name": functemp.name,
         "args": args,
@@ -1181,6 +1194,7 @@ function annotate(modules) {
     return {
       "type": "Function",
       "token": token,
+      "isStatic": functemp.isStatic,
       "isNative": functemp.isNative,
       "name": functemp.name,
       "args": args,
@@ -1608,7 +1622,7 @@ function annotate(modules) {
       classInstantiationTable[key] = true;
       classInstantiationQueue.push(cls);
 
-      // With template types, we also want to check all children
+      // With template types, we also want to check all child
       // types have been instantiated.
       if (cls instanceof TemplateType) {
         for (const child of cls.args) {
@@ -1618,16 +1632,21 @@ function annotate(modules) {
     }
   }
 
-  // Instantiate all the functions, starting from main.
+  // Instantiate all static functions and main.
+  for (const functemp of functemps) {
+    if (functemp.isStatic) {
+      instantiationQueue.push([functemp.name, [], null]);
+    }
+  }
   instantiationQueue.push(["main", [], null]);
   while (true) {
     if (instantiationQueue.length > 0) {
-      const [name, argtypes, stack] = instantiationQueue.pop();
+      const [name, argtypes, stack] = instantiationQueue.shift();
       funcs.push(instantiateFunction(name, argtypes, stack));
       continue;
     }
     if (classInstantiationQueue.length > 0) {
-      const cls = classInstantiationQueue.pop();
+      const cls = classInstantiationQueue.shift();
       clss.push(instantiateClass(cls));
       continue;
     }

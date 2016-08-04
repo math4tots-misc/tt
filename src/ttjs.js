@@ -140,7 +140,15 @@ class Compiler {
     }
     result += "\n// --- tag list, for generating helpful stack traces ---";
     result += "\nconst tagList = " + JSON.stringify(this._tagList) + ";";
-    result += "\n// --- finally, call main ---";
+    result += "\n// --- call all the static stuff ---";
+    for (const func of funcs) {
+      if (func.isStatic) {
+        result +=
+            "\n" + this.getFunctionNameFromNameAndArgtypes(func.name, []) +
+            "([]);";
+      }
+    }
+    result += "\n// --- finally call main ---";
     result += "\n" + this.getFunctionNameFromNameAndArgtypes("main", []) +
               "([]);";
     result += "\n})();";
