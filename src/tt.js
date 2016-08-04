@@ -335,7 +335,7 @@ class VariableTypeTemplate extends TypeTemplate {
 // Lexer
 
 const keywords = [
-  "fn", "class", "var", "static", "async", "native",
+  "fn", "class", "let", "static", "async", "native",
   "return",
   "is", "not",
   "for", "if", "else", "while", "break", "continue",
@@ -599,7 +599,7 @@ class Parser {
       attrs = [];
       this.expect(openBrace);
       while (!this.consume(closeBrace)) {
-        this.expect("var");
+        this.expect("let");
         const name = this.expect("NAME").val;
         const cls = this.parseTypeTemplate();
         this.expect(";");
@@ -686,7 +686,7 @@ class Parser {
     const token = this.peek();
     if (this.at(openBrace)) {
       return this.parseBlockTemplate();
-    } else if (this.consume("var")) {
+    } else if (this.consume("let")) {
       const name = this.expect("NAME").val;
       const cls = this.at("=") ? null : this.parseTypeTemplate();
       const val = this.consume("=") ? this.parseExpressionTemplate() : null;
@@ -1662,7 +1662,7 @@ function annotate(modules) {
   class native String;
   class native Int;
   class Baz2 [$T] {
-    var t $T;
+    let t $T;
   }
   `);
   const ast = annotate([result]);

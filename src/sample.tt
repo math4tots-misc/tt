@@ -1,6 +1,6 @@
 
 class Sample[$T] {
-  var t $T;
+  let t $T;
 }
 
 fn main() Void {
@@ -18,8 +18,8 @@ fn main() Void {
   print(1 == 1);
   print(!(1 == 1));
 
-  var total = 0;
-  for (var i = 0; i < 10000000; i += 1) {
+  let total = 0;
+  for (let i = 0; i < 10000000; i += 1) {
     total =  total + i;
   }
   print("total = " + str(total));
