@@ -1,0 +1,80 @@
+// Like prelude, but specific to javascript target
+
+fn native logicalNot(x Bool) Bool """
+  return !var_x;
+"""
+
+fn native isSameAs(x $T, y$T) Bool """
+  return var_x === var_y;
+"""
+
+fn native add(x Int, y Int) Int """
+  return var_x + var_y;
+"""
+
+fn native add(x Int, y Float) Float """
+  return var_x + var_y;
+"""
+
+fn native add(x Float, y Int) Float """
+  return var_x + var_y;
+"""
+
+fn native add(x Float, y Float) Float """
+  return var_x + var_y;
+"""
+
+fn native add(x String, y String) String """
+  return var_x + var_y;
+"""
+
+fn native len(x List[$T]) Int """
+  return var_x.length;
+"""
+
+fn native getItem(xs List[$T], i Int) $T """
+  return var_xs[var_i];
+"""
+
+fn native setItem(xs List[$T], i Int, t $T) $T """
+  return var_xs[var_i] = var_t;
+"""
+
+fn native lessThan(x Int, y Int) Bool """
+  return var_x < var_y;
+"""
+
+fn native repr(x Bool) String """
+  return "" + var_x;
+"""
+
+fn native repr(x Int) String """
+  return "" + var_x;
+"""
+
+fn native repr(x Float) String """
+  return "" + var_x;
+"""
+
+fn native repr(x String) String """
+  // TODO
+  return var_x;
+"""
+
+fn native getStackTraceMessage() String """
+  return getStackTraceMessage(stack);
+"""
+
+fn native typestr($T) String """eval context => {
+  const name = context.getTypeOfArgumentAtIndex(0).toString();
+  return "\\n  return '" + name + "';";
+}"""
+
+fn native print(x String) Void """
+  console.log(var_x);
+"""
+
+// malloc
+fn native malloc($T) $T """
+  return Object.create(null);
+"""

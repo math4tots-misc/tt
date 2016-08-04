@@ -623,7 +623,7 @@ class Parser {
     const ret = this.parseTypeTemplate();
     let body = null;
     if (isNative) {
-      this.expect(";");
+      body = this.expect("STRING").val;
     } else {
       body = this.parseStatementTemplate();
     }
@@ -1035,7 +1035,7 @@ function makeFunctionCallTemplate(token, name, args) {
   fn foo(bar $T) Baz {
     return makeBaz(bar);
   }
-  fn native makeBaz(x Int) Baz;
+  fn native makeBaz(x Int) Baz """ return Object.create(null); """
   `);
 }
 
@@ -1148,7 +1148,7 @@ function annotate(modules) {
         "name": functemp.name,
         "args": args,
         "ret": ret,
-        "body": null,
+        "body": functemp.body,
       };
     }
     pushScope();
@@ -1648,8 +1648,15 @@ function annotate(modules) {
   fn foo(bar $T) Baz {
     return makeBaz(bar);
   }
-  fn native makeBaz(x Int) Baz;
-  fn native print(t $T) Void;
+
+  fn native makeBaz(x Int) Baz """
+    return Object.create(null);
+  """
+
+  fn native print(t $T) Void """
+    console.log(var_t);
+  """
+
   class native Baz;
   class native Void;
   class native String;

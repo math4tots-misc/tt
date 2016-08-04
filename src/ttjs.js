@@ -7,142 +7,21 @@ const ttjs = Object.create(null);
 (function(exports) {
 "use strict";
 
-function compile(uriTextPairs, nativeFunctionHandler) {
-  return new Compiler(
-      uriTextPairs,
-      nativeFunctionHandler || defaultNativeFunctionHandler).compile();
+class CompilationContext {
+  constructor(compiler, func) {
+    this.compiler = compiler;
+    this.func = func;
+  }
+  getTypeOfArgumentAtIndex(i) {
+    return this.func.args[i][1];
+  }
+  getCurrentFunctionName() {
+    return this.compiler.getFunctionNameFromFunctionNode(this.func);
+  }
 }
 
-function defaultNativeFunctionHandler(func, compiler) {
-  // TODO: More robust way to handle this.
-  const argtypes = func.args.map(arg => arg[1]);
-  const name = compiler.getFunctionName(func.name, argtypes);
-
-  if (func.name === "add" && argtypes.length === 2 &&
-      ((argtypes[0].equals(new tt.Typename("Int")) &&
-        argtypes[1].equals(new tt.Typename("Int"))) ||
-       (argtypes[0].equals(new tt.Typename("Float")) &&
-         argtypes[1].equals(new tt.Typename("Float"))) ||
-       (argtypes[0].equals(new tt.Typename("Int")) &&
-         argtypes[1].equals(new tt.Typename("Float"))) ||
-       (argtypes[0].equals(new tt.Typename("Float")) &&
-         argtypes[1].equals(new tt.Typename("Int"))) ||
-       (argtypes[0].equals(new tt.Typename("String")) &&
-        argtypes[1].equals(new tt.Typename("String"))))) {
-    return "\nfunction " + name + "(stack, a, b)" +
-           "\n{" +
-           "\n  return a + b;" +
-           "\n}";
-  }
-
-  if (func.name === "repr" && argtypes.length === 1 &&
-      (argtypes[0].equals(new tt.Typename("Int")) ||
-       argtypes[0].equals(new tt.Typename("Float")) ||
-       argtypes[0].equals(new tt.Typename("Bool")))) {
-    return "\nfunction " + name + "(stack, x)" +
-           "\n{" +
-           "\n  return '' + x;" +
-           "\n}";
-  }
-
-  if (func.name === "print" && argtypes.length === 1 &&
-      argtypes[0].equals(new tt.Typename("String"))) {
-    return "\nfunction " + name + "(stack, x)" +
-           "\n{" +
-           "\n  console.log(x);" +
-           "\n}";
-  }
-
-  if (func.name === "malloc" && argtypes.length === 1) {
-    const clsnode = compiler.getClassNode(argtypes[0]);
-    const attrs = clsnode.isNative ? "" : clsnode.attrs.map(attr => {
-      const [name, type] = attr;
-      return "\n  data.aa_" + name + " = " + getDefaultValue(type);
-    }).join("");
-    return "\nfunction " + name + "(stack, x)" +
-           "\n{" +
-           "\n  const data = Object.create(null);" +
-           attrs +
-           "\n  return data;" +
-           "\n}";
-  }
-
-  if (func.name === "getStackTraceMessage" && argtypes.length === 0) {
-    return "\nfunction " + name + "(stack)" +
-           "\n{" +
-           "\n  return getStackTraceMessage(stack);" +
-           "\n}";
-  }
-
-  if (func.name === "typestr" && argtypes.length === 1) {
-    return "\nfunction " + name + "(stack, x)" +
-           "\n{" +
-           "\n  return '" + argtypes[0].toString() + "';" +
-           "\n}";
-  }
-
-  if (func.name === "lessThan" && argtypes.length === 2 &&
-      ((argtypes[0].equals(new tt.Typename("Int")) &&
-        argtypes[1].equals(new tt.Typename("Int"))) ||
-       (argtypes[0].equals(new tt.Typename("Int")) &&
-        argtypes[1].equals(new tt.Typename("Float"))) ||
-       (argtypes[0].equals(new tt.Typename("Float")) &&
-        argtypes[1].equals(new tt.Typename("Int"))) ||
-       (argtypes[0].equals(new tt.Typename("Float")) &&
-        argtypes[1].equals(new tt.Typename("Float"))) ||
-       (argtypes[0].equals(new tt.Typename("Float")) &&
-        argtypes[1].equals(new tt.Typename("Float")))
-       (argtypes[0].equals(new tt.Typename("String")) &&
-        argtypes[1].equals(new tt.Typename("String"))))) {
-    return "\nfunction " + name + "(stack, a, b)" +
-           "\n{" +
-           "\n  return a < b;" +
-           "\n}";
-  }
-
-  if (func.name === "len" && argtypes.length === 1 &&
-      (argtypes[0] instanceof tt.TemplateType) &&
-      argtypes[0].name === "List") {
-    return "\nfunction " + name + "(stack, xs)" +
-           "\n{" +
-           "\n  return xs.length;" +
-           "\n}";
-  }
-
-  if (func.name === "getItem" && argtypes.length === 2 &&
-      (argtypes[0] instanceof tt.TemplateType) &&
-      argtypes[0].name === "List" &&
-      argtypes[1].equals(new tt.Typename("Int"))) {
-    return "\nfunction " + name + "(stack, xs, i)" +
-           "\n{" +
-           "\n  if (i < 0 || i >= xs.length) {" +
-           "\n    throw new Error('Index out of bounds: i = ' + i + " +
-                                 "'xs.length = ' + xs.length);" +
-           "\n  }" +
-           "\n  return xs[i];" +
-           "\n}";
-  }
-
-  if (func.name === "logicalNot" && argtypes.length === 1 &&
-      argtypes[0].equals(new tt.Typename("Bool"))) {
-    return "\nfunction " + name + "(stack, x)" +
-           "\n{" +
-           "\n  return !x;" +
-           "\n}";
-  }
-
-  if (func.name === "isSameAs" && argtypes.length === 2 &&
-      argtypes[0].equals(argtypes[1])) {
-    return "\nfunction " + name + "(stack, a, b)" +
-           "\n{" +
-           "\n  return a === b;" +
-           "\n}";
-  }
-
-  throw new tt.CompileError(
-      "Unimplemented native function: " +
-      tt.serializeFunctionInstantiation(
-          func.name, argtypes) + func.ret.toString(), []);
+function compile(uriTextPairs) {
+  return new Compiler(uriTextPairs).compile();
 }
 
 function getDefaultValue(type) {
@@ -185,26 +64,60 @@ function getStackTraceMessage(stack) {
 }
 //// End native prelude`;
 
+function doEval(str) {
+  // jshint evil: true
+  return eval(str);
+}
+
 class Compiler {
-  constructor(uriTextPairs, nativeFunctionHandler) {
+  constructor(uriTextPairs) {
     this._uriTextPairs = uriTextPairs;
     this._nextId = 1;
     this._fnameCache = Object.create(null);
-    this._nativeFunctionHandler = nativeFunctionHandler;
     this._tagCache = Object.create(null);
     this._tagList = [];
     this._program = tt.parseAndAnnotate(this._uriTextPairs);
     this._funcs = this._program.funcs;
     this._clss = this._program.clss;
     this._currentFunctionContext = null;
+
+    for (const func of this._funcs) {
+      this.initializeFunctionNameFromNode(func);
+    }
   }
   getNewId() {
     return this._nextId++;
   }
-  getFunctionName(name, argtypes) {
+  initializeFunctionNameFromNode(node) {
+    const name = node.name;
+    const argtypes = node.args.map(arg => arg[1]);
+    const key = tt.serializeFunctionInstantiation(name, argtypes);
+    this._fnameCache[key] = name + "__$" + this.getNewId();
+  }
+  getFunctionNameFromNameAndArgtypes(name, argtypes, tokens) {
     const key = tt.serializeFunctionInstantiation(name, argtypes);
     if (!this._fnameCache[key]) {
-      this._fnameCache[key] = name + "__$" + this.getNewId();
+      throw new tt.CompileError("No such function: " + key, tokens || []);
+    }
+    return this._fnameCache[key];
+  }
+  getFunctionNameFromFunctionNode(node) {
+    const name = node.name;
+    const argtypes = node.args.map(arg => arg[1]);
+    const key = tt.serializeFunctionInstantiation(name, argtypes);
+    if (!this._fnameCache[key]) {
+      throw new tt.CompileError(
+          "Function never instantiated: " + key, []);
+    }
+    return this._fnameCache[key];
+  }
+  getFunctionNameFromFunctionCallNode(node) {
+    const name = node.name;
+    const argtypes = node.args.map(arg => arg.exprType);
+    const key = tt.serializeFunctionInstantiation(name, argtypes);
+    if (!this._fnameCache[key]) {
+      throw new tt.CompileError(
+          "Function never instantiated: " + key, [node.token]);
     }
     return this._fnameCache[key];
   }
@@ -228,7 +141,8 @@ class Compiler {
     result += "\n// --- tag list, for generating helpful stack traces ---";
     result += "\nconst tagList = " + JSON.stringify(this._tagList) + ";";
     result += "\n// --- finally, call main ---";
-    result += "\n" + this.getFunctionName("main", []) + "([]);";
+    result += "\n" + this.getFunctionNameFromNameAndArgtypes("main", []) +
+              "([]);";
     result += "\n})();";
     return result.trim();
   }
@@ -236,22 +150,27 @@ class Compiler {
     const token = func.token;
     const argnames = func.args.map(arg => arg[0]);
     const argtypes = func.args.map(arg => arg[1]);
-    const name = this.getFunctionName(func.name, argtypes);
+    const name = this.getFunctionNameFromFunctionNode(func);
+    const args = "(stack" +
+                 func.args.map(arg =>
+                   ", var_" + arg[0] + "/*" + arg[1].toString() + "*/")
+                      .join("") + ") /*" + func.ret.toString() + "*/";
     if (func.isNative) {
+      let body = func.body;
+      if (body.startsWith("eval")) {
+        const f = doEval(body.slice("eval".length));
+        body = f(new CompilationContext(this, func));
+      }
       return "\n\n// native function: " +
              tt.serializeFunctionInstantiation(func.name, argtypes) +
              func.ret.toString() +
-             this._nativeFunctionHandler(func, this);
+             "\nfunction " + name + args + "\n{" + body + "\n}";
     }
     this._currentFunctionContext =
         tt.serializeFunctionInstantiation(func.name, argtypes);
     const compiledBody = this.compileStatement(func.body);
     this._currentFunctionContext = null;
-    return "\n\nfunction " + name + "(stack" +
-           func.args.map(arg =>
-             ", var_" + arg[0] + "/*" + arg[1].toString() + "*/")
-                .join("") +
-           ") /*" + func.ret.toString() + "*/" + compiledBody;
+    return "\n\nfunction " + name + args + compiledBody;
   }
   compileStatement(node) {
     switch(node.type) {
@@ -296,8 +215,7 @@ class Compiler {
     case "FunctionCall":
       const fname = node.name;
       const args = node.args;
-      const argtypes = args.map(arg => arg.exprType);
-      return this.getFunctionName(fname, argtypes) + "(stack" +
+      return this.getFunctionNameFromFunctionCallNode(node) + "(stack" +
              args.map(arg => "," + this.compileExpression(arg)).join("") +
              ")";
     case "Int":
