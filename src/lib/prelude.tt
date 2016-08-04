@@ -87,3 +87,15 @@ fn malloc(List[$T]) List[$T] {
 //     return malloc($T);
 //   }
 // }
+
+
+/*
+
+fn malloc($T) $T {
+  #for #var.attr in #attrsof($T) {
+    x.#var.attr = #defval(x.#var.attr);
+  }
+  return x;
+}
+
+*/
