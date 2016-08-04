@@ -7,8 +7,9 @@
   "undef": true,
   "predef": [
     "require",
-    "module"
+    "module",
+    "process",
+    "console"
   ],
-  "quotmark": "double",
   "esversion": 6
 }

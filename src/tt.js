@@ -426,7 +426,7 @@ class Lexer {
     }
     const start = this._pos;
     // STRING
-    if (this._startsWith("r\"") || this._startsWith("\"") ||
+    if (this._startsWith('r"') || this._startsWith('"') ||
         this._startsWith("r'") || this._startsWith("'")) {
       let raw = false;
       if (this._ch() === "r") {
@@ -447,7 +447,7 @@ class Lexer {
           case "n": str += "\n"; break;
           case "\\": str += "\\"; break;
           case "'": str += "'"; break;
-          case "\"": str += "\""; break;
+          case '"': str += '"'; break;
           default:
             throw new CompileError(
                 "Unrecognized string escape",
