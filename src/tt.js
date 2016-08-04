@@ -86,7 +86,7 @@ class Token {
   getColumnNumber() {
     let cn = 1;
     const text = this.source.text;
-    for (let i = this.pos; i > 0 && text[i-1] != "\n"; i--) {
+    for (let i = this.pos; i > 0 && text[i-1] !== "\n"; i--) {
       cn++;
     }
     return cn;
@@ -94,10 +94,10 @@ class Token {
   getLine() {
     let start = this.pos, end = this.pos;
     const text = this.source.text;
-    while (start > 0 && text[start-1] != "\n") {
+    while (start > 0 && text[start-1] !== "\n") {
       start--;
     }
-    while (end < text.length && text[end] != "\n") {
+    while (end < text.length && text[end] !== "\n") {
       end++;
     }
     return text.slice(start, end);
@@ -426,7 +426,7 @@ class Lexer {
     }
     const start = this._pos;
     // STRING
-    if (this._startsWith('r"') || this._startsWith('"') ||
+    if (this._startsWith("r\"") || this._startsWith("\"") ||
         this._startsWith("r'") || this._startsWith("'")) {
       let raw = false;
       if (this._ch() === "r") {
@@ -447,7 +447,7 @@ class Lexer {
           case "n": str += "\n"; break;
           case "\\": str += "\\"; break;
           case "'": str += "'"; break;
-          case '"': str += '"'; break;
+          case "\"": str += "\""; break;
           default:
             throw new CompileError(
                 "Unrecognized string escape",
@@ -910,7 +910,7 @@ class Parser {
           expr = {
             "type": "GetAttributeTemplate",
             "token": token,
-            "owner": owner,
+            "owner": expr,
             "name": name,
           };
         }

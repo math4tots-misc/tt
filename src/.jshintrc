@@ -1,0 +1,14 @@
+{
+  "strict": true,
+  "curly": true,
+  "eqeqeq": true,
+  "maxlen": 80,
+  "varstmt": true,
+  "undef": true,
+  "predef": [
+    "require",
+    "module"
+  ],
+  "quotmark": "double",
+  "esversion": 6
+}
