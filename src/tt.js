@@ -9,6 +9,10 @@ Error.stackTraceLimit = Infinity;
 // can be evaluated at compile time for use in compile time debugging
 // and operations. And also implement those for compile time evaluation.
 
+// TODO: Right now, final variables are not enforced in the annotation
+// phase. Modify the code such that you get a compile time error if you
+// try to assign to a final variable.
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {

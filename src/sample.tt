@@ -12,7 +12,7 @@ static native """
   console.log("I'm inside a native static block!");
 """
 
-final someGlobal = 5;
+let someGlobal = 5;
 
 fn main() Void {
   print("someGlobal = " + str(someGlobal));
