@@ -3,6 +3,7 @@
 const tt = Object.create(null);
 (function(exports) {
 "use strict";
+Error.stackTraceLimit = Infinity;
 
 // TODO: mark some functions as constexpr -- that is functions that
 // can be evaluated at compile time for use in compile time debugging
@@ -343,7 +344,7 @@ const keywords = [
   "var", "const", "goto", "function", "def", "async", "await",
 ];
 const symbols = [
-  "(", ")", "[", "]", "{", "}", ",",
+  "(", ")", "[", "]", "{", "}", ",", ".",
   ";", "#", "$", "=",
   "+", "-", "*", "/", "%", "++", "--",
   "==", "!=", "<", ">", "<=", ">=", "!",
@@ -416,6 +417,7 @@ class Lexer {
               "Unterminated multiline comment",
               [new Token(this._source, start, "ERROR")]);
         }
+        this._pos += 2;
       } else {
         this._pos++;
       }
@@ -1447,6 +1449,35 @@ function annotate(modules) {
     case "Float":
     case "String":
       return node;
+    case "GetAttributeTemplate": {
+      const owner = resolveExpression(node.owner, bindings, stack);
+      return {
+        "type": "GetAttribute",
+        "token": node.token,
+        "owner": owner,
+        "name": node.name,
+        "exprType": getAttributeType(owner.exprType, node.name, stack),
+      };
+    }
+    case "SetAttributeTemplate": {
+      const owner = resolveExpression(node.owner, bindings, stack);
+      const val = resolveExpression(node.val, bindings, stack);
+      const exprType = getAttributeType(owner.exprType, node.name, stack);
+      if (!exprType.equals(val.exprType)) {
+        throw new InstantiationError(
+            owner.exprType + "." + node.name + " is type " + exprType +
+            " but expression is of type " + val.exprType,
+            [frame].flatten(stack));
+      }
+      return {
+        "type": "SetAttribute",
+        "token": node.token,
+        "owner": owner,
+        "name": node.name,
+        "val": val,
+        "exprType": exprType,
+      };
+    }
     case "TypeExpressionTemplate":
       const cls = node.cls.resolve(bindings);
       queueClassInstantiation(cls);
@@ -1483,7 +1514,8 @@ function annotate(modules) {
       };
     case "AssignTemplate":
       const val = resolveExpression(node.val, bindings, stack);
-      const exprType = getVariableType(node.name, stack);
+      const exprType = getVariableType(
+          node.name, [frame].concat(flatten(stack)));
       if (!val.exprType.equals(exprType)) {
         throw new InstantiationError(
             "Variable is type " + exprType.toString() + " but " +
@@ -1538,6 +1570,16 @@ function annotate(modules) {
     const args = functemp.args;
     const bindings = bindArgumentTypes(args.map(arg => arg[1]), argtypes);
     return resolveTypeTemplate(functemp.ret, bindings);
+  }
+
+  function getAttributeType(type, name, stack) {
+    for (const [n, t] of instantiateClass(type).attrs) {
+      if (name === n) {
+        return t;
+      }
+    }
+    throw new InstantiationError(
+        "No such attribute: " + type + "." + name, flatten(stack));
   }
 
   function resolveTypeTemplate(typeTemplate, bindings) {

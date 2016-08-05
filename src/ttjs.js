@@ -18,6 +18,12 @@ class CompilationContext {
   getCurrentFunctionName() {
     return this.compiler.getFunctionNameFromFunctionNode(this.func);
   }
+  getClassFromType(type) {
+    return this.compiler.getClassFromType(type);
+  }
+  getDefaultValue(type) {
+    return getDefaultValue(type);
+  }
 }
 
 function compile(uriTextPairs) {
@@ -81,6 +87,7 @@ class Compiler {
     this._clss = this._program.clss;
     this._decls = this._program.decls;
     this._currentFunctionContext = null;
+    this._typeToClassCache = Object.create(null);
 
     for (const func of this._funcs) {
       this.initializeFunctionNameFromNode(func);
@@ -94,6 +101,21 @@ class Compiler {
     const argtypes = node.args.map(arg => arg[1]);
     const key = tt.serializeFunctionInstantiation(name, argtypes);
     this._fnameCache[key] = name + "__$" + this.getNewId();
+  }
+  getClassFromType(type) {
+    const key = type.toString();
+    if (!this._typeToClassCache[key]) {
+      for (const cls of this._clss) {
+        if (cls.pattern.equals(type)) {
+          this._typeToClassCache[key] = cls;
+          break;
+        }
+      }
+      if (!this._typeToClassCache[key]) {
+        throw new Error(key);
+      }
+    }
+    return this._typeToClassCache[key];
   }
   getFunctionNameFromNameAndArgtypes(name, argtypes, tokens) {
     const key = tt.serializeFunctionInstantiation(name, argtypes);
@@ -249,6 +271,11 @@ class Compiler {
     case "AugmentAssign":
       return "(var_" + node.name + " " + node.op + " " +
              this.compileExpression(node.val) + ")";
+    case "GetAttribute":
+      return this.compileExpression(node.owner) + ".aa" + node.name;
+    case "SetAttribute":
+      return this.compileExpression(node.owner) + ".aa" + node.name +
+             " = " + this.compileExpression(node.val);
     default:
       throw new tt.CompileError(
           "Unrecognized expression: " + node.type, [node.token]);

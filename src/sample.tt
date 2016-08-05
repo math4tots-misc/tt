@@ -38,6 +38,18 @@ fn main() Void {
   }
   print("total = " + str(total));
 
+  {
+    let sampleInt = malloc(Sample[Int]);
+    print("sampleInt.t = " + str(sampleInt.t));
+    sampleInt.t = 15;
+    print("sampleInt.t = " + str(sampleInt.t));
+
+    let sampleStr = malloc(Sample[String]);
+    print("sampleStr.t = " + str(sampleStr.t));
+    sampleStr.t = "hoi";
+    print("sampleStr.t = " + str(sampleStr.t));
+  }
+
   return;
 }
 
