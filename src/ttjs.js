@@ -221,9 +221,10 @@ class Compiler {
       }
       return "\nreturn " + this.compileTopLevelExpression(node.expr) + ";";
     case "Declaration":
+      const keyword = node.isFinal ? "const" : "let";
       const val = node.val === null ?
           "" : " = " + this.compileExpression(node.val);
-      return "\nlet var_" + node.name + val + ";";
+      return "\n" + keyword + " var_" + node.name + val + ";";
     case "For":
       return "\nfor (" + this.compileStatement(node.init).trim() +
              this.compileExpression(node.cond) + ";" +

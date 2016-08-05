@@ -336,12 +336,12 @@ class VariableTypeTemplate extends TypeTemplate {
 // Lexer
 
 const keywords = [
-  "fn", "class", "let", "static", "async", "native",
+  "fn", "class", "let", "final", "static", "native",
   "return",
   "is", "not",
   "for", "if", "else", "while", "break", "continue",
 
-  "var", "const", "goto", "function", "def", "async", "await",
+  "var", "const", "goto", "function", "def", "async", "await", "const",
 ];
 const symbols = [
   "(", ")", "[", "]", "{", "}", ",", ".",
@@ -586,7 +586,7 @@ class Parser {
         functemps.push(this.parseFunctionTemplate());
       } else if (this.at("class")) {
         classtemps.push(this.parseClassTemplate());
-      } else if (this.at("let")) {
+      } else if (this.at("let") || this.at("final")) {
         decltemps.push(this.parseStatementTemplate());
       } else {
         throw new CompileError(
@@ -708,7 +708,11 @@ class Parser {
     const token = this.peek();
     if (this.at(openBrace)) {
       return this.parseBlockTemplate();
-    } else if (this.consume("let")) {
+    } else if (this.at("let") || this.at("final")) {
+      const isFinal = !!this.consume("final");
+      if (!isFinal) {
+        this.expect("let");
+      }
       const name = this.expect("NAME").val;
       const cls = this.at("=") ? null : this.parseTypeTemplate();
       const val = this.consume("=") ? this.parseExpressionTemplate() : null;
@@ -716,6 +720,7 @@ class Parser {
       return {
         "type": "DeclarationTemplate",
         "token": token,
+        "isFinal": isFinal,
         "name": name,
         "cls": cls,
         "val": val,
@@ -1287,6 +1292,7 @@ function annotate(modules) {
       return {
         "type": "Declaration",
         "token": node.token,
+        "isFinal": node.isFinal,
         "name": node.name,
         "cls": cls,
         "val": val,
