@@ -215,7 +215,7 @@ class Compiler {
       return "\n{" + stmts.join("").replace(/\n/g, "\n  ") + "\n}";
     case "ExpressionStatement":
       return "\n" + this.compileTopLevelExpression(node.expr) + ";";
-    case "ReturnStatement":
+    case "Return":
       if (node.expr === null) {
         return "\nreturn;";
       }

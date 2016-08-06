@@ -733,7 +733,7 @@ class Parser {
       const expr = this.at(";") ? null : this.parseExpressionTemplate();
       this.expect(";");
       return {
-        "type": "ReturnStatementTemplate",
+        "type": "ReturnTemplate",
         "token": token,
         "expr": expr,
       };
@@ -1311,12 +1311,12 @@ function annotate(modules) {
         "returns": null,
         "maybeReturns": null,
       };
-    case "ReturnStatementTemplate":
+    case "ReturnTemplate":
       const expr = node.expr === null ?
           null : resolveExpression(node.expr, bindings, stack);
       const rettype = expr === null ? new Typename("Void") : expr.exprType;
       return {
-        "type": "ReturnStatement",
+        "type": "Return",
         "token": node.token,
         "expr": expr,
         "returns": rettype,
