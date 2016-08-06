@@ -1,0 +1,52 @@
+// tuple.tt
+
+// TODO: Create a more elegant implementation using varargs
+// I'm afraid that this todo might not be possible without some serious
+// redesign of the language (e.g. memory model, being by value like C++
+// instead of by reference/pointer for non-primitive types like Java).
+
+class Tuple[] {}
+fn tuple() Tuple[] { return malloc(Tuple[]); }
+fn repr(t Tuple[]) String { return "tuple()"; }
+fn equals(a Tuple[], b Tuple[]) Bool { return true; }
+
+class Tuple[$X0] {
+  let x0 $X0;
+}
+fn tuple(x $X0) Tuple[$X0] {
+  let t = malloc(Tuple[$X0]);
+  t.x = x;
+  return t;
+}
+fn repr(t Tuple[$X0]) String {
+  return "tuple(" + repr(t.x0) + ")";
+}
+
+class Tuple[$X0, $X1] {
+  let x0 $X0;
+  let x1 $X1;
+}
+class Tuple[$X0, $X1, $X2] {
+  let x0 $X0;
+  let x1 $X1;
+  let x2 $X2;
+}
+class Tuple[$X0, $X1, $X2, $X3] {
+  let x0 $X0;
+  let x1 $X1;
+  let x2 $X2;
+  let x3 $X3;
+}
+class Tuple[$X0, $X1, $X2, $X3, $X4] {
+  let x0 $X0;
+  let x1 $X1;
+  let x2 $X2;
+  let x3 $X3;
+  let x4 $X4;
+}
+class Tuple[$X0] {
+  let x0 $X0;
+}
+class Tuple[$X0] {
+  let x0 $X0;
+}
