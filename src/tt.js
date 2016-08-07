@@ -165,8 +165,8 @@ class Typename extends Type {
 class TemplateType extends Type {
   constructor(name, args) {
     super();
-    this.name = name;
-    this.args = args;
+    this.name = name;  // TYPENAME
+    this.args = args;  // [Type]
   }
   equals(other) {
     if (!(other instanceof TemplateType)) {
@@ -238,13 +238,7 @@ class TypeTemplate {
     // TemplateTypeTemplates.
     const args = this.args;
     const oargs = other.args;
-    const len = args.length;
-    if (len !== oargs.length) {
-      // We don't *really* care if the lengths aren't the same.
-      // Just to be consistent about the ordering, let's say that
-      // longer means more specialized.
-      return len < oargs.length ? -1 : 1;
-    }
+    const len = Math.min(args.length, oargs.length);
     boundVars = Object.create(boundVars);
     otherBoundVars = Object.create(otherBoundVars);
     for (let i = 0; i < len; i++) {
@@ -253,12 +247,31 @@ class TypeTemplate {
       if (result !== 0) {
         return result;
       }
-      for (const freeVar of args[i].getFreeVars(boundVars)) {
+      for (const freeVar in args[i].getFreeVars(boundVars)) {
         boundVars[freeVar] = true;
       }
-      for (const freeVar of oargs[i].getFreeVars(otherBoundVars)) {
+      for (const freeVar in oargs[i].getFreeVars(otherBoundVars)) {
         otherBoundVars[freeVar] = true;
       }
+    }
+    // If one has vararg and the other doesn't, the one that doesn't have
+    // a vararg is more specialized.
+    if (this.vararg === null && other.vararg !== null) {
+      return 1;
+    }
+    if (this.vararg !== null && other.vararg === null) {
+      return -1;
+    }
+    // They either both have varargs, or they both don't.
+    // If they both don't have varargs, it's not really comparable, so
+    // ordering doesn't matter as long as we are consistent.
+    // On the other hand, if they both have varargs, the type template
+    // with more explicit explicit arguemnts is more specialized.
+    if (args.length !== oargs.length) {
+      // We don't *really* care if the lengths aren't the same.
+      // Just to be consistent about the ordering, let's say that
+      // longer means more specialized.
+      return args.length < oargs.length ? -1 : 1;
     }
     return 0;
   }
@@ -285,22 +298,49 @@ class TypenameTemplate extends TypeTemplate {
 }
 
 class TemplateTypeTemplate extends TypeTemplate {
-  constructor(token, name, args) {
+  constructor(token, name, args, vararg) {
     super(token);
-    this.name = name;
-    this.args = args;
+    this.name = name;  // TYPENAME
+    this.args = args;  // [TypeTemplate]
+    this.vararg = vararg || null;  // null|TYPENAME
   }
   bindType(type, bindings) {
     bindings = bindings || Object.create(null);
     if (!(type instanceof TemplateType) || this.name !== type.name) {
       return null;
     }
-    if (this.args.length !== type.args.length) {
+    if (this.vararg === null && this.args.length !== type.args.length ||
+        this.args.length > type.args.length) {
       return null;
     }
     for (let i = 0; i < this.args.length; i++) {
       if (this.args[i].bindType(type.args[i], bindings) === null) {
         return null;
+      }
+    }
+    if (this.vararg !== null) {
+      const rest = [];
+      for (let i = this.args.length; i < type.args.length; i++) {
+        rest.push(type.args[i]);
+      }
+      const key = "..." + this.vararg;
+      if (bindings[key]) {
+        const oldRest = bindings[key];
+
+        // If this 'vararg' name already exists, make sure that they match
+        // this comparison is simpler since these should be a list of
+        // concrete types
+        if (oldRest.length !== rest.length) {
+          return null;
+        }
+        const len = rest.length;
+        for (let i = 0; i < len; i++) {
+          if (!rest[i].equals(oldRest[i])) {
+            return null;
+          }
+        }
+      } else {
+        bindings["..." + this.vararg] = rest;
       }
     }
     return bindings;
@@ -366,7 +406,7 @@ const keywords = [
   "var", "const", "goto", "function", "def", "async", "await", "const",
 ];
 const symbols = [
-  "(", ")", "[", "]", "{", "}", ",", ".",
+  "(", ")", "[", "]", "{", "}", ",", ".", "...",
   ";", "#", "$", "=",
   "+", "-", "*", "/", "%", "++", "--",
   "==", "!=", "<", ">", "<=", ">=", "!",
@@ -685,6 +725,7 @@ class Parser {
   parseArgumentsTemplate() {
     this.expect(openParen);
     const args = [];
+    args.vararg = null;
     while (!this.consume(closeParen)) {
       const name = this.at("NAME") ? this.expect("NAME").val : null;
       const cls = this.parseTypeTemplate();
@@ -703,13 +744,19 @@ class Parser {
     const name = this.expect("TYPENAME").val;
     if (this.consume(openBracket)) {
       const args = [];
+      let vararg = null;
       while (!this.consume(closeBracket)) {
+        if (this.consume("...")) {
+          vararg = this.expect("TYPENAME").val;
+          this.expect(closeBracket);
+          break;
+        }
         args.push(this.parseTypeTemplate());
         if (!this.at(closeBracket)) {
           this.expect(",");
         }
       }
-      return new TemplateTypeTemplate(token, name, args);
+      return new TemplateTypeTemplate(token, name, args, vararg);
     } else {
       return new TypenameTemplate(token, name);
     }

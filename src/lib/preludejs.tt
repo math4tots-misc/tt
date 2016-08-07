@@ -84,13 +84,11 @@ fn native print(x String) Void """
 
 // malloc
 fn native malloc($T) $T """eval context => {
-  let str = "\\n  const x = Object.create(null);";
   const type = context.getTypeOfArgumentAtIndex(0);
   const cls = context.getClassFromType(type);
+  const attrstrs = [];
   for (const [name, attrcls] of cls.attrs) {
-    str += "\\n  x.aa" + name + " = " +
-           context.getDefaultValue(attrcls) + ";";
+    attrstrs.push("aa" + name + ":" + context.getDefaultValue(attrcls));
   }
-  str += "\\n  return x;";
-  return str;
+  return "\\n return {" + attrstrs.join(",") + "};";
 }"""

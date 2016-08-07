@@ -50,6 +50,16 @@ fn main() Void {
     print("sampleStr.t = " + str(sampleStr.t));
   }
 
+  {
+    print(tuple(5));
+    let t = tuple(124);
+    print(t.x0);
+    t.x0 = 5124;
+    print(t.x0);
+
+    print(tuple(5, 5.5, "hi"));
+  }
+
   return;
 }
 
