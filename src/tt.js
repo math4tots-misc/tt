@@ -1161,6 +1161,18 @@ class Parser {
     } else if (this.consume("fn")) {
       const args = this.parseArgumentsTemplate();
       const body = this.parseBlockTemplate();
+      for (let i = 0; i < args.length; i++) {
+        if (!args[i][0]) {
+          throw new CompileError(
+              "You can't have a Lambda with type arguments (" + i + ")",
+              [token]);
+        }
+      }
+      if (args.vararg && !args.vararg[0]) {
+        throw new CompileError(
+            "You can't have a Lambda with type arguments (vararg)",
+            [token]);
+      }
       return {
         "type": "LambdaTemplate",
         "token": token,
@@ -1850,6 +1862,23 @@ function annotate(modules) {
         const argtype = resolveTypeTemplate(argtypetemp, bindings);
         args.push([argname, argtype]);
         declareVariable(argname, argtype, [frame].concat(flatten(stack)));
+      }
+      if (node.vararg) {
+        const [name, typename] = node.vararg;
+        if (!bindings["..." + typename]) {
+          throw new InstantiationError(
+              "Tried to use vararg type ..." + typename + " in Lambda " +
+              "argument list, but there is no such vararg type",
+              [frame].concat(flatten(stack)));
+        }
+        const types = bindings["..." + typename];
+        for (let i = 0; i < types.length; i++) {
+          const key = name + "__" + i;
+          args.push([key, types[i]]);
+          declareVariable(key, types[i],
+                          [frame].concat(flatten(stack)));
+        }
+        declareVariable("..." + name, types, [frame].concat(flatten(stack)));
       }
       const argtypes = args.map(arg => arg[1]);
       const body = resolveStatement(node.body, bindings, stack);

@@ -81,11 +81,15 @@ fn main() Void {
 
   //// Lambda
   {
-    let f = fn(a Int, b Int) {
+    final f = fn(a Int, b Int) {
       return "a + b = " + str(a + b);
     };
     assertEqual(repr(f), "<Lambda[String,Int,Int] instance>");
     assertEqual(call(f, 5, 7), "a + b = 12");
+
+    final g = makeLambda(Int, Float, String);
+    assertEqual(repr(g), "<Lambda[Int,Int,Float,String] instance>");
+    assertEqual(call(g, 0, 0.0, ""), 5);
   }
 
   print("Tests pass!");
@@ -137,4 +141,8 @@ static native """
       "new value set by native static block";
 """
 
-
+fn makeLambda(...Args) Lambda[Int, ...Args] {
+  return fn(...args Args) {
+    return 5;
+  };
+}
