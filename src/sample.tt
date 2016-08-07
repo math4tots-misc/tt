@@ -60,6 +60,7 @@ fn main() Void {
     print(tuple(5, 5.5, "hi"));
 
     print(tuple(1, 2) == tuple(1, 2));
+    print(tuple(1, 2) == tuple(2, 2));
   }
 
   return;
