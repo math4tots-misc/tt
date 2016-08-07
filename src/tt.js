@@ -732,7 +732,7 @@ class Parser {
     if (isNative) {
       body = this.expect("STRING").val;
     } else {
-      body = this.parseStatementTemplate();
+      body = this.parseBlockTemplate();
     }
     this._funcname = null;
     return {
