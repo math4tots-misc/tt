@@ -870,7 +870,7 @@ class Parser {
       const token = this.peek();
       if (this.consume("||")) {
         expr = {
-          "type": "SpecialBinaryOperationTemplate",
+          "type": "LogicalBinaryOperationTemplate",
           "token": token,
           "op": "||",
           "left": expr,
@@ -888,7 +888,7 @@ class Parser {
       const token = this.peek();
       if (this.consume("&&")) {
         expr = {
-          "type": "SpecialBinaryOperationTemplate",
+          "type": "LogicalBinaryOperationTemplate",
           "token": token,
           "op": "&&",
           "left": expr,
@@ -1651,7 +1651,7 @@ function annotate(modules) {
             "variables: " + exprType.toString(),
             [frame].concat(flatten(stack)));
       }
-      const val = resolveExpression(node.val, stack);
+      const val = resolveExpression(node.val, bindings, stack);
       if (!val.exprType.equals(exprType)) {
         throw new InstantiationError(
             "Expected " + exprType.toString() + " but got " +
@@ -1666,14 +1666,29 @@ function annotate(modules) {
         "exprType": exprType,
       };
     }
-    case "SpecialBinaryOperationTemplate":
+    case "LogicalBinaryOperationTemplate": {
+      const left = resolveExpression(node.left, bindings, stack);
+      const right = resolveExpression(node.right, bindings, stack);
+      const frames = [frame].concat(flatten(stack));
+      if (!left.exprType.equals(new Typename("Bool"))) {
+        throw new InstantiationError(
+            "Or (left) operand must be Bool but got " + left.exprType,
+            frames);
+      }
+      if (!right.exprType.equals(new Typename("Bool"))) {
+        throw new InstantiationError(
+            "Or (right) operand must be Bool but got " + right.exprType,
+            frames);
+      }
       return {
-        "type": "SpecialBinaryOperation",
+        "type": "LogicalBinaryOperation",
         "token": node.token,
         "op": node.op,
-        "left": resolveExpression(node.left, stack),
-        "right": resolveExpression(node.right, stack),
+        "left": left,
+        "right": right,
+        "exprType": new Typename("Bool"),
       };
+    }
     default:
       throw new InstantiationError(
           "Unrecognized expression template: " + node.type, [frame]);

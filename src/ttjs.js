@@ -277,6 +277,9 @@ class Compiler {
     case "SetAttribute":
       return this.compileExpression(node.owner) + ".aa" + node.name +
              " = " + this.compileExpression(node.val);
+    case "LogicalBinaryOperation":
+      return "(" + this.compileExpression(node.left) + node.op +
+             this.compileExpression(node.right) + ")";
     default:
       throw new tt.CompileError(
           "Unrecognized expression: " + node.type, [node.token]);

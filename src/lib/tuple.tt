@@ -1,10 +1,5 @@
 // tuple.tt
 
-// TODO: Create a more elegant implementation using varargs
-// I'm afraid that this todo might not be possible without some serious
-// redesign of the language (e.g. memory model, being by value like C++
-// instead of by reference/pointer for non-primitive types like Java).
-
 // TODO: Better meta-programming facilities could *really* make implementing
 // Tuple elegant. Implement those meta-programming facilities and apply
 // them here.
@@ -158,9 +153,17 @@ fn equals(a Tuple[$X0, $X1], b Tuple[$X0, $X1]) Bool {
   return a.x0 == b.x0 &&
          a.x1 == b.x1;
 }
-// fn equals(a Tuple[...Args], b Tuple[...Args]) Bool {
-//   #error "Not yet implemented";
-// }
+fn equals(a Tuple[$X0, $X1, $X2], b Tuple[$X0, $X1, $X2]) Bool {
+  return a.x0 == b.x0 &&
+         a.x1 == b.x1 &&
+         a.x2 == b.x2;
+}
+fn equals(a Tuple[$X0, $X1, $X2, $X3], b Tuple[$X0, $X1, $X2, $X3]) Bool {
+  return a.x0 == b.x0 &&
+         a.x1 == b.x1 &&
+         a.x2 == b.x2 &&
+         a.x3 == b.x3;
+}
 
 
 fn lessThan(a Tuple[], b Tuple[]) Bool {
@@ -168,6 +171,21 @@ fn lessThan(a Tuple[], b Tuple[]) Bool {
 }
 fn lessThan(a Tuple[$X0], b Tuple[$X0]) Bool {
   return a.x0 < b.x0;
+}
+fn lessThan(a Tuple[$X0, $X1], b Tuple[$X0, $X1]) Bool {
+  return a.x0 < b.x0 || a.x0 == b.x0 &&
+         a.x1 < b.x1;
+}
+fn lessThan(a Tuple[$X0, $X1, $X2], b Tuple[$X0, $X1, $X2]) Bool {
+  return a.x0 < b.x0 || a.x0 == b.x0 &&
+        (a.x1 < b.x1 || a.x1 == b.x1 &&
+         a.x2 < b.x2);
+}
+fn lessThan(a Tuple[$X0, $X1, $X2, $X3], b Tuple[$X0, $X1, $X2, $X3]) Bool {
+  return a.x0 < b.x0 || a.x0 == b.x0 &&
+        (a.x1 < b.x1 || a.x1 == b.x1 &&
+        (a.x2 < b.x2 || a.x2 == b.x2 &&
+         a.x3 < b.x3));
 }
 
 
