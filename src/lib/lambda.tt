@@ -1,0 +1,4 @@
+// lambda.tt
+
+class native Lambda[Tuple[...Args], $Return];
+

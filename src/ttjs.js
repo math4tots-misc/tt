@@ -182,15 +182,19 @@ class Compiler {
     result += "\n})();";
     return result.trim();
   }
+  compileArguments(args) {
+    return "(stack" +
+           args.map(arg => ", var_" + arg[0] + "/*" +
+                           arg[1].toString() + "*/").join("") +
+           ")";
+  }
   compileFunction(func) {
     const token = func.token;
     const argnames = func.args.map(arg => arg[0]);
     const argtypes = func.args.map(arg => arg[1]);
     const name = this.getFunctionNameFromFunctionNode(func);
-    const args = "(stack" +
-                 func.args.map(arg =>
-                   ", var_" + arg[0] + "/*" + arg[1].toString() + "*/")
-                      .join("") + ") /*" + func.ret.toString() + "*/";
+    const args = this.compileArguments(func.args) +
+                 " /*" + func.ret.toString() + "*/";
     if (func.isNative) {
       let body = func.body;
       if (body.startsWith("eval")) {
@@ -280,6 +284,9 @@ class Compiler {
     case "LogicalBinaryOperation":
       return "(" + this.compileExpression(node.left) + node.op +
              this.compileExpression(node.right) + ")";
+    case "Lambda":
+      return "(" + this.compileArguments(node.args) + " => " +
+              this.compileStatement(node.body) + ")";
     default:
       throw new tt.CompileError(
           "Unrecognized expression: " + node.type, [node.token]);

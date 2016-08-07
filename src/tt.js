@@ -1123,6 +1123,15 @@ class Parser {
         "token": token,
         "cls": cls,
       };
+    } else if (this.consume("fn")) {
+      const args = this.parseArgumentsTemplate();
+      const body = this.parseBlockTemplate();
+      return {
+        "type": "LambdaTemplate",
+        "token": token,
+        "args": args,
+        "body": body,
+      };
     } else if (this.consume("#")) {
       const op = this.expect("NAME").val;
       switch(op) {
@@ -1546,11 +1555,6 @@ function annotate(modules) {
                 functemp.token.getLocationMessage(),
                 [frame].concat(flatten(stack)));
           }
-        } else if (functemp.args[i][0] === null) {
-          throw new InstantiationError(
-              "Expected a type expression but got an expression: " +
-              functemp.token.getLocationMessage(),
-              [frame].concat(flatten(stack)));
         }
       }
       return {
@@ -1697,6 +1701,35 @@ function annotate(modules) {
         "left": left,
         "right": right,
         "exprType": new Typename("Bool"),
+      };
+    }
+    case "LambdaTemplate": {
+      const args = [];
+      pushScope();
+      for (const [argname, argtypetemp] of node.args) {
+        const argtype = resolveTypeTemplate(argtypetemp, bindings);
+        args.push([argname, argtype]);
+        declareVariable(argname, argtype, [frame].concat(flatten(stack)));
+      }
+      const argtypes = args.map(arg => arg[1]);
+      const body = resolveStatement(node.body, bindings, stack);
+      if (body.maybeReturns !== null && body.returns === null) {
+        throw new InstantiationError(
+            "Invalid return types: " + body.maybeReturns + " / " +
+            body.returns, [frame].concat(flatten(stack)));
+      }
+      popScope();
+      const exprType = new TemplateType("Lambda", [
+        new TemplateType("Tuple", argtypes),
+        body.returns,
+      ]);
+      queueClassInstantiation(exprType);
+      return {
+        "type": "Lambda",
+        "token": node.token,
+        "args": args,
+        "body": body,
+        "exprType": exprType,
       };
     }
     default:
