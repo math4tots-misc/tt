@@ -141,6 +141,14 @@ fn tuple(x0 $X0, x1 $X1, x2 $X2) Tuple[$X0, $X1, $X2] {
   t.x2 = x2;
   return t;
 }
+fn tuple(x0 $X0, x1 $X1, x2 $X2, x3 $X3) Tuple[$X0, $X1, $X2, $X3] {
+  final t = malloc(Tuple[$X0, $X1, $X2, $X3]);
+  t.x0 = x0;
+  t.x1 = x1;
+  t.x2 = x2;
+  t.x3 = x3;
+  return t;
+}
 
 
 fn equals(a Tuple[], b Tuple[]) Bool {
