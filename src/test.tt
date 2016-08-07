@@ -55,7 +55,33 @@ fn main() Void {
     assertEqual(sample.t, 15);
   }
 
+  //// Test vararg functions
+  {
+    assertEqual(sum(1, 2, 3), 6);
+    assertEqual(concatTypenames(Int, Float, String), "Int,Float,String");
+    assertEqual(makeList(5, 6, 7, 8), [5, 6, 7, 8]);
+  }
+
   print("Tests pass!");
 }
 
+fn concatTypenames($X) String {
+  return typestr($X);
+}
+
+fn concatTypenames($X, ...Rest) String {
+  return typestr($X) + "," + concatTypenames(...Rest);
+}
+
+fn sum(x Int) Int {
+  return x;
+}
+
+fn sum(x Int, ...args Args) Int {
+  return x + sum(...args);
+}
+
+fn makeList(x Int, ...args Args) List[Int] {
+  return [x, ...args];
+}
 

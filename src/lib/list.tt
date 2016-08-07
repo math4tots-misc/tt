@@ -1,0 +1,55 @@
+
+class native List[$T];
+
+fn native malloc(List[$T]) List[$T] """
+  return [];
+"""
+
+fn native len(x List[$T]) Int """
+  return var_x.length;
+"""
+
+fn native getItem(xs List[$T], i Int) $T """
+  if (var_i < 0 || var_i >= var_xs.length) {
+    throw new Error("getItem List out of bounds: i = " + var_i +
+                    " xs.length = " + var_xs.length);
+  }
+  return var_xs[var_i];
+"""
+
+fn native setItem(xs List[$T], i Int, t $T) $T """
+  if (var_i < 0 || var_i >= var_xs.length) {
+    throw new Error("setItem List out of bounds: i = " + var_i +
+                    " xs.length = " + var_xs.length);
+  }
+  return var_xs[var_i] = var_t;
+"""
+
+fn new(List[$T]) List[$T] {
+  return malloc(List[$T]);
+}
+
+fn repr(xs List[$T]) String {
+  let str = "[";
+  for (let i = 0; i < len(xs); i = i+1) {
+    if (i > 0) {
+      str = str + ", ";
+    }
+    str = str + repr(xs[i]);
+  }
+  str = str + "]";
+  return str;
+}
+
+fn equals(xs List[$T], ys List[$T]) Bool {
+  if (len(xs) != len(ys)) {
+    return false;
+  }
+  let size = len(xs);
+  for (let i = 0; i < size; i = i+1) {
+    if (xs[i] != ys[i]) {
+      return false;
+    }
+  }
+  return true;
+}

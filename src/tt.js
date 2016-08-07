@@ -34,6 +34,13 @@ Error.stackTraceLimit = Infinity;
 // TODO: Static assert statements to test compile time instantiation
 // logic.
 
+// TODO: Allow spread operator to appear at any position, not just the end.
+// If the spread operator appears in the middle, or there are multiple of
+// them, they could match e.g. the way regular expressions match.
+// One possible idea: if there is at least one possible substitution,
+// the match will succeed. To disambiguate, consider matching greedily
+// from left to right
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {
@@ -735,6 +742,7 @@ class Parser {
       "isNative": isNative,
       "name": name,
       "args": args,
+      "vararg": isStatic ? null : args.vararg,
       "ret": ret,
       "body": body,
     };
@@ -742,7 +750,15 @@ class Parser {
   parseArgumentsTemplate() {
     this.expect(openParen);
     const args = [];
+    args.vararg = null;
     while (!this.consume(closeParen)) {
+      if (this.consume("...")) {
+        const name = this.at("NAME") ? this.expect("NAME").val : null;
+        const cls = this.expect("TYPENAME").val;
+        args.vararg = [name, cls];
+        this.expect(closeParen);
+        break;
+      }
       const name = this.at("NAME") ? this.expect("NAME").val : null;
       const cls = this.parseTypeTemplate();
       args.push([name, cls]);
@@ -867,7 +883,17 @@ class Parser {
   parseExpressionListTemplate(open, close) {
     this.expect(open);
     const exprs = [];
+    exprs.varexpr = null;
     while (!this.consume(close)) {
+      if (this.consume("...")) {
+        if (this.at("NAME")) {
+          exprs.varexpr = ["NAME", this.expect("NAME").val];
+        } else {
+          exprs.varexpr = ["TYPENAME", this.expect("TYPENAME").val];
+        }
+        this.expect(close);
+        break;
+      }
       exprs.push(this.parseExpressionTemplate());
       if (!this.at(close)) {
         this.expect(",");
@@ -1099,7 +1125,7 @@ class Parser {
     } else if (this.consume("NAME")) {
       if (this.at(openParen)) {
         const args = this.parseExpressionListTemplate(openParen, closeParen);
-        return makeFunctionCallTemplate(token, token.val, args);
+        return makeFunctionCallTemplate(token, token.val, args, args.varexpr);
       } else if (this.consume("=")) {
         const val = this.parseExpressionTemplate();
         return {
@@ -1139,6 +1165,7 @@ class Parser {
         "type": "LambdaTemplate",
         "token": token,
         "args": args,
+        "vararg": args.vararg,
         "body": body,
       };
     } else if (this.consume("#")) {
@@ -1163,6 +1190,7 @@ class Parser {
         "type": "ListDisplayTemplate",
         "token": token,
         "exprs": exprs,
+        "varexpr": exprs.varexpr,
       };
     } else if (this.consume(openParen)) {
       const expr = this.parseExpressionTemplate();
@@ -1179,12 +1207,13 @@ function parseModule(uri, text) {
 
 // ast
 
-function makeFunctionCallTemplate(token, name, args) {
+function makeFunctionCallTemplate(token, name, exprs, varexpr) {
   return {
     "type": "FunctionCallTemplate",
     "token": token,
     "name": name,
-    "args": args,
+    "exprs": exprs,
+    "varexpr": varexpr || null,
   };
 }
 
@@ -1298,13 +1327,20 @@ function annotate(modules) {
     currentInstantiationContext =
         serializeFunctionInstantiation(name, argtypes);
     const frame = new InstantiationFrame(token, currentInstantiationContext);
-    const bindings = bindArgumentTypes(
-        functemp.args.map(arg => arg[1]), argtypes);
+    const bindings = bindFunctionTemplateWithArgumentTypes(
+        functemp, argtypes);
     const ret = resolveTypeTemplate(functemp.ret, bindings);
     const argnames = functemp.args.map(targ => targ[0]);
     const args = [];
-    for (let i = 0; i < argtypes.length; i++) {
+    for (let i = 0; i < argnames.length; i++) {
       args.push([argnames[i], argtypes[i]]);
+    }
+    if (functemp.vararg) {
+      const varargname = functemp.vararg[0];
+      for (let i = argnames.length; i < argtypes.length; i++) {
+        const j = i - argnames.length;
+        args.push([varargname + "__" + j, argtypes[i]]);
+      }
     }
     if (functemp.isNative) {
       currentInstantiationContext = null;
@@ -1320,13 +1356,23 @@ function annotate(modules) {
       };
     }
     pushScope();
-    for (let i = 0; i < argtypes.length; i++) {
+    for (let i = 0; i < argnames.length; i++) {
       const argname = argnames[i];
       if (argname !== null) {
         declareVariable(
             argnames[i], args[i][1], [frame].concat(flatten(stack)));
       }
     }
+    if (functemp.vararg) {
+      const varargname = functemp.vararg[0];
+      const types = [];
+      for (let i = argnames.length; i < argtypes.length; i++) {
+        types.push(argtypes[i]);
+      }
+      declareVariable("..." + varargname, types,
+                      [frame].concat(flatten(stack)));
+    }
+
     const body = resolveStatement(functemp.body, bindings, stack);
     currentInstantiationContext = null;
     popScope();
@@ -1537,15 +1583,61 @@ function annotate(modules) {
     return result;
   }
 
+  function resolveExpressionList(node, bindings, stack) {
+    const exprs = node.exprs;
+    const varexpr = node.varexpr;
+    const token = node.token;
+    const result = [];
+    for (const expr of exprs) {
+      result.push(resolveValueOrTypeExpression(expr, bindings, stack));
+    }
+    if (varexpr !== null) {
+      const [kind, name] = varexpr;
+      switch(kind) {
+      case "NAME": {
+        const types = getVariableType("..." + name);
+        for (let i = 0; i < types.length; i++) {
+          result.push({
+            "type": "Name",
+            "token": token,
+            "name": name + "__" + i,
+            "exprType": types[i],
+          });
+        }
+        break;
+      }
+      case "TYPENAME": {
+        const types = bindings["..." + name];
+        if (!types) {
+          throw new InstantiationError(
+              "No such varexpr type: ..." + name,
+              flatten(stack));
+        }
+        for (const type of types) {
+          result.push({
+            "type": "TypeExpression",
+            "token": token,
+            "exprType": type,
+          });
+        }
+        break;
+      }
+      default:
+        throw new InstantiationError(
+            "Unrecognized varexpr kind: " + kind,
+            flatten(stack));
+      }
+    }
+    return result;
+  }
+
   function resolveValueOrTypeExpression(node, bindings, stack) {
     const frame =
         new InstantiationFrame(node.token, currentInstantiationContext);
     switch(node.type) {
     case "FunctionCallTemplate":
       const name = node.name;
-      const targs = node.args;
-      const args = targs.map(targ =>
-          resolveValueOrTypeExpression(targ, bindings, stack));
+      const args = resolveExpressionList(node, bindings, stack);
       const argtypes = args.map(arg => arg.exprType);
       const rettype = getFunctionReturnType(
           name, argtypes, [frame].concat(flatten(stack)));
@@ -1555,14 +1647,42 @@ function annotate(modules) {
       // expression arguments.
       // NOTE: This functemp should not be null since if it were,
       // "rettype = getFunctionReturnType(...)" should've thrown
+
+      // TODO: Use a more reobust way to test whether an expression
+      // is a type expression than just checking if it is the
+      // "TypeExpression" node.
+
+      // NOTE: We check that we don't use type expressions when we
+      // expect a value, but we don't check vice versa.
+      // Somteimes we want to use a value expression to represent
+      // the type we want to pass.
+
       const functemp = findMatchingFunctionTemplate(name, argtypes);
-      for (let i = 0; i < args.length; i++) {
+      for (let i = 0; i < functemp.args.length; i++) {
         if (args[i].type === "TypeExpression") {
           if (functemp.args[i][0] !== null) {
             throw new InstantiationError(
-                "Expected an expression but got a type expression: " +
+                "Expected value expression but got type expression: " +
+                "argumentIndex = " + i +
                 functemp.token.getLocationMessage(),
                 [frame].concat(flatten(stack)));
+          }
+        }
+      }
+
+      if (functemp.vararg) {
+        // Here we check that if the vararg argument signature indicates
+        // a value expression, we make sure that we get a type expression.
+        const [name, type] = functemp.vararg;
+        if (name) {
+          for (let i = functemp.args.length; i < args.length; i++) {
+            if (args[i].type === "TypeExpression") {
+              throw new InstantiationError(
+                  "Expected value expressions for vararg part, but got " +
+                  "type expression: argumentIndex = " + i +
+                  functemp.token.getLocationMessage(),
+                  [frame].concat(flatten(stack)));
+            }
           }
         }
       }
@@ -1633,13 +1753,12 @@ function annotate(modules) {
       throw new InstantiationError(
           node.message, [frame].concat(flatten(stack)));
     case "ListDisplayTemplate":
-      if (node.exprs.length === 0) {
+      const exprs = resolveExpressionList(node, bindings, stack);
+      if (exprs.length === 0) {
         throw new InstantiationError(
           "List displays must contain at least one element to allow for " +
           "type inference", [frame].concat(flatten(stack)));
       }
-      const exprs = node.exprs.map(
-          expr => resolveExpression(expr, bindings, stack));
       for (const expr of exprs) {
         if (!expr.exprType.equals(exprs[0].exprType)) {
           const frame = new InstantiationFrame(
@@ -1647,6 +1766,11 @@ function annotate(modules) {
           throw new InstantiationError(
             "Expected " + exprs[0].exprType.toString() + " but got " +
             expr.exprType.toString(), [frame].concat(flatten(stack)));
+        }
+        if (expr.type === "TypeExpression") {
+          throw new InstantiationError(
+              "Expected expression but got type expression",
+              [frame].concat(flatten(stack)));
         }
       }
       return {
@@ -1762,8 +1886,8 @@ function annotate(modules) {
           serializeFunctionInstantiation(name, argtypes),
           frames);
     }
-    const args = functemp.args;
-    const bindings = bindArgumentTypes(args.map(arg => arg[1]), argtypes);
+    const bindings = bindFunctionTemplateWithArgumentTypes(
+        functemp, argtypes);
     return resolveTypeTemplate(functemp.ret, bindings);
   }
 
@@ -1792,8 +1916,8 @@ function annotate(modules) {
         if (functemp.name !== name) {
           continue;
         }
-        const bindings = bindArgumentTypes(
-            functemp.args.map(arg => arg[1]), argtypes);
+        const bindings = bindFunctionTemplateWithArgumentTypes(
+            functemp, argtypes);
         if (bindings === null) {
           continue;
         }
@@ -1832,28 +1956,20 @@ function annotate(modules) {
   function isMoreSpecializedFunctionTemplate(left, right) {
     // returns true if the 'left' function template is more specialized
     // than the right one.
-    const argtypes1 = left.args.map(arg => arg[1]);
-    const argtypes2 = right.args.map(arg => arg[1]);
-    const lefttemp = new TemplateTypeTemplate(left.token, "Args", argtypes1);
-    const righttemp =
-        new TemplateTypeTemplate(right.token, "Args", argtypes2);
+    const lefttemp = typeTemplateFromFunctionTemplate(left);
+    const righttemp = typeTemplateFromFunctionTemplate(right);
     return lefttemp.compareSpecialization(righttemp) > 0;
   }
 
-  function bindArgumentTypes(templateTypes, types, bindings) {
-    const len = types.length;
-    if (templateTypes.length !== len) {
-      return null;
-    }
-    bindings = bindings || Object.create(null);
-    for (let i = 0; i < len; i++) {
-      const templateType = templateTypes[i];
-      const type = types[i];
-      if (!templateType.bindType(type, bindings)) {
-        return null;
-      }
-    }
-    return bindings;
+  function typeTemplateFromFunctionTemplate(functemp) {
+    const argtypes = functemp.args.map(arg => arg[1]);
+    const vararg = functemp.vararg ? functemp.vararg[1] : null;
+    return new TemplateTypeTemplate(functemp.token, "Args", argtypes, vararg);
+  }
+
+  function bindFunctionTemplateWithArgumentTypes(functemp, argtypes) {
+    const typeTemplate = typeTemplateFromFunctionTemplate(functemp);
+    return typeTemplate.bindType(new TemplateType("Args", argtypes));
   }
 
   function queueFunctionInstantiation(name, argtypes, stack) {

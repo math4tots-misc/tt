@@ -4,7 +4,6 @@ class native Bool;
 class native Int;
 class native Float;
 class native String;
-class native List[$T];
 
 fn error(x $X) Void {
   error(repr(x));
@@ -26,18 +25,6 @@ fn greaterThan(x $T, y $T) Bool {
 }
 fn lessThanOrEqualTo(x $T, y $T) Bool {
   return !(y < x);
-}
-
-fn repr(xs List[$T]) String {
-  let str = "[";
-  for (let i = 0; i < len(xs); i = i+1) {
-    if (i > 0) {
-      str = str + ", ";
-    }
-    str = str + repr(xs[i]);
-  }
-  str = str + "]";
-  return str;
 }
 
 fn repr(x $T) String {
@@ -78,10 +65,6 @@ fn malloc(Float) Float {
 
 fn malloc(String) String {
   mallocPrimitiveError(String);
-}
-
-fn malloc(List[$T]) List[$T] {
-  mallocPrimitiveError(List[$T]);
 }
 
 //// Once better metaprogramming tools are available,

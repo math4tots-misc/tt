@@ -32,26 +32,6 @@ fn native add(x String, y String) String """
   return var_x + var_y;
 """
 
-fn native len(x List[$T]) Int """
-  return var_x.length;
-"""
-
-fn native getItem(xs List[$T], i Int) $T """
-  if (var_i < 0 || var_i >= var_xs.length) {
-    throw new Error("getItem List out of bounds: i = " + var_i +
-                    " xs.length = " + var_xs.length);
-  }
-  return var_xs[var_i];
-"""
-
-fn native setItem(xs List[$T], i Int, t $T) $T """
-  if (var_i < 0 || var_i >= var_xs.length) {
-    throw new Error("setItem List out of bounds: i = " + var_i +
-                    " xs.length = " + var_xs.length);
-  }
-  return var_xs[var_i] = var_t;
-"""
-
 fn native lessThan(x Int, y Int) Bool """
   return var_x < var_y;
 """
