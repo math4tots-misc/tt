@@ -403,12 +403,14 @@ const keywords = [
   "is", "not",
   "for", "if", "else", "while", "break", "continue",
 
+  "and", "or",
   "var", "const", "goto", "function", "def", "async", "await", "const",
 ];
 const symbols = [
   "(", ")", "[", "]", "{", "}", ",", ".", "...",
   ";", "#", "$", "=",
   "+", "-", "*", "/", "%", "++", "--",
+  "&&", "||",
   "==", "!=", "<", ">", "<=", ">=", "!",
   "+=", "-=", "*=", "/=", "%=",
 ].sort().reverse();
@@ -860,7 +862,43 @@ class Parser {
     return exprs;
   }
   parseExpressionTemplate() {
-    return this.parseRelationalTemplate();
+    return this.parseOrExpressionTemplate();
+  }
+  parseOrExpressionTemplate() {
+    let expr = this.parseAndExpressionTemplate();
+    while (true) {
+      const token = this.peek();
+      if (this.consume("||")) {
+        expr = {
+          "type": "SpecialBinaryOperationTemplate",
+          "token": token,
+          "op": "||",
+          "left": expr,
+          "right": this.parseAndExpressionTemplate(),
+        };
+        continue;
+      }
+      break;
+    }
+    return expr;
+  }
+  parseAndExpressionTemplate() {
+    let expr = this.parseRelationalTemplate();
+    while (true) {
+      const token = this.peek();
+      if (this.consume("&&")) {
+        expr = {
+          "type": "SpecialBinaryOperationTemplate",
+          "token": token,
+          "op": "&&",
+          "left": expr,
+          "right": this.parseRelationalTemplate(),
+        };
+        continue;
+      }
+      break;
+    }
+    return expr;
   }
   parseRelationalTemplate() {
     const expr = this.parseAdditiveTemplate();
@@ -1628,6 +1666,14 @@ function annotate(modules) {
         "exprType": exprType,
       };
     }
+    case "SpecialBinaryOperationTemplate":
+      return {
+        "type": "SpecialBinaryOperation",
+        "token": node.token,
+        "op": node.op,
+        "left": resolveExpression(node.left, stack),
+        "right": resolveExpression(node.right, stack),
+      };
     default:
       throw new InstantiationError(
           "Unrecognized expression template: " + node.type, [frame]);

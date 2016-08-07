@@ -154,9 +154,13 @@ fn equals(a Tuple[], b Tuple[]) Bool {
 fn equals(a Tuple[$X0], b Tuple[$X0]) Bool {
   return a.x0 == b.x0;
 }
-fn equals(a Tuple[...Args], b Tuple[...Args]) Bool {
-  #error "Not yet implemented";
+fn equals(a Tuple[$X0, $X1], b Tuple[$X0, $X1]) Bool {
+  return a.x0 == b.x0 &&
+         a.x1 == b.x1;
 }
+// fn equals(a Tuple[...Args], b Tuple[...Args]) Bool {
+//   #error "Not yet implemented";
+// }
 
 
 fn lessThan(a Tuple[], b Tuple[]) Bool {
