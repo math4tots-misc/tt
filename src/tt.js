@@ -1497,7 +1497,7 @@ function annotate(modules) {
             "Return type mismatch", [frame].concat(flatten(stack)));
       }
       let returns = null;
-      if ((other === null || other.returns !== null) &&
+      if (other !== null && other.returns !== null &&
           body.returns !== null) {
         returns = body.returns;
       }
