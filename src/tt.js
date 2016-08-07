@@ -416,6 +416,7 @@ const keywords = [
   "return",
   "is", "not",
   "for", "if", "else", "while", "break", "continue",
+  "true", "false", "null",
 
   "and", "or",
   "var", "const", "goto", "function", "def", "async", "await", "const",
@@ -1069,7 +1070,12 @@ class Parser {
   }
   parsePrimaryTemplate() {
     const token = this.peek();
-    if (this.consume("INT")) {
+    if (this.consume("true") || this.consume("false")) {
+      return {
+        "type": token.type,
+        "token": token,
+      };
+    } else if (this.consume("INT")) {
       return {
         "type": "Int",
         "token": token,
@@ -1574,6 +1580,13 @@ function annotate(modules) {
         "name": node.name,
         "exprType": getVariableType(
             node.name, [frame].concat(flatten(stack))),
+      };
+    case "true":
+    case "false":
+      return {
+        "type": node.type,
+        "token": node.token,
+        "exprType": new Typename("Bool"),
       };
     case "Int":
     case "Float":

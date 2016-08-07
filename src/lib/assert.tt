@@ -1,0 +1,22 @@
+
+fn assert(cond Bool) Void {
+  if (!cond) {
+    error("Assert error");
+  }
+}
+
+fn assertFalse(cond Bool) Void {
+  assert(!cond);
+}
+
+fn assert(cond Bool, message String) Void {
+  if (!cond) {
+    error("Assert error: " + message);
+  }
+}
+
+fn assertEqual(left $X, right $X) Void {
+  if (left != right) {
+    error("Expected " + repr(left) + " == " + repr(right));
+  }
+}
