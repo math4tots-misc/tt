@@ -18,7 +18,7 @@ class TemplateTypeTemplate extends TypeTemplate {
     super(token);
     this.name = name;  // TYPENAME
     this.args = args;  // [TypeTemplate]
-    this.vararg = vararg || null;  // NAME|null
+    this.vararg = vararg || null;  // TYPENAME|null
   }
 }
 
