@@ -63,6 +63,22 @@ fn main() Void {
       "new value set by native static block");
   }
 
+  //// Test tuple
+  {
+    assertEqual(tuple(1, "hi"), tuple(1, "hi"));
+    assertFalse(tuple(1, "hi") == tuple(1, "hix"));
+
+    let t = tuple(1.0, 2, "world");
+    assertEqual(typestr(t), "Tuple[Float,Int,String]");
+
+    assertEqual(t.x0, 1.0);
+    assertEqual(t.x1, 2);
+    assertEqual(t.x2, "world");
+
+    t.x0 = 5.0;
+    assertEqual(t.x0, 5.0);
+  }
+
   print("Tests pass!");
 }
 
