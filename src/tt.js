@@ -31,6 +31,9 @@ Error.stackTraceLimit = Infinity;
 // worth considering doing this in reverse, like in C++, where by default
 // variables are by value, and I can explicitly annotate pointers with star.
 
+// TODO: Static assert statements to test compile time instantiation
+// logic.
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {
