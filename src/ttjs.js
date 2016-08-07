@@ -238,8 +238,9 @@ class Compiler {
     case "Declaration":
       const keyword = node.isFinal ? "const" : "let";
       const val = node.val === null ?
-          "" : " = " + this.compileExpression(node.val);
-      return "\n" + keyword + " var_" + node.name + val + ";";
+          getDefaultValue(node.cls) :
+          this.compileExpression(node.val);
+      return "\n" + keyword + " var_" + node.name + " = " + val + ";";
     case "For":
       return "\nfor (" + this.compileStatement(node.init).trim() +
              this.compileExpression(node.cond) + ";" +

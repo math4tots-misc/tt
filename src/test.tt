@@ -3,6 +3,9 @@ class Sample[$T] {
   let t $T;
 }
 
+let globalInt Int;
+let globalFloat Float;
+
 fn main() Void {
   //// Basic sanity checks
   {
@@ -24,22 +27,25 @@ fn main() Void {
 
   //// String literal
   {
+    """
+    Make sure that strings can be used as statement-level comments.
+    """;
     assertEqual("\\" + "n", "\\n");
     assertEqual("\\" + "n", r"\n");
     assert("\\" + "n" != "\n");
   }
 
-  //// Default values
-  // TODO: Make this work
-  /*
+  //// Default variable values.
   {
     let i Int;
     assertEqual(i, 0);
 
     let s String;
     assertEqual(s, "");
+
+    assertEqual(globalInt, 0);
+    assertEqual(globalFloat, 0.0);
   }
-  */
 
   //// Class, get/set attributes
   {
