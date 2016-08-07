@@ -12,6 +12,9 @@ class CompilationContext {
     this.compiler = compiler;
     this.func = func;
   }
+  getCurrentFunction() {
+    return this.func;
+  }
   getTypeOfArgumentAtIndex(i) {
     return this.func.args[i][1];
   }

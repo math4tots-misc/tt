@@ -48,14 +48,14 @@ fn main() Void {
     assertEqual(sample.t, 15);
   }
 
-  //// Test vararg functions
+  //// Vararg functions
   {
     assertEqual(sum(1, 2, 3), 6);
     assertEqual(concatTypenames(Int, Float, String), "Int,Float,String");
     assertEqual(makeList(5, 6, 7, 8), [5, 6, 7, 8]);
   }
 
-  //// Test static blocks have run
+  //// Static blocks
   {
     assertEqual(valueChangedByStaticBlock, "new value");
     assertEqual(
@@ -63,7 +63,7 @@ fn main() Void {
       "new value set by native static block");
   }
 
-  //// Test tuple
+  //// Tuple
   {
     assertEqual(tuple(1, "hi"), tuple(1, "hi"));
     assertFalse(tuple(1, "hi") == tuple(1, "hix"));
@@ -77,6 +77,15 @@ fn main() Void {
 
     t.x0 = 5.0;
     assertEqual(t.x0, 5.0);
+  }
+
+  //// Lambda
+  {
+    let f = fn(a Int, b Int) {
+      return "a + b = " + str(a + b);
+    };
+    assertEqual(repr(f), "<Lambda[String,Int,Int] instance>");
+    assertEqual(call(f, 5, 7), "a + b = 12");
   }
 
   print("Tests pass!");

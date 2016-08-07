@@ -68,22 +68,9 @@ fn main() Void {
   };
 
   print(repr(f));
-
-  print(call(f, tuple(124)));
+  print(call(f, 124));
   return;
 }
-
-fn native call(f Lambda[Tuple[...Args], $T], args Tuple[...Args]) $T"""eval
-    context => {
-  let argsstr = "(stack";
-  const len = context.getTypeOfArgumentAtIndex(1).args.length;
-  for (let i = 0; i < len; i++) {
-    argsstr += ", var_args.aax" + i;
-  }
-  argsstr += ")";
-  return "\\n  return var_f" + argsstr + ";"
-}
-"""
 
 fn someFunction() Void {
   bbbb(5);

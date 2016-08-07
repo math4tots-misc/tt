@@ -1,4 +1,21 @@
 // lambda.tt
 
-class native Lambda[Tuple[...Args], $Return];
+class native Lambda[$Return, ...Args];
+
+//// Should I have done something like this?
+// class native Lambda[Args[...Args], $Return];
+
+
+fn native call(f Lambda[$R, ...Args], ...args Args) $R"""eval
+    context => {
+  let argsstr = "(stack";
+  const func = context.getCurrentFunction();
+  for (let i = 1; i < func.args.length; i++) {
+    argsstr += ", var_" + func.args[i][0];
+  }
+  argsstr += ")";
+  return "\\n  return var_f" + argsstr + ";"
+}
+"""
+
 

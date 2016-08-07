@@ -1859,10 +1859,8 @@ function annotate(modules) {
             body.returns, [frame].concat(flatten(stack)));
       }
       popScope();
-      const exprType = new TemplateType("Lambda", [
-        new TemplateType("Tuple", argtypes),
-        body.returns,
-      ]);
+      const exprType = new TemplateType(
+          "Lambda", [body.returns].concat(argtypes));
       queueClassInstantiation(exprType);
       return {
         "type": "Lambda",
