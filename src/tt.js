@@ -356,6 +356,17 @@ class TemplateTypeTemplate extends TypeTemplate {
   }
   resolve(bindings) {
     const args = this.args.map(arg => arg.resolve(bindings));
+    if (this.vararg) {
+      const key = "..." + this.vararg;
+      if (!bindings[key]) {
+        throw new CompileError(
+            "Tried to resolve type template for " + key + " but no " +
+            "binding found", [this.token]);
+      }
+      for (const arg of bindings[key]) {
+        args.push(arg);
+      }
+    }
     return new TemplateType(this.name, args);
   }
 }
@@ -727,7 +738,6 @@ class Parser {
   parseArgumentsTemplate() {
     this.expect(openParen);
     const args = [];
-    args.vararg = null;
     while (!this.consume(closeParen)) {
       const name = this.at("NAME") ? this.expect("NAME").val : null;
       const cls = this.parseTypeTemplate();
