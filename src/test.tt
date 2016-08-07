@@ -1,20 +1,46 @@
 
+class Sample[$T] {
+  let t $T;
+}
 
 fn main() Void {
-  assert(true);
-  assertFalse(false);
-  assertFalse(!true);
+  //// Basic sanity checks
+  {
+    assert(true);
+    assertFalse(false);
+    assertFalse(!true);
 
-  assert(1 == 1);
-  assertFalse(1 == 2);
-  assertFalse(1 != 1);
-  assert(1 != 2);
+    assert(1 == 1);
+    assertFalse(1 == 2);
+    assertFalse(1 != 1);
+    assert(1 != 2);
 
-  assert(2 + 2 == 4);
-  assertEqual(2 + 2, 4);
-  assertEqual(repr(24), "24");
+    assert(2 + 2 == 4);
+    assertEqual(2 + 2, 4);
+    assertEqual(repr(24), "24");
 
-  assertEqual("hi", "hi");
+    assertEqual("hi", "hi");
+  }
+
+  //// Default values
+  // TODO: Make this work
+  /*
+  {
+    let i Int;
+    assertEqual(i, 0);
+
+    let s String;
+    assertEqual(s, "");
+  }
+  */
+
+  //// Class, get/set attributes
+  {
+    final sample = malloc(Sample[Int]);
+    assertEqual(sample.t, 0);
+    sample.t = 15;
+    assertEqual(sample.t, 15);
+  }
 
   print("Tests pass!");
 }
