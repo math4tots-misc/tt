@@ -33,11 +33,12 @@ class ModuleTemplate extends AstTemplate {
 }
 
 class FunctionTemplate extends AstTemplate {
-  constructor(token, isNative, name, args, body) {
+  constructor(token, isNative, name, arglist, ret, body) {
     super(token);
     this.isNative = isNative;  // bool
     this.name = name;  // NAME
-    this.args = args;  // TemplateArgumentList
+    this.arglist = arglist;  // TemplateArgumentList
+    this.ret = ret;  // TypeTemplate
     this.body = body;  // javascript|StatementTemplate
   }
 }
@@ -48,6 +49,7 @@ class ClassTemplate extends AstTemplate {
     this.isNative = isNative;  // bool
     this.name = name;  // TYPENAME
     this.args = args;  // TemplateTypeList
+    this.attrs = attrs;  // null|[(NAME, Type)]
   }
 }
 
