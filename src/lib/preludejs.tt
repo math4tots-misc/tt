@@ -66,10 +66,16 @@ fn native print(x String) Void """
   console.log(var_x);
 """
 
-// malloc
+// TODO: Make the error throw at instantiation time instead of at
+// code generation phase -- make better error message
 fn native malloc($T) $T """eval context => {
   const type = context.getTypeOfArgumentAtIndex(0);
   const cls = context.getClassFromType(type);
+  if (cls.isNative) {
+    throw new Error(
+        "You can't use generic malloc on native classes: " +
+        type.toString());
+  }
   const attrstrs = [];
   for (const [name, attrcls] of cls.attrs) {
     attrstrs.push("aa" + name + ":" + context.getDefaultValue(attrcls));
