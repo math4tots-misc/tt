@@ -92,7 +92,12 @@ fn main() Void {
     assertEqual(call(g, 0, 0.0, ""), 5);
   }
 
-  print("Tests pass!");
+  //// Async
+  {
+    runFromSync(asyncFunction());
+  }
+
+  print("synchronous main finished!");
 }
 
 class Sample[$T] {
@@ -145,4 +150,17 @@ fn makeLambda(...Args) Lambda[Int, ...Args] {
   return fn(...args Args) {
     return 5;
   };
+}
+
+fn async asyncFunction() Void {
+  print("I'm at the beginning of asyncFunction");
+  await asyncSleep(1000);
+
+  // error("Hoi");
+  // Uncommenting the above line should show a nice stack trace like:
+  // Most recent call last:
+  // main()              in 'test.tt'           line 97
+  // asyncFunction()     in 'test.tt'           line 158
+
+  print("I'm at the end of asyncFunction (after await asyncSleep)");
 }

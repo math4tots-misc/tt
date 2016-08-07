@@ -80,6 +80,50 @@ function tryAndCatch(f, stack) {
     throw e;
   }
 }
+function asyncf(generator) {
+  return function() {
+    const oldStack = arguments[0];
+    // When starting a new async context, we need to make a copy of the
+    // old stack, since there could potentially be multiple async contexts
+    // started before being 'await'ed on.
+    const newStack = Array.from(oldStack);
+    const args = [newStack];
+    for (let i = 1; i < arguments.length; i++) {
+      args.push(arguments[i]);
+    }
+    const generatorObject = generator.apply(null, args);
+    return new Promise((resolve, reject) => {
+      asyncfHelper(newStack, generatorObject, resolve, reject);
+    });
+  }
+}
+function asyncfHelper(newStack, generatorObject, resolve, reject, val, thr) {
+  try {
+    const {value, done} =
+        thr ? generatorObject.throw(val) : generatorObject.next(val);
+    if (done) {
+      resolve(value);
+    } else {
+      value.then(val => {
+        asyncfHelper(newStack, generatorObject, resolve, reject, val);
+      }).catch(err => {
+        asyncfHelper(newStack, generatorObject, resolve, reject, err, true);
+      });
+    }
+  } catch (e) {
+    // Keep a copy of the stack so that whoever catches it knows where
+    // it came from.
+    // I thought about modifying the oldStack, but that would involve
+    // knowing exactly when the caller is going to resume.
+    // when we reject, we don't know if 'then' or 'catch' has been called
+    // on the promise yet, so there might actually be other stuff going
+    // on clobbering the stack before dealing with this.
+    if (!e.ttstack) {
+      e.ttstack = Array.from(newStack);
+    }
+    reject(e);
+  }
+}
 //// End native prelude`;
 
 function doEval(str) {
@@ -204,6 +248,7 @@ class Compiler {
   }
   compileFunction(func) {
     const token = func.token;
+    const isAsync = func.isAsync;
     const argnames = func.args.map(arg => arg[0]);
     const argtypes = func.args.map(arg => arg[1]);
     const name = this.getFunctionNameFromFunctionNode(func);
@@ -224,7 +269,13 @@ class Compiler {
         tt.serializeFunctionInstantiation(func.name, argtypes);
     const compiledBody = this.compileStatement(func.body);
     this._currentFunctionContext = null;
-    return "\n\nfunction " + name + args + compiledBody;
+    let result = name + args + compiledBody;
+    if (isAsync) {
+      result = "const " + name + " = asyncf(function* " + result + ");";
+    } else {
+      result = "function " + result;
+    }
+    return "\n\n" + result;
   }
   compileStatement(node) {
     switch(node.type) {
@@ -302,6 +353,8 @@ class Compiler {
     case "LogicalBinaryOperation":
       return "(" + this.compileExpression(node.left) + node.op +
              this.compileExpression(node.right) + ")";
+    case "Await":
+      return "(yield " + this.compileExpression(node.expr) + ")";
     case "Lambda":
       return "(" + this.compileArguments(node.args) + " => " +
               this.compileStatement(node.body) + ")";

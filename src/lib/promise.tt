@@ -1,6 +1,28 @@
 class native Promise[$T];
 class native AsyncQueue[$T];
 
+//// TODO: setTimeout(..., 0) doesn't actually give delay of 0ms, because
+// the HTML5 spec sets this to 4ms for any value less than that (
+// at a certain level of nesting).
+// Google settimeout clamp.
+// The todo here is to find a workaround that actually works with 0ms
+// timeout.
+fn native asyncSleep(timeInMilliseconds Int) Promise[Void]"""
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, var_timeInMilliseconds);
+  });
+"""
+
+fn native runFromSync(promise Promise[$T]) Void"""
+  var_promise.then(result => null, error => {
+    console.error(getStackTraceMessage(error.ttstack || stack));
+    console.error(error);
+    throw error;
+  });
+"""
+
 fn native new(AsyncQueue[$T]) AsyncQueue[$T]"""
   return {items: [], listeners: []};
 """

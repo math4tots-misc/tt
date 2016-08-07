@@ -419,14 +419,14 @@ class VariableTypeTemplate extends TypeTemplate {
 // Lexer
 
 const keywords = [
-  "fn", "class", "let", "final", "static", "native",
+  "fn", "class", "let", "final", "static", "native", "async", "await",
   "return",
   "is", "not",
   "for", "if", "else", "while", "break", "continue",
   "true", "false", "null",
 
   "and", "or",
-  "var", "const", "goto", "function", "def", "async", "await", "const",
+  "var", "const", "goto", "function", "def", "const",
 ];
 const symbols = [
   "(", ")", "[", "]", "{", "}", ",", ".", "...",
@@ -721,6 +721,11 @@ class Parser {
       this.expect("fn");
     }
     const isNative = !!this.consume("native");
+    const isAsync = !!this.consume("async");
+    if (isAsync && (isNative || isStatic)) {
+      throw new CompileError(
+          "async functions can't be native or static", [token]);
+    }
     const name = isStatic ?
         "staticBlock__" + this.getNextStaticBlockId() :
         this.expect("NAME").val;
@@ -740,6 +745,7 @@ class Parser {
       "token": token,
       "isStatic": isStatic,
       "isNative": isNative,
+      "isAsync": isAsync,
       "name": name,
       "args": args,
       "vararg": isStatic ? null : args.vararg,
@@ -1151,6 +1157,13 @@ class Parser {
           "name": token.val,
         };
       }
+    } else if (this.consume("await")) {
+      const expr = this.parseExpressionTemplate();
+      return {
+        "type": "AwaitTemplate",
+        "token": token,
+        "expr": expr,
+      };
     } else if (this.at("$") || this.at("TYPENAME")) {
       const cls = this.parseTypeTemplate();
       return {
@@ -1341,7 +1354,10 @@ function annotate(modules) {
     const frame = new InstantiationFrame(token, currentInstantiationContext);
     const bindings = bindFunctionTemplateWithArgumentTypes(
         functemp, argtypes);
-    const ret = resolveTypeTemplate(functemp.ret, bindings);
+    const bodyret = resolveTypeTemplate(functemp.ret, bindings);
+    const isAsync = functemp.isAsync;
+    const ret = isAsync ? new TemplateType("Promise", [bodyret]) : bodyret;
+    queueClassInstantiation(ret);
     const argnames = functemp.args.map(targ => targ[0]);
     const args = [];
     for (let i = 0; i < argnames.length; i++) {
@@ -1361,6 +1377,7 @@ function annotate(modules) {
         "token": token,
         "isStatic": functemp.isStatic,
         "isNative": functemp.isNative,
+        "isAsync": isAsync,
         "name": functemp.name,
         "args": args,
         "ret": ret,
@@ -1388,7 +1405,7 @@ function annotate(modules) {
     const body = resolveStatement(functemp.body, bindings, stack);
     currentInstantiationContext = null;
     popScope();
-    if (ret.equals(new Typename("Void"))) {
+    if (bodyret.equals(new Typename("Void"))) {
       if (body.maybeReturns !== null &&
           !body.maybeReturns.equals(new Typename("Void"))) {
         throw new InstantiationError(
@@ -1407,6 +1424,7 @@ function annotate(modules) {
       "token": token,
       "isStatic": functemp.isStatic,
       "isNative": functemp.isNative,
+      "isAsync": isAsync,
       "name": functemp.name,
       "args": args,
       "ret": ret,
@@ -1855,6 +1873,24 @@ function annotate(modules) {
         "exprType": new Typename("Bool"),
       };
     }
+    case "AwaitTemplate": {
+      const expr = resolveExpression(node.expr, bindings, stack);
+      if (!(expr.exprType instanceof TemplateType) ||
+          expr.exprType.name !== "Promise" ||
+          expr.exprType.args.length !== 1) {
+        throw new InstantiationError(
+            "You can only await on an object of type Promise[$T], " +
+            "but got: " + expr.exprType,
+          [frame].concat(flatten(stack)));
+      }
+      const exprType = expr.exprType.args[0];
+      return {
+        "type":  "Await",
+        "token": node.token,
+        "expr": expr,
+        "exprType": exprType,
+      };
+    }
     case "LambdaTemplate": {
       const args = [];
       pushScope();
@@ -1915,7 +1951,10 @@ function annotate(modules) {
     }
     const bindings = bindFunctionTemplateWithArgumentTypes(
         functemp, argtypes);
-    return resolveTypeTemplate(functemp.ret, bindings);
+    const ret = functemp.isAsync ?
+        new TemplateTypeTemplate(functemp.token, "Promise", [functemp.ret]):
+        functemp.ret;
+    return resolveTypeTemplate(ret, bindings);
   }
 
   function getAttributeType(type, name, stack) {
