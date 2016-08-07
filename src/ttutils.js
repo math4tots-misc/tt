@@ -73,19 +73,14 @@ function sanitizeString(str) {
   let r = "";
   let i = 0;
   while (i < str.length) {
-    if (str[i] === "\\") {
-      i++;
-      switch(str[i]) {
-      case "\\": r += "\\"; break;
-      case "\"": r += "\""; break;
-      case "\'": r += "\'"; break;
-      case "\n": r += "\n"; break;
-      case "\r": r += "\r"; break;
-      case "\t": r += "\t"; break;
-      default: throw new Error("Invalid string escape: " + str[i]);
-      }
-    } else {
-      r += str[i];
+    switch(str[i]) {
+    case "\\": r += "\\\\"; break;
+    case "\"": r += "\\\""; break;
+    case "\'": r += "\\\'"; break;
+    case "\n": r += "\\\n"; break;
+    case "\r": r += "\\\r"; break;
+    case "\t": r += "\\\t"; break;
+    default: r += str[i];
     }
     i++;
   }
