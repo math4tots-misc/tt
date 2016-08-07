@@ -1,11 +1,4 @@
 
-class Sample[$T] {
-  let t $T;
-}
-
-let globalInt Int;
-let globalFloat Float;
-
 fn main() Void {
   //// Basic sanity checks
   {
@@ -50,7 +43,7 @@ fn main() Void {
   //// Class, get/set attributes
   {
     final sample = malloc(Sample[Int]);
-    assertEqual(sample.t, 0);
+    assertEqual(sample.t, 0);  // default value
     sample.t = 15;
     assertEqual(sample.t, 15);
   }
@@ -62,8 +55,23 @@ fn main() Void {
     assertEqual(makeList(5, 6, 7, 8), [5, 6, 7, 8]);
   }
 
+  //// Test static blocks have run
+  {
+    assertEqual(valueChangedByStaticBlock, "new value");
+    assertEqual(
+      valueChangedByNativeStaticBlock,
+      "new value set by native static block");
+  }
+
   print("Tests pass!");
 }
+
+class Sample[$T] {
+  let t $T;
+}
+
+let globalInt Int;
+let globalFloat Float;
 
 fn concatTypenames($X) String {
   return typestr($X);
@@ -84,4 +92,24 @@ fn sum(x Int, ...args Args) Int {
 fn makeList(x Int, ...args Args) List[Int] {
   return [x, ...args];
 }
+
+let valueChangedByStaticBlock = "hello world";
+let valueChangedByNativeStaticBlock = "hello world";
+
+static {
+  let varThatShouldNotClashWithOtherStaticBlock = 77;
+
+  assertEqual(valueChangedByStaticBlock, "hello world");
+  valueChangedByStaticBlock = "new value";
+}
+
+static {
+  let varThatShouldNotClashWithOtherStaticBlock = 88;
+}
+
+static native """
+  var_valueChangedByNativeStaticBlock =
+      "new value set by native static block";
+"""
+
 
