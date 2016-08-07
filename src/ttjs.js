@@ -68,6 +68,15 @@ function getStackTraceMessage(stack) {
   }
   return message;
 }
+function tryAndCatch(f, stack) {
+  stack = stack || [];
+  try {
+    f(stack);
+  } catch (e) {
+    console.error(getStackTraceMessage(stack).trim());
+    throw e;
+  }
+}
 //// End native prelude`;
 
 function doEval(str) {
@@ -168,17 +177,19 @@ class Compiler {
     }
     result += "\n// --- tag list, for generating helpful stack traces ---";
     result += "\nconst tagList = " + JSON.stringify(this._tagList) + ";";
+    result += "\ntryAndCatch(stack => {"
     result += "\n// --- call all the static stuff ---";
     for (const func of funcs) {
       if (func.isStatic) {
         result +=
             "\n" + this.getFunctionNameFromNameAndArgtypes(func.name, []) +
-            "([]);";
+            "(stack);";
       }
     }
     result += "\n// --- finally call main ---";
     result += "\n" + this.getFunctionNameFromNameAndArgtypes("main", []) +
-              "([]);";
+              "(stack);";
+    result += "\n});"
     result += "\n})();";
     return result.trim();
   }

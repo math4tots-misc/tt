@@ -1,5 +1,9 @@
 // Like prelude, but specific to javascript target
 
+fn native error(x String) Void """
+  throw new Error(var_x);
+"""
+
 fn native logicalNot(x Bool) Bool """
   return !var_x;
 """

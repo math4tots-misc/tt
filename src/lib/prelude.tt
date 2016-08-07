@@ -6,8 +6,28 @@ class native Float;
 class native String;
 class native List[$T];
 
+fn error(x $X) Void {
+  error(repr(x));
+}
+
+fn assert(cond Bool) Void {
+  if (!cond) {
+    error("Assert error");
+  }
+}
+
+fn assert(cond Bool, message String) Void {
+  if (!cond) {
+    error("Assert error: " + message);
+  }
+}
+
 fn equals(x $T, y $T) Bool {
   return x is y;
+}
+
+fn notEquals(x $T, y $T) Bool {
+  return !equals(x, y);
 }
 
 fn greaterThanOrEqualTo(x Int, y Int) Bool {
