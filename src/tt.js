@@ -13,24 +13,6 @@ Error.stackTraceLimit = Infinity;
 // phase. Modify the code such that you get a compile time error if you
 // try to assign to a final variable.
 
-// TODO: Implement varargs. Consideration: Implementing Tuple. In order to
-// implement the Tuple class efficintly using varargs, I need a way to
-// indicate that I want all the members of a class to be copied into another
-// class instead of just creating a pointer to something.
-// i.e.
-// class Tuple[$A, ...$Args] {
-//   let car $A;
-//   let& cdr $Args;
-// }
-// class Tuple[] {}
-//
-// Where, "let&" means use the value and not a pointer.
-// A tuple of N elements would actually invovle N different allocations
-// instead of just one to contain everything.
-// Hmm. But this might complicate the type system though. It might be
-// worth considering doing this in reverse, like in C++, where by default
-// variables are by value, and I can explicitly annotate pointers with star.
-
 // TODO: Static assert statements to test compile time instantiation
 // logic.
 
