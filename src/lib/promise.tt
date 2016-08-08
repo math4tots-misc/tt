@@ -15,7 +15,7 @@ fn native asyncSleep(timeInMilliseconds Int) Promise[Void]"""
   });
 """
 
-fn native runFromSync(promise Promise[$T]) Void"""
+fn native startAsync(promise Promise[$T]) Void"""
   var_promise.then(result => null, error => {
     console.error(getStackTraceMessage(error.ttstack || stack));
     console.error(error);

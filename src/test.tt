@@ -94,7 +94,7 @@ fn main() Void {
 
   //// Async
   {
-    runFromSync(asyncFunction());
+    startAsync(asyncFunction());
   }
 
   print("synchronous main finished!");

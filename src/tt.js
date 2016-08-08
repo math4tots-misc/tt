@@ -24,7 +24,7 @@ Error.stackTraceLimit = Infinity;
 // from left to right
 
 // TODO: Add runtime or compile time checks to make sure that all Promises
-// are awaited on (etiher call runFromSync or actually use the await
+// are awaited on (etiher call startAsync or actually use the await
 // keyword).
 
 // error
