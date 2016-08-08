@@ -23,6 +23,10 @@ Error.stackTraceLimit = Infinity;
 // the match will succeed. To disambiguate, consider matching greedily
 // from left to right
 
+// TODO: Add runtime or compile time checks to make sure that all Promises
+// are awaited on (etiher call runFromSync or actually use the await
+// keyword).
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {
