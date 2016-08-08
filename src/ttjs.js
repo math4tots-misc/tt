@@ -72,58 +72,162 @@ function getStackTraceMessage(stack) {
   return message;
 }
 function tryAndCatch(f, stack) {
-  stack = stack || [];
+  stack = stack || makeStack();
   try {
     f(stack);
   } catch (e) {
-    console.error(getStackTraceMessage(stack).trim());
+    if (stack.length > 0) {
+      console.error(getStackTraceMessage(stack).trim());
+    }
     throw e;
+  } finally {
+    deleteStack(stack);
   }
 }
-function asyncf(generator) {
-  return function() {
+function asyncf(unwrappedGenerator) {
+  function* generator() {
     const oldStack = arguments[0];
     // When starting a new async context, we need to make a copy of the
     // old stack, since there could potentially be multiple async contexts
     // started before being 'await'ed on.
-    const newStack = Array.from(oldStack);
-    const args = [newStack];
+    const stack = makeStack(oldStack);
+    const args = [stack];
     for (let i = 1; i < arguments.length; i++) {
       args.push(arguments[i]);
     }
-    const generatorObject = generator.apply(null, args);
-    return new Promise((resolve, reject) => {
-      asyncfHelper(newStack, generatorObject, resolve, reject);
+    try {
+      return yield* unwrappedGenerator.apply(null, args);
+    } catch(e) {
+      // Keep a copy of the stack so that whoever catches it knows where
+      // it came from.
+      // I thought about modifying the oldStack, but that would involve
+      // knowing exactly when the caller is going to resume.
+      // when we reject, we don't know if 'then' or 'catch' has been called
+      // on the promise yet, so there might actually be other stuff going
+      // on clobbering the stack before dealing with this.
+      if (!e.ttstackSnapshot) {
+        e.ttstackSnapshot = Array.from(newStack);
+      }
+      throw e;
+    } finally {
+      deleteStack(stack);
+    }
+  }
+  return function(oldStack) {
+    const generatorObject = generator.apply(null, arguments);
+    return newPromise(oldStack, (resolve, reject) => {
+      asyncfHelper(generatorObject, resolve, reject);
     });
   }
 }
-function asyncfHelper(newStack, generatorObject, resolve, reject, val, thr) {
+function asyncfHelper(generatorObject, resolve, reject, val, thr) {
   try {
     const {value, done} =
         thr ? generatorObject.throw(val) : generatorObject.next(val);
     if (done) {
       resolve(value);
     } else {
+      markPromiseAwaited(value);
       value.then(val => {
-        asyncfHelper(newStack, generatorObject, resolve, reject, val);
+        finalizePromise(value);
+        asyncfHelper(generatorObject, resolve, reject, val);
       }).catch(err => {
-        asyncfHelper(newStack, generatorObject, resolve, reject, err, true);
+        finalizePromise(value);
+        asyncfHelper(generatorObject, resolve, reject, err, true);
       });
     }
   } catch (e) {
-    // Keep a copy of the stack so that whoever catches it knows where
-    // it came from.
-    // I thought about modifying the oldStack, but that would involve
-    // knowing exactly when the caller is going to resume.
-    // when we reject, we don't know if 'then' or 'catch' has been called
-    // on the promise yet, so there might actually be other stuff going
-    // on clobbering the stack before dealing with this.
-    if (!e.ttstack) {
-      e.ttstack = Array.from(newStack);
-    }
     reject(e);
   }
 }
+
+/**
+ * Maps each promise to a snapshot of the stack when it was created
+ * @type{!Map<!Promise, !Array<number>>}
+ */
+const promiseStackSnapshot = new Map();
+
+function getStackSnapshotOfPromise(promise) {
+  if (!promiseStackSnapshot.has(promise)) {
+    throw new Error("Unregistered promise: " + promise);
+  }
+  return promiseStackSnapshot.get(promise);
+}
+function addStackSnapshotForPromise(stack, promise) {
+  promiseStackSnapshot.set(promise, Array.from(stack));
+}
+function removeStackSnapshotForPromise(promise) {
+  promiseStackSnapshot.delete(promise);
+}
+
+/**
+ * Maps each stack to a set of promises created while that stack was
+ * active.
+ * @type{!Map<!Array<number>, !Set<!Promise>>}
+ */
+const promisePool = new Map();
+
+function initializePromisePool(stack) {
+  promisePool.set(stack, new Set());
+}
+function finalizePromisePool(stack) {
+  const remainingPromises = promisePool.get(stack);
+  if (remainingPromises.size > 0) {
+    let message = "await or runAsync not used on some promise(s)";
+    for (const promise of remainingPromises) {
+      message +=
+          getStackTraceMessage(getStackSnapshotOfPromise(promise));
+    }
+    throw new Error(message);
+  }
+}
+function addToPromisePool(stack, promise) {
+  promisePool.get(stack).add(promise);
+}
+function removeFromPromisePool(promise) {
+  promisePool.get(promiseToStackMap.get(promise)).delete(promise);
+}
+
+/**
+ * @type{!Map<!Promise, !Array<number>>}
+ */
+const promiseToStackMap = new Map();
+
+// let nextPromiseId = 1;
+function newPromise(stack, resolver) {
+  const promise = new Promise(resolver);
+  promiseToStackMap.set(promise, stack);
+  // const id = nextPromiseId++;
+  // promise.id = id;
+  // console.error("newPromise id = " + id + " stack.id = " + stack.id);
+  addToPromisePool(stack, promise);
+  addStackSnapshotForPromise(stack, promise);
+  return promise;
+}
+function markPromiseAwaited(promise) {
+  // console.error("markPromiseAwaited id = " + promise.id);
+  removeFromPromisePool(promise);
+}
+function finalizePromise(promise) {
+  // console.error("finalizePromise id = " + promise.id);
+  promiseToStackMap.delete(promise);
+  removeStackSnapshotForPromise(promise);
+}
+
+// let nextStackId = 1;
+function makeStack(oldStack) {
+  const stack = oldStack ? Array.from(oldStack) : [];
+  initializePromisePool(stack);
+  // const id = nextStackId++;
+  // stack.id = id;
+  // console.error("makeStack id = " + id);
+  return stack;
+}
+function deleteStack(stack) {
+  // console.error("deleteStack id = " + stack.id);
+  finalizePromisePool(stack);
+}
+
 //// End native prelude`;
 
 function doEval(str) {

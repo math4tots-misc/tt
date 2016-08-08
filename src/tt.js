@@ -23,9 +23,10 @@ Error.stackTraceLimit = Infinity;
 // the match will succeed. To disambiguate, consider matching greedily
 // from left to right
 
-// TODO: Add runtime or compile time checks to make sure that all Promises
+// TODO: Consider adding compile time checks to make sure that all Promises
 // are awaited on (etiher call startAsync or actually use the await
 // keyword).
+// Right now, I have runtime checks in ttjs for this.
 
 // error
 class CompileError extends Error {

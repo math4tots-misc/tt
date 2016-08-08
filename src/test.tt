@@ -156,6 +156,16 @@ fn async asyncFunction() Void {
   print("I'm at the beginning of asyncFunction");
   await asyncSleep(1000);
 
+  // asyncSleep(1000);
+  """Uncommenting the above line should produce a message like the
+  following:
+
+  Error: await or runAsync not used on some promise(s)
+  Most recent call last:
+    main()              in 'test.tt'           line 97
+    asyncFunction()     in 'test.tt'           line 158
+  """;
+
   // error("Hoi");
   // Uncommenting the above line should show a nice stack trace like:
   // Most recent call last:
