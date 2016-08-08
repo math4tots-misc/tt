@@ -1106,6 +1106,7 @@ class Parser {
       return {
         "type": token.type,
         "token": token,
+        "exprType": new Typename("Bool"),
       };
     } else if (this.consume("INT")) {
       return {
@@ -1405,9 +1406,9 @@ function annotate(modules) {
     const body = resolveStatement(functemp.body, bindings, stack);
     currentInstantiationContext = null;
     popScope();
-    if (bodyret.equals(new Typename("Void"))) {
+    if (bodyret.equals(newTypename("Void"))) {
       if (body.maybeReturns !== null &&
-          !body.maybeReturns.equals(new Typename("Void"))) {
+          !body.maybeReturns.equals(newTypename("Void"))) {
         throw new InstantiationError(
             "Void function might return a value",
             [frame].concat(flatten(stack)));
@@ -1521,7 +1522,7 @@ function annotate(modules) {
     case "ReturnTemplate":
       const expr = node.expr === null ?
           null : resolveExpression(node.expr, bindings, stack);
-      const rettype = expr === null ? new Typename("Void") : expr.exprType;
+      const rettype = expr === null ? newTypename("Void") : expr.exprType;
       return {
         "type": "Return",
         "token": node.token,
@@ -1535,7 +1536,7 @@ function annotate(modules) {
       const cond = resolveExpression(node.cond, bindings, stack);
       const frame = new InstantiationFrame(
           node.token, currentInstantiationContext);
-      if (!cond.exprType.equals(new Typename("Bool"))) {
+      if (!cond.exprType.equals(newTypename("Bool"))) {
         throw new InstantiationError(
             "For loop condition must return a bool but got " +
             cond.exprType.toString(), [frame].concat(flatten(stack)));
@@ -1558,7 +1559,7 @@ function annotate(modules) {
       const cond = resolveExpression(node.cond, bindings, stack);
       const frame = new InstantiationFrame(
           node.token, currentInstantiationContext);
-      if (!cond.exprType.equals(new Typename("Bool"))) {
+      if (!cond.exprType.equals(newTypename("Bool"))) {
         throw new InstantiationError(
             "For loop condition must return a bool but got " +
             cond.exprType.toString(), [frame].concat(flatten(stack)));
@@ -1733,14 +1734,10 @@ function annotate(modules) {
       };
     case "true":
     case "false":
-      return {
-        "type": node.type,
-        "token": node.token,
-        "exprType": new Typename("Bool"),
-      };
     case "Int":
     case "Float":
     case "String":
+      queueClassInstantiation(node.exprType);
       return node;
     case "GetAttributeTemplate": {
       const owner = resolveExpression(node.owner, bindings, stack);
@@ -1772,8 +1769,7 @@ function annotate(modules) {
       };
     }
     case "TypeExpressionTemplate":
-      const cls = node.cls.resolve(bindings);
-      queueClassInstantiation(cls);
+      const cls = resolveTypeTemplate(node.cls, bindings);
       return {
         "type": "TypeExpression",
         "token": node.token,
@@ -1782,7 +1778,7 @@ function annotate(modules) {
     case "CompileTimeErrorTemplate":
       throw new InstantiationError(
           node.message, [frame].concat(flatten(stack)));
-    case "ListDisplayTemplate":
+    case "ListDisplayTemplate": {
       const exprs = resolveExpressionList(node, bindings, stack);
       if (exprs.length === 0) {
         throw new InstantiationError(
@@ -1803,12 +1799,15 @@ function annotate(modules) {
               [frame].concat(flatten(stack)));
         }
       }
+      const exprType = new TemplateType("List", [exprs[0].exprType]);
+      queueClassInstantiation(exprType);
       return {
         "type": "ListDisplay",
         "token": node.token,
         "exprs": exprs,
-        "exprType": new TemplateType("List", [exprs[0].exprType]),
+        "exprType": exprType,
       };
+    }
     case "AssignTemplate":
       const val = resolveExpression(node.val, bindings, stack);
       const exprType = getVariableType(
@@ -1854,12 +1853,12 @@ function annotate(modules) {
       const left = resolveExpression(node.left, bindings, stack);
       const right = resolveExpression(node.right, bindings, stack);
       const frames = [frame].concat(flatten(stack));
-      if (!left.exprType.equals(new Typename("Bool"))) {
+      if (!left.exprType.equals(newTypename("Bool"))) {
         throw new InstantiationError(
             "Or (left) operand must be Bool but got " + left.exprType,
             frames);
       }
-      if (!right.exprType.equals(new Typename("Bool"))) {
+      if (!right.exprType.equals(newTypename("Bool"))) {
         throw new InstantiationError(
             "Or (right) operand must be Bool but got " + right.exprType,
             frames);
@@ -1870,7 +1869,7 @@ function annotate(modules) {
         "op": node.op,
         "left": left,
         "right": right,
-        "exprType": new Typename("Bool"),
+        "exprType": newTypename("Bool"),
       };
     }
     case "AwaitTemplate": {
@@ -2062,6 +2061,12 @@ function annotate(modules) {
     }
   }
 
+  function newTypename(name) {
+    const type = new Typename(name);
+    queueClassInstantiation(type);
+    return type;
+  }
+
   // Queue all static blocks for instantiation
   for (const decltemp of decltemps) {
     decls.push(resolveStatement(decltemp, Object.create(null), null));
@@ -2073,6 +2078,7 @@ function annotate(modules) {
   }
   // Queue main for instantiation
   instantiationQueue.push(["main", [], null]);
+
   while (true) {
     if (instantiationQueue.length > 0) {
       const [name, argtypes, stack] = instantiationQueue.shift();
