@@ -77,9 +77,9 @@ function sanitizeString(str) {
     case "\\": r += "\\\\"; break;
     case "\"": r += "\\\""; break;
     case "\'": r += "\\\'"; break;
-    case "\n": r += "\\\n"; break;
-    case "\r": r += "\\\r"; break;
-    case "\t": r += "\\\t"; break;
+    case "\n": r += "\\n"; break;
+    case "\r": r += "\\r"; break;
+    case "\t": r += "\\t"; break;
     default: r += str[i];
     }
     i++;
