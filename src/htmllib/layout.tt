@@ -12,7 +12,7 @@ fn native new(JqueryLayout) JqueryLayout"""
   };
 """
 
-// This has to get called after the element element has been inserted into
+// This has to get called after the jquery element has been inserted into
 // the body.
 fn native setup(jql JqueryLayout) Void"""
   const jq = var_jql.jquery;
