@@ -4,19 +4,19 @@
 class native Table[$V];
 
 fn native new(Table[$V]) Table[$V]"""
-  return Object.create(null);
+  return new Map();
 """
 
 fn native __setitem__(t Table[$V], key String, value $V) Void"""
-  var_t[var_key] = var_value;
+  var_t.set(var_key, var_value);
 """
 
 fn native __contains__(t Table[$V], key String) Bool"""
-  return Object.hasOwnProperty.apply(var_t, [var_key]);
+  return var_t.has(var_key);
 """
 
 fn native __getitem__(t Table[$V], key String) $V"""
-  const result = var_t[var_key];
+  const result = var_t.get(var_key);
   if (result === undefined) {
     throw new Error("No such key: " + var_key);
   }
@@ -24,5 +24,9 @@ fn native __getitem__(t Table[$V], key String) $V"""
 """
 
 fn native discard(t Table[$V], key String) Void"""
-  delete var_t[var_key];
+  var_t.delete(var_key);
+"""
+
+fn native len(t Table[$V]) Int"""
+  return var_t.size;
 """

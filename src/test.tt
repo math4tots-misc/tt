@@ -117,11 +117,14 @@ fn main() Void {
   {
     final table = new(Table[Int]);
     assert("x" not in table);
+    assertEqual(len(table), 0);
     table["x"] = 5;
     assertEqual(table["x"], 5);
+    assertEqual(len(table), 1);
     assert("x" in table);
     discard(table, "x");
     assert("x" not in table);
+    assertEqual(len(table), 0);
   }
 
   print("synchronous main finished!");
