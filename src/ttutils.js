@@ -69,6 +69,21 @@ function asyncDir(path) {
   });
 }
 
+const asyncGetDirFilenames = asyncf(function*(dirname) {
+  const path = require("path");
+  const libdir = path.join(__dirname, dirname);
+  let libfilenames = null;
+  try {
+    libfilenames = yield asyncDir(libdir);
+    libfilenames = libfilenames.map(fn => path.join(dirname, fn));
+  } catch (e) {
+    console.error("Error while trying to read dir '" + libdir + "'");
+    console.error(e);
+    throw e;
+  }
+  return libfilenames;
+});
+
 function sanitizeString(str) {
   let r = "";
   let i = 0;
@@ -89,6 +104,7 @@ function sanitizeString(str) {
 
 exports.asyncf = asyncf;
 exports.asyncReadFile = asyncReadFile;
+exports.asyncGetDirFilenames = asyncGetDirFilenames;
 exports.asyncDir = asyncDir;
 exports.sanitizeString = sanitizeString;
 

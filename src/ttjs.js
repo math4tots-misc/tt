@@ -477,23 +477,8 @@ class Compiler {
   }
 }
 
-const asyncGetDirFilenames = ttutils.asyncf(function*(dirname) {
-  const path = require("path");
-  const libdir = path.join(__dirname, dirname);
-  let libfilenames = null;
-  try {
-    libfilenames = yield ttutils.asyncDir(libdir);
-    libfilenames = libfilenames.map(fn => path.join(dirname, fn));
-  } catch (e) {
-    console.error("Error while trying to read dir '" + libdir + "'");
-    console.error(e);
-    process.exit(1);
-  }
-  return libfilenames;
-});
-
 const asyncMain = ttutils.asyncf(function*() {
-  const libfilenames = yield asyncGetDirFilenames("lib");
+  const libfilenames = yield ttutils.asyncGetDirFilenames("lib");
   const binfilenames = process.argv.slice(2);
   const filenames = libfilenames.concat(binfilenames);
   const uriTextPairs = [];
@@ -514,6 +499,8 @@ const asyncMain = ttutils.asyncf(function*() {
 if (require.main === module) {
   asyncMain();
 }
+
+exports.compile = compile;
 
 })(ttjs);
 module.exports = ttjs;
