@@ -414,6 +414,7 @@ const keywords = [
 
   "and", "or",
   "var", "const", "goto", "function", "def", "const",
+  "package", "import", "as",
 ];
 const symbols = [
   "(", ")", "[", "]", "{", "}", ",", ".", "...",
