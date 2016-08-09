@@ -970,8 +970,14 @@ class Parser {
     }
     if (this.consume("is")) {
       if (this.consume("not")) {
-        const rhs = this.parseAdditiveTemplate();
-        return makeFunctionCallTemplate(token, "__isnot__", [expr, rhs]);
+        if (this.consume("null")) {
+          return makeFunctionCallTemplate(token, "__isnotnull__", [expr]);
+        } else {
+          const rhs = this.parseAdditiveTemplate();
+          return makeFunctionCallTemplate(token, "__isnot__", [expr, rhs]);
+        }
+      } else if (this.consume("null")) {
+        return makeFunctionCallTemplate(token, "__isnull__", [expr]);
       } else {
         const rhs = this.parseAdditiveTemplate();
         return makeFunctionCallTemplate(token, "__is__", [expr, rhs]);

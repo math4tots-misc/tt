@@ -18,6 +18,22 @@ fn main() Void {
     assertEqual("hi", "hi");
   }
 
+  //// is, is not, is null, is not null
+  {
+    let x = malloc(Sample[Int]);
+    let y = x;
+    let z = malloc(Sample[Int]);
+    assert(x is x);
+    assert(x is y);
+    assert(x is not z);
+    assert(x is not null);
+    assert(y is not null);
+    assert(z is not null);
+
+    let a Sample[Int];
+    assert(a is null);
+  }
+
   //// String literal
   {
     """

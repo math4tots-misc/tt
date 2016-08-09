@@ -8,8 +8,20 @@ fn native __not__(x Bool) Bool """
   return !var_x;
 """
 
-fn native __is__(x $T, y$T) Bool """
+fn native __is__(x $T, y $T) Bool """
   return var_x === var_y;
+"""
+
+fn native __isnot__(x $T, y $T) Bool"""
+  return var_x !== var_y;
+"""
+
+fn native __isnull__(x $T) Bool"""
+  return var_x === null;
+"""
+
+fn native __isnotnull__(x $T) Bool"""
+  return var_x !== null;
 """
 
 fn native __add__(x Int, y Int) Int """
