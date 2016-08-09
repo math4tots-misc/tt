@@ -615,6 +615,10 @@ const augmentAssignOperands = [
   "+=", "-=",  "/=",  "*=", "%=",
 ];
 
+// HACK: staticBlockIds have to be unique across the entire program.
+// TODO: Pay back this code debt.
+let nextStaticBlockId = 0;
+
 class Parser {
   constructor(uri, text) {
     this._tokens = lex(uri, text);
@@ -623,7 +627,7 @@ class Parser {
     this._staticBlockId = 0;
   }
   getNextStaticBlockId() {
-    return this._staticBlockId++;
+    return nextStaticBlockId++;
   }
   peek(dx) {
     const pos = Math.min(this._pos + (dx || 0), this._tokens.length-1);
