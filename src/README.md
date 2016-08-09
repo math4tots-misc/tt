@@ -3,7 +3,7 @@
 
 ## design principles
 
-1. Debuggable
+1. Safe/Debuggable
   1. It's ok to pay with performance if it improves debugging
     Examples:
     * Explicit stack traces with line numbers
@@ -26,7 +26,7 @@
     * Garbage collection. There might be better ways to implement this,
       but I couldn't really think of one (maybe Rust's way? but that seemed
       hard to do, to incorporate life-times into the type system).
-      Manual memory 
+      Manual memory
 
 3. Fast
   1. If it can be done fast while preserving the above two philosophies,
