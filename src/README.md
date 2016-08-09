@@ -23,10 +23,13 @@
 2. Fun
   1. It's ok to pay with performance if it adds fun
     Examples:
-    * Garbage collection. There might be better ways to implement this,
-      but I couldn't really think of one (maybe Rust's way? but that seemed
+    * Garbage collection. There might be better ways to handle this,
+      but I couldn't really think of one (maybe Rust's way? but that seems
       hard to do, to incorporate life-times into the type system).
-      Manual memory
+      Raw manual memory management can get super painful, and flies in
+      the face of safe/debuggable as well as being tedious.
+      Reference counting or even just letting memory leak in the very
+      worst case might still be better.
 
 3. Fast
   1. If it can be done fast while preserving the above two philosophies,
