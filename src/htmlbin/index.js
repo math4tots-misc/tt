@@ -188,9 +188,18 @@ function main__$1(stack) /*Void*/
 {
   (stack.push(0),pop(stack,print__$2(stack,"This should appear in the browser\'s console")));
   let var_body = new__$3(stack,undefined,"body");
-  let var_textNode = new__$3(stack,undefined,"<p></p>");
-  (stack.push(1),pop(stack,setText__$4(stack,var_textNode,"Hello world!")));
-  (stack.push(2),pop(stack,append__$5(stack,var_body,var_textNode)));
+  let var_layout = new__$4(stack,undefined);
+  let var_centerPane = new__$3(stack,undefined,"<div></div>");
+  (stack.push(1),pop(stack,setText__$5(stack,var_centerPane,"I\'m the center pane!")));
+  (stack.push(2),pop(stack,setCenter__$6(stack,var_layout,var_centerPane)));
+  let var_southPane = new__$3(stack,undefined,"<div></div>");
+  (stack.push(3),pop(stack,setText__$5(stack,var_southPane,"I\'m the south pane!")));
+  (stack.push(4),pop(stack,setSouth__$7(stack,var_layout,var_southPane)));
+  let var_eastPane = new__$3(stack,undefined,"<div></div>");
+  (stack.push(5),pop(stack,setText__$5(stack,var_eastPane,"I\'m the east pane!")));
+  (stack.push(6),pop(stack,setEast__$8(stack,var_layout,var_eastPane)));
+  (stack.push(7),pop(stack,append__$10(stack,var_body,getJquery__$9(stack,var_layout))));
+  (stack.push(8),pop(stack,setup__$11(stack,var_layout)));
 }
 
 // native function: print(String)Void
@@ -207,21 +216,85 @@ function new__$3(stack, var_null/*Jquery*/, var_selector/*String*/) /*Jquery*/
 
 }
 
+// native function: new(JqueryLayout)JqueryLayout
+function new__$4(stack, var_null/*JqueryLayout*/) /*JqueryLayout*/
+{
+  const jq = $("<div></div>");
+  jq.css("height", "100%");
+  return {
+    jquery: jq,
+    layout: null,
+  };
+
+}
+
 // native function: setText(Jquery,String)Void
-function setText__$4(stack, var_jq/*Jquery*/, var_text/*String*/) /*Void*/
+function setText__$5(stack, var_jq/*Jquery*/, var_text/*String*/) /*Void*/
 {
   var_jq.text(var_text);
 
 }
 
+function setCenter__$6(stack, var_jql/*JqueryLayout*/, var_element/*Jquery*/) /*Void*/
+{
+  (stack.push(9),pop(stack,setPane__$12(stack,var_jql,"center",var_element)));
+}
+
+function setSouth__$7(stack, var_jql/*JqueryLayout*/, var_element/*Jquery*/) /*Void*/
+{
+  (stack.push(10),pop(stack,setPane__$12(stack,var_jql,"south",var_element)));
+}
+
+function setEast__$8(stack, var_jql/*JqueryLayout*/, var_element/*Jquery*/) /*Void*/
+{
+  (stack.push(11),pop(stack,setPane__$12(stack,var_jql,"east",var_element)));
+}
+
+// native function: getJquery(JqueryLayout)Jquery
+function getJquery__$9(stack, var_jql/*JqueryLayout*/) /*Jquery*/
+{
+  return var_jql.jquery;
+
+}
+
 // native function: append(Jquery,Jquery)Void
-function append__$5(stack, var_jq/*Jquery*/, var_child/*Jquery*/) /*Void*/
+function append__$10(stack, var_jq/*Jquery*/, var_child/*Jquery*/) /*Void*/
 {
   var_jq.append(var_child);
 
 }
+
+// native function: setup(JqueryLayout)Void
+function setup__$11(stack, var_jql/*JqueryLayout*/) /*Void*/
+{
+  const jq = var_jql.jquery;
+  var_jql.layout = jq.layout({applyDefaultStyles: true});
+
+}
+
+// native function: setPane(JqueryLayout,String,Jquery)Void
+function setPane__$12(stack, var_jql/*JqueryLayout*/, var_dir/*String*/, var_element/*Jquery*/) /*Void*/
+{
+  const dirs = ["center", "north", "south", "west", "east"];
+  if (dirs.indexOf(var_dir) === -1) {
+    throw new Error(
+        var_dir + " is not a valid direction, must be one of " +
+        dirs.join(", "));
+  }
+
+  const cls = "ui-layout-" + var_dir;
+
+  var_element.addClass(cls);
+  const existingCenter = var_jql.jquery.find("." + cls);
+  if (existingCenter.length === 0) {
+    var_jql.jquery.append(var_element);
+  } else {
+    existingCenter.replaceWith(var_element);
+  }
+
+}
 // --- tag list, for generating helpful stack traces ---
-const tagList = ["main()@htmlsrc\\index.tt@3","main()@htmlsrc\\index.tt@8","main()@htmlsrc\\index.tt@10"];
+const tagList = ["main()@htmlsrc\\index.tt@3","main()@htmlsrc\\index.tt@10","main()@htmlsrc\\index.tt@11","main()@htmlsrc\\index.tt@14","main()@htmlsrc\\index.tt@15","main()@htmlsrc\\index.tt@18","main()@htmlsrc\\index.tt@19","main()@htmlsrc\\index.tt@22","main()@htmlsrc\\index.tt@25","setCenter(JqueryLayout,Jquery)@htmllib\\layout.tt@27","setSouth(JqueryLayout,Jquery)@htmllib\\layout.tt@35","setEast(JqueryLayout,Jquery)@htmllib\\layout.tt@43"];
 tryAndCatch(stack => {
 // --- call all the static stuff ---
 // --- finally call main ---

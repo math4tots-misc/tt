@@ -7,10 +7,26 @@ fn native new(Jquery, selector String) Jquery"""
   return $(var_selector);
 """
 
+fn setId(jq Jquery, id String) Void {
+  setAttr(jq, "id", var_id);
+}
+
+fn native append(jq Jquery, child Jquery) Void"""
+  var_jq.append(var_child);
+"""
+
 fn native setText(jq Jquery, text String) Void"""
   var_jq.text(var_text);
 """
 
-fn native append(jq Jquery, child Jquery) Void"""
-  var_jq.append(var_child);
+fn native getText(jq Jquery) String"""
+  return var_jq.text();
+"""
+
+fn native setAttr(jq Jquery, attrname String, val String) Void"""
+  var_jq.attr(var_attrname, var_val);
+"""
+
+fn native getAttr(jq Jquery, attrname String) String"""
+  return "" + var_jq.attr(var_attrname);
 """

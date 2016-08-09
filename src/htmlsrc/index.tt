@@ -4,8 +4,23 @@ fn main() Void {
 
   let body = new(Jquery, "body");
 
-  let textNode = new(Jquery, "<p></p>");
-  setText(textNode, "Hello world!");
+  let layout = new(JqueryLayout);
 
-  append(body, textNode);
+  let centerPane = new(Jquery, "<div></div>");
+  setText(centerPane, "I'm the center pane!");
+  setCenter(layout, centerPane);
+
+  let southPane = new(Jquery, "<div></div>");
+  setText(southPane, "I'm the south pane!");
+  setSouth(layout, southPane);
+
+  let eastPane = new(Jquery, "<div></div>");
+  setText(eastPane, "I'm the east pane!");
+  setEast(layout, eastPane);
+
+
+  append(body, getJquery(layout));
+
+  // This has to get called after the layout is put into the body.
+  setup(layout);
 }
