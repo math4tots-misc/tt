@@ -946,37 +946,35 @@ class Parser {
     const token = this.peek();
     if (this.consume("==")) {
       const rhs = this.parseAdditiveTemplate();
-      return makeFunctionCallTemplate(token, "equals", [expr, rhs]);
+      return makeFunctionCallTemplate(token, "__eq__", [expr, rhs]);
     }
     if (this.consume("!=")) {
       const rhs = this.parseAdditiveTemplate();
-      return makeFunctionCallTemplate(token, "notEquals", [expr, rhs]);
+      return makeFunctionCallTemplate(token, "__ne__", [expr, rhs]);
     }
     if (this.consume("<")) {
       const rhs = this.parseAdditiveTemplate();
-      return makeFunctionCallTemplate(token, "lessThan", [expr, rhs]);
+      return makeFunctionCallTemplate(token, "__lt__", [expr, rhs]);
     }
     if (this.consume("<=")) {
       const rhs = this.parseAdditiveTemplate();
-      return makeFunctionCallTemplate(
-          token, "lessThanOrEqualTo", [expr, rhs]);
+      return makeFunctionCallTemplate(token, "__le__", [expr, rhs]);
     }
     if (this.consume(">")) {
       const rhs = this.parseAdditiveTemplate();
-      return makeFunctionCallTemplate(token, "greaterThan", [expr, rhs]);
+      return makeFunctionCallTemplate(token, "__gt__", [expr, rhs]);
     }
     if (this.consume(">=")) {
       const rhs = this.parseAdditiveTemplate();
-      return makeFunctionCallTemplate(
-          token, "greaterThanOrEqualTo", [expr, rhs]);
+      return makeFunctionCallTemplate(token, "__ge__", [expr, rhs]);
     }
     if (this.consume("is")) {
       if (this.consume("not")) {
         const rhs = this.parseAdditiveTemplate();
-        return makeFunctionCallTemplate(token, "isNot", [expr, rhs]);
+        return makeFunctionCallTemplate(token, "__isnot__", [expr, rhs]);
       } else {
         const rhs = this.parseAdditiveTemplate();
-        return makeFunctionCallTemplate(token, "isSameAs", [expr, rhs]);
+        return makeFunctionCallTemplate(token, "__is__", [expr, rhs]);
       }
     }
     return expr;
@@ -987,12 +985,12 @@ class Parser {
       const token = this.peek();
       if (this.consume("+")) {
         expr = makeFunctionCallTemplate(
-            token, "add", [expr, this.parseMultiplicativeTemplate()]);
+            token, "__add__", [expr, this.parseMultiplicativeTemplate()]);
         continue;
       }
       if (this.consume("-")) {
         expr = makeFunctionCallTemplate(
-            token, "subtract", [expr, this.parseMultiplicativeTemplate()]);
+            token, "__sub__", [expr, this.parseMultiplicativeTemplate()]);
         continue;
       }
       break;
@@ -1005,17 +1003,17 @@ class Parser {
       const token = this.peek();
       if (this.consume("*")) {
         expr = makeFunctionCallTemplate(
-            token, "multiply", [expr, this.parsePrefixTemplate()]);
+            token, "__mul__", [expr, this.parsePrefixTemplate()]);
         continue;
       }
       if (this.consume("/")) {
         expr = makeFunctionCallTemplate(
-            token, "divide", [expr, this.parsePrefixTemplate()]);
+            token, "__div__", [expr, this.parsePrefixTemplate()]);
         continue;
       }
       if (this.consume("%")) {
         expr = makeFunctionCallTemplate(
-            token, "modulo", [expr, this.parsePrefixTemplate()]);
+            token, "__mod__", [expr, this.parsePrefixTemplate()]);
         continue;
       }
       break;
@@ -1025,17 +1023,17 @@ class Parser {
   parsePrefixTemplate() {
     const token = this.peek();
     if (this.consume("!")) {
-      return makeFunctionCallTemplate(token, "logicalNot", [
+      return makeFunctionCallTemplate(token, "__not__", [
         this.parsePrefixTemplate(),
       ]);
     }
     if (this.consume("-")) {
-      return makeFunctionCallTemplate(token, "negative", [
+      return makeFunctionCallTemplate(token, "__neg__", [
         this.parsePrefixTemplate(),
       ]);
     }
     if (this.consume("+")) {
-      return makeFunctionCallTemplate(token, "positive", [
+      return makeFunctionCallTemplate(token, "__pos__", [
         this.parsePrefixTemplate(),
       ]);
     }
@@ -1050,9 +1048,10 @@ class Parser {
         this.expect(closeBracket);
         if (this.consume("=")) {
           const val = this.parseExpressionTemplate();
-          expr = makeFunctionCallTemplate(token, "setItem", [expr, arg, val]);
+          expr = makeFunctionCallTemplate(
+              token, "__setitem__", [expr, arg, val]);
         } else {
-          expr = makeFunctionCallTemplate(token, "getItem", [expr, arg]);
+          expr = makeFunctionCallTemplate(token, "__getitem__", [expr, arg]);
         }
         continue;
       }

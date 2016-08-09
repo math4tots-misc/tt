@@ -9,21 +9,21 @@ fn error(x $X) Void {
   error(repr(x));
 }
 
-fn equals(x $T, y $T) Bool {
+fn __eq__(x $T, y $T) Bool {
   return x is y;
 }
 
-fn notEquals(x $T, y $T) Bool {
-  return !equals(x, y);
+fn __ne__(x $T, y $T) Bool {
+  return !__eq__(x, y);
 }
 
-fn greaterThanOrEqualTo(x Int, y Int) Bool {
+fn __ge__(x Int, y Int) Bool {
   return !(x < y);
 }
-fn greaterThan(x $T, y $T) Bool {
+fn __gt__(x $T, y $T) Bool {
   return y < x;
 }
-fn lessThanOrEqualTo(x $T, y $T) Bool {
+fn __le__(x $T, y $T) Bool {
   return !(y < x);
 }
 

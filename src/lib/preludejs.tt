@@ -4,35 +4,35 @@ fn native error(x String) Void """
   throw new Error(var_x);
 """
 
-fn native logicalNot(x Bool) Bool """
+fn native __not__(x Bool) Bool """
   return !var_x;
 """
 
-fn native isSameAs(x $T, y$T) Bool """
+fn native __is__(x $T, y$T) Bool """
   return var_x === var_y;
 """
 
-fn native add(x Int, y Int) Int """
+fn native __add__(x Int, y Int) Int """
   return var_x + var_y;
 """
 
-fn native add(x Int, y Float) Float """
+fn native __add__(x Int, y Float) Float """
   return var_x + var_y;
 """
 
-fn native add(x Float, y Int) Float """
+fn native __add__(x Float, y Int) Float """
   return var_x + var_y;
 """
 
-fn native add(x Float, y Float) Float """
+fn native __add__(x Float, y Float) Float """
   return var_x + var_y;
 """
 
-fn native add(x String, y String) String """
+fn native __add__(x String, y String) String """
   return var_x + var_y;
 """
 
-fn native lessThan(x Int, y Int) Bool """
+fn native __lt__(x Int, y Int) Bool """
   return var_x < var_y;
 """
 
