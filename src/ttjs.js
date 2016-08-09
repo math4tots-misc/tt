@@ -477,19 +477,24 @@ class Compiler {
   }
 }
 
-const asyncMain = ttutils.asyncf(function*() {
+const asyncGetDirFilenames = ttutils.asyncf(function*(dirname) {
   const path = require("path");
-  const binfilenames = process.argv.slice(2);
-  const libdir = path.join(__dirname, "lib");
+  const libdir = path.join(__dirname, dirname);
   let libfilenames = null;
   try {
     libfilenames = yield ttutils.asyncDir(libdir);
-    libfilenames = libfilenames.map(fn => path.join(libdir, fn));
+    libfilenames = libfilenames.map(fn => path.join(dirname, fn));
   } catch (e) {
     console.error("Error while trying to read dir '" + libdir + "'");
     console.error(e);
     process.exit(1);
   }
+  return libfilenames;
+});
+
+const asyncMain = ttutils.asyncf(function*() {
+  const libfilenames = yield asyncGetDirFilenames("lib");
+  const binfilenames = process.argv.slice(2);
   const filenames = libfilenames.concat(binfilenames);
   const uriTextPairs = [];
   for (const filename of filenames) {
