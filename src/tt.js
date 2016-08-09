@@ -1341,6 +1341,12 @@ function annotate(modules) {
 
   function instantiateFunction(name, argtypes, stack) {
     const functemp = findMatchingFunctionTemplate(name, argtypes);
+    if (functemp === null) {
+      throw new InstantiationError(
+          "No such function: " +
+          serializeFunctionInstantiation(name, argtypes),
+          flatten(stack));
+    }
     const token = functemp.token;
     currentInstantiationContext =
         serializeFunctionInstantiation(name, argtypes);
