@@ -408,7 +408,7 @@ class VariableTypeTemplate extends TypeTemplate {
 const keywords = [
   "fn", "class", "let", "final", "static", "native", "async", "await",
   "return",
-  "is", "not",
+  "is", "not", "in",
   "for", "if", "else", "while", "break", "continue",
   "true", "false", "null",
 
@@ -967,6 +967,15 @@ class Parser {
     if (this.consume(">=")) {
       const rhs = this.parseAdditiveTemplate();
       return makeFunctionCallTemplate(token, "__ge__", [expr, rhs]);
+    }
+    if (this.consume("in")) {
+      const rhs = this.parseAdditiveTemplate();
+      return makeFunctionCallTemplate(token, "__contains__", [rhs, expr]);
+    }
+    if (this.consume("not")) {
+      this.expect("in");
+      const rhs = this.parseAdditiveTemplate();
+      return makeFunctionCallTemplate(token, "__notContains__", [rhs, expr]);
     }
     if (this.consume("is")) {
       if (this.consume("not")) {

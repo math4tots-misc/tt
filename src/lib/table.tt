@@ -11,7 +11,7 @@ fn native __setitem__(t Table[$V], key String, value $V) Void"""
   var_t[var_key] = var_value;
 """
 
-fn native contains(t Table[$V], key String) Bool"""
+fn native __contains__(t Table[$V], key String) Bool"""
   return Object.hasOwnProperty.apply(var_t, [var_key]);
 """
 

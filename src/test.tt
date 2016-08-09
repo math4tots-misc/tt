@@ -116,10 +116,12 @@ fn main() Void {
   //// Table
   {
     final table = new(Table[Int]);
+    assert("x" not in table);
     table["x"] = 5;
     assertEqual(table["x"], 5);
-    assert(contains(table, "x"));
-    assertFalse(contains(table, "y"));
+    assert("x" in table);
+    discard(table, "x");
+    assert("x" not in table);
   }
 
   print("synchronous main finished!");

@@ -9,6 +9,10 @@ fn error(x $X) Void {
   error(repr(x));
 }
 
+fn __notContains__(xs $Container, x $Item) Bool {
+  return !(x in xs);
+}
+
 fn __eq__(x $T, y $T) Bool {
   return x is y;
 }
