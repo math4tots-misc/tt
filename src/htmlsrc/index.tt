@@ -2,25 +2,25 @@ fn main() Void {
 
   print("This should appear in the browser's console");
 
+  let layoutDiv = new(Jquery, "<div></div>");
+  addCss(layoutDiv, "height", "100%");
+
+  let centerDiv = new(Jquery, "<div></div>");
+  addClass(centerDiv, "ui-layout-center");
+  setText(centerDiv, "I'm the center pane!");
+  append(layoutDiv, centerDiv);
+
+  let southDiv = new(Jquery, "<div></div>");
+  addClass(southDiv, "ui-layout-south");
+  setText(southDiv, "I'm the south pane!");
+  append(layoutDiv, southDiv);
+
+  let eastDiv = new(Jquery, "<div></div>");
+  addClass(eastDiv, "ui-layout-east");
+  setText(eastDiv, "I'm the east pane!");
+  append(layoutDiv, eastDiv);
+
   let body = new(Jquery, "body");
-
-  let layout = new(JqueryLayout);
-
-  let centerPane = new(Jquery, "<div></div>");
-  setText(centerPane, "I'm the center pane!");
-  setCenter(layout, centerPane);
-
-  let southPane = new(Jquery, "<div></div>");
-  setText(southPane, "I'm the south pane!");
-  setSouth(layout, southPane);
-
-  let eastPane = new(Jquery, "<div></div>");
-  setText(eastPane, "I'm the east pane!");
-  setEast(layout, eastPane);
-
-
-  append(body, getJquery(layout));
-
-  // This has to get called after the layout is put into the body.
-  setup(layout);
+  append(body, layoutDiv);
+  let layout = new(JqueryLayout, layoutDiv);
 }

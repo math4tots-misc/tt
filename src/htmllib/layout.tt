@@ -3,61 +3,6 @@
 
 class native JqueryLayout;
 
-fn native new(JqueryLayout) JqueryLayout"""
-  const jq = $("<div></div>");
-  jq.css("height", "100%");
-  return {
-    jquery: jq,
-    layout: null,
-  };
-"""
-
-// This has to get called after the jquery element has been inserted into
-// the body.
-fn native setup(jql JqueryLayout) Void"""
-  const jq = var_jql.jquery;
-  var_jql.layout = jq.layout({applyDefaultStyles: true});
-"""
-
-fn native getJquery(jql JqueryLayout) Jquery"""
-  return var_jql.jquery;
-"""
-
-fn setCenter(jql JqueryLayout, element Jquery) Void {
-  setPane(jql, "center", element);
-}
-
-fn setNorth(jql JqueryLayout, element Jquery) Void {
-  setPane(jql, "north", element);
-}
-
-fn setSouth(jql JqueryLayout, element Jquery) Void {
-  setPane(jql, "south", element);
-}
-
-fn setWest(jql JqueryLayout, element Jquery) Void {
-  setPane(jql, "west", element);
-}
-
-fn setEast(jql JqueryLayout, element Jquery) Void {
-  setPane(jql, "east", element);
-}
-
-fn native setPane(jql JqueryLayout, dir String, element Jquery) Void"""
-  const dirs = ["center", "north", "south", "west", "east"];
-  if (dirs.indexOf(var_dir) === -1) {
-    throw new Error(
-        var_dir + " is not a valid direction, must be one of " +
-        dirs.join(", "));
-  }
-
-  const cls = "ui-layout-" + var_dir;
-
-  var_element.addClass(cls);
-  const existingCenter = var_jql.jquery.find("." + cls);
-  if (existingCenter.length === 0) {
-    var_jql.jquery.append(var_element);
-  } else {
-    existingCenter.replaceWith(var_element);
-  }
+fn native new(JqueryLayout, jq Jquery) JqueryLayout"""
+  return var_jq.layout({applyDefaultStyles: true});
 """
