@@ -1,0 +1,11 @@
+fn main() Void {
+
+  print("This should appear in the browser's console");
+
+  let body = new(Jquery, "body");
+
+  let textNode = new(Jquery, "<p></p>");
+  setText(textNode, "Hello world!");
+
+  append(body, textNode);
+}

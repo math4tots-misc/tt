@@ -1,0 +1,16 @@
+// jquery.tt
+// Some functions for manipulating the DOM
+
+class native Jquery;
+
+fn native new(Jquery, selector String) Jquery"""
+  return $(var_selector);
+"""
+
+fn native setText(jq Jquery, text String) Void"""
+  var_jq.text(var_text);
+"""
+
+fn native append(jq Jquery, child Jquery) Void"""
+  var_jq.append(var_child);
+"""

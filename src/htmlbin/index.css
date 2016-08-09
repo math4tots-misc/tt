@@ -1,0 +1,72 @@
+body {
+  margin: 0;
+}
+
+#after-login {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* BEGIN libfiletreeview */
+
+.file-listing {
+  border: 1px solid white;
+}
+
+.file-listing:hover {
+  border: 1px solid green;
+}
+
+.folder-name {
+  border: 1px solid white;
+}
+
+.folder-name:hover {
+  border: 1px solid green;
+}
+
+.context-menu-active {
+  border: 1px solid green;
+}
+
+.active-file-listing {
+  background-color: rgba(190, 235, 255, 1);
+}
+
+/* END libfiletreeview */
+
+
+/* BEGIN libeditor */
+
+/* With the ui-layout-center and ui-layout-south
+ * what I really want is a parent selector, i.e., all ui-layout-panes
+ * that contain a CodeMirror element
+ */
+
+.ui-layout-center {
+  /* HACK: jquery layout hardcodes padding on the center pane at the
+   * element.style level, so the only way to remove padding with CSS
+   * is by demanding !important.
+   * It's not actually *that* critical that there be no padding,
+   * so if this messes up something more important, remove it.
+   */
+  padding: 0px !important;
+}
+
+.ui-layout-south {
+  /* HACK: jquery layout hardcodes padding on the center pane at the
+   * element.style level, so the only way to remove padding with CSS
+   * is by demanding !important.
+   * It's not actually *that* critical that there be no padding,
+   * so if this messes up something more important, remove it.
+   */
+  padding: 0px !important;
+}
+
+.CodeMirror {
+  height: 100%;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/* END libeditor */
