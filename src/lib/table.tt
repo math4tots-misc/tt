@@ -1,0 +1,28 @@
+// table.tt
+// Like a map, but keys must be strings
+
+class native Table[$V];
+
+fn native new(Table[$V]) Table[$V]"""
+  return Object.create(null);
+"""
+
+fn native setItem(t Table[$V], key String, value $V) Void"""
+  var_t[var_key] = var_value;
+"""
+
+fn native contains(t Table[$V], key String) Bool"""
+  return Object.hasOwnProperty.apply(var_t, [var_key]);
+"""
+
+fn native getItem(t Table[$V], key String) $V"""
+  const result = var_t[var_key];
+  if (result === undefined) {
+    throw new Error("No such key: " + var_key);
+  }
+  return result;
+"""
+
+fn native discard(t Table[$V], key String) Void"""
+  delete var_t[var_key];
+"""

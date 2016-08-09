@@ -97,6 +97,15 @@ fn main() Void {
     startAsync(asyncFunction());
   }
 
+  //// Table
+  {
+    final table = new(Table[Int]);
+    table["x"] = 5;
+    assertEqual(table["x"], 5);
+    assert(contains(table, "x"));
+    assertFalse(contains(table, "y"));
+  }
+
   print("synchronous main finished!");
 }
 
