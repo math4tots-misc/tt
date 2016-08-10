@@ -1,26 +1,45 @@
-fn main() Void {
-
-  print("This should appear in the browser's console");
-
-  let layoutDiv = new(Jquery, "<div></div>");
+fn setupGui() Void {
+  final layoutDiv = new(Jquery, "<div></div>");
   addCss(layoutDiv, "height", "100%");
 
-  let centerDiv = new(Jquery, "<div></div>");
+  final centerDiv = new(Jquery, "<div></div>");
   addClass(centerDiv, "ui-layout-center");
-  setText(centerDiv, "I'm the center pane!");
+  // setText(centerDiv, "I'm the center pane!");
   append(layoutDiv, centerDiv);
 
-  let southDiv = new(Jquery, "<div></div>");
+  final textArea = new(Jquery, "<textarea></textarea>");
+  append(centerDiv, textArea);
+
+  final southDiv = new(Jquery, "<div></div>");
   addClass(southDiv, "ui-layout-south");
   setText(southDiv, "I'm the south pane!");
   append(layoutDiv, southDiv);
 
-  let eastDiv = new(Jquery, "<div></div>");
+  final eastDiv = new(Jquery, "<div></div>");
   addClass(eastDiv, "ui-layout-east");
   setText(eastDiv, "I'm the east pane!");
   append(layoutDiv, eastDiv);
 
-  let body = new(Jquery, "body");
+  final westDiv = new(Jquery, "<div></div>");
+  addClass(westDiv, "ui-layout-west");
+  setText(westDiv, "I'm the west pane!");
+
+  append(layoutDiv, westDiv);
+
+  final body = new(Jquery, "body");
   append(body, layoutDiv);
-  let layout = new(JqueryLayout, layoutDiv);
+
+  final layout = new(JqueryLayout, layoutDiv);
+  final cm = new(CodeMirror, textArea);
+
+  final doc = new(CodeMirrorDoc, "hello world!");
+  assertEqual(getValue(doc), "hello world!");
+
+  swapDoc(cm, doc);
+  setReadonly(cm, false);
+}
+
+fn main() Void {
+  print("This should appear in the browser's console");
+  setupGui();
 }
