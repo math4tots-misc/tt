@@ -1304,6 +1304,24 @@ function checkForDuplicateClassDefinitions(classtemps) {
   }
 }
 
+function checkForDuplicateFunctionDefinitions(functemps) {
+  const refs = Object.create(null);
+  for (const functemp of functemps) {
+    const templ = new TemplateTypeTemplate(
+        functemp.token,
+        functemp.name,
+        functemp.args.map(arg => arg[1]),
+        functemp.vararg);
+    const key = templ.serialize();
+    if (refs[key]) {
+      throw new CompileError(
+          "Duplicate function definition: " + key,
+          [refs[key].token, functemp.token]);
+    }
+    refs[key] = functemp;
+  }
+}
+
 function annotate(modules) {
   // collect all the function templates.
   const functemps = [];
@@ -1325,6 +1343,7 @@ function annotate(modules) {
   }
 
   checkForDuplicateClassDefinitions(classtemps);
+  checkForDuplicateFunctionDefinitions(functemps);
 
   // expand functions as needed.
   const funcs = [];
