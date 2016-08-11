@@ -292,6 +292,9 @@ class TypenameTemplate extends TypeTemplate {
   resolve(bindings) {
     return new Typename(this.name);
   }
+  serialize(bindings) {
+    return this.name;
+  }
 }
 
 class TemplateTypeTemplate extends TypeTemplate {
@@ -366,6 +369,18 @@ class TemplateTypeTemplate extends TypeTemplate {
     }
     return new TemplateType(this.name, args);
   }
+  serialize(bindings) {
+    bindings = bindings || {_nextIndex: 0};
+    let args = this.args.map(arg => arg.serialize(bindings)).join(",");
+    let vararg = "";
+    if (this.vararg !== null) {
+      if (bindings["..." + this.vararg] === undefined) {
+        bindings["..." + this.vararg] = bindings._nextIndex++;
+      }
+      vararg = "..." + bindings["..." + this.vararg];
+    }
+    return this.name + "[" + args + vararg + "]";
+  }
 }
 
 class VariableTypeTemplate extends TypeTemplate {
@@ -400,6 +415,13 @@ class VariableTypeTemplate extends TypeTemplate {
           "binding found", [this.token]);
     }
     return bindings[this.name];
+  }
+  serialize(bindings) {
+    bindings = bindings || {_nextIndex: 0};
+    if (bindings["$" + this.name] === undefined) {
+      bindings["$" + this.name] = bindings._nextIndex++;
+    }
+    return "$" + bindings["$" + this.name];
   }
 }
 
@@ -1269,6 +1291,19 @@ function serializeFunctionInstantiation(name, argtypes) {
          argtypes.map(argtype => argtype.toString()).join(",") + ")";
 }
 
+function checkForDuplicateClassDefinitions(classtemps) {
+  const refs = Object.create(null);
+  for (const classtemp of classtemps) {
+    const key = classtemp.pattern.serialize();
+    if (refs[key]) {
+      throw new CompileError(
+          "Duplicate class definition: " + key,
+          [refs[key].token, classtemp.token]);
+    }
+    refs[key] = classtemp;
+  }
+}
+
 function annotate(modules) {
   // collect all the function templates.
   const functemps = [];
@@ -1288,6 +1323,8 @@ function annotate(modules) {
       decltemps.push(decltemp);
     }
   }
+
+  checkForDuplicateClassDefinitions(classtemps);
 
   // expand functions as needed.
   const funcs = [];
