@@ -41,5 +41,7 @@ fn setupGui() Void {
 
 fn main() Void {
   print("This should appear in the browser's console");
-  setupGui();
+  jqueryOnRead(fn() {
+    setupGui();
+  });
 }

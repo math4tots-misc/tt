@@ -479,8 +479,9 @@ class Compiler {
 
 const asyncMain = ttutils.asyncf(function*() {
   const libfilenames = yield ttutils.asyncGetDirFilenames("lib");
+  const libhtmlfns = yield ttutils.asyncGetDirFilenames("htmllib");
   const binfilenames = process.argv.slice(2);
-  const filenames = libfilenames.concat(binfilenames);
+  const filenames = libfilenames.concat(binfilenames).concat(libhtmlfns);
   const uriTextPairs = [];
   for (const filename of filenames) {
     let data = null;

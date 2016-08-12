@@ -38,3 +38,8 @@ fn native setAttr(jq Jquery, attrname String, val String) Void"""
 fn native getAttr(jq Jquery, attrname String) String"""
   return "" + var_jq.attr(var_attrname);
 """
+
+fn native jqueryOnRead(f Lambda[Void]) Void"""
+  $(document).ready(() => var_f(stack));
+"""
+

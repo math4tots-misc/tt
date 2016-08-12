@@ -1990,6 +1990,9 @@ function annotate(modules) {
             "Invalid return types: " + body.maybeReturns + " / " +
             body.returns, [frame].concat(flatten(stack)));
       }
+      if (body.returns === null) {
+        body.returns = newTypename("Void");
+      }
       popScope();
       const exprType = new TemplateType(
           "Lambda", [body.returns].concat(argtypes));
