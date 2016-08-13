@@ -1,0 +1,37 @@
+
+fn native len(s String) Int"""
+  return var_s.length;
+"""
+
+fn native __getitem__(s String, i Int) String"""
+  if (var_i < 0 || var_i >= var_s.length) {
+    throw new Error("Indexed String out of bounds: i = " +
+                    var_i + ", len(s) = " + var_s.length);
+  }
+  return var_s[var_i];
+"""
+
+fn repr(s String) String {
+  let r = '"';
+  for (let i = 0; i < len(s); i++) {
+    if (s[i] == "\n") {
+      r += "\\n";
+    } else if (s[i] == "\t") {
+      r += "\\t";
+    } else if (s[i] == "\r") {
+      r += "\\r";
+    } else if (s[i] == "\f") {
+      r += "\\f";
+    } else if (s[i] == "\\") {
+      r += "\\\\";
+    } else if (s[i] == "'") {
+      r += "\\'";
+    } else if (s[i] == '"') {
+      r += '\\"';
+    } else {
+      r += s[i];
+    }
+  }
+  r += '"';
+  return r;
+}

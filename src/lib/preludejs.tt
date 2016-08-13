@@ -48,11 +48,6 @@ fn native repr(x Float) String """
   return "" + var_x;
 """
 
-fn native repr(x String) String """
-  // TODO
-  return var_x;
-"""
-
 fn native getStackTraceMessage() String """
   return getStackTraceMessage(stack);
 """

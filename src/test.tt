@@ -181,6 +181,13 @@ fn main() Void {
     assertEqual(0 - 5, -5);
   }
 
+  //// String repr
+  {
+    assertEqual(repr("hello world!"), '"hello world!"');
+    assertEqual(repr("\n"), r'"\n"');
+    assertEqual(repr("\\"), r'"\\"');
+  }
+
   print("synchronous main finished!");
 }
 

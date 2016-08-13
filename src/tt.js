@@ -550,6 +550,8 @@ class Lexer {
           switch(this._ch()) {
           case "t": str += "\t"; break;
           case "n": str += "\n"; break;
+          case "f": str += "\f"; break;
+          case "r": str += "\r"; break;
           case "\\": str += "\\"; break;
           case "'": str += "'"; break;
           case '"': str += '"'; break;
