@@ -149,6 +149,15 @@ fn main() Void {
     assertEqual(xs, ["a", "b"]);
   }
 
+  //// String += operator
+  {
+    let s = "a";
+    s += "bb";
+    assertEqual(s, "abb");
+    s += "c";
+    assertEqual(s, "abbc");
+  }
+
   print("synchronous main finished!");
 }
 

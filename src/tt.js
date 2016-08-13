@@ -1902,10 +1902,16 @@ function annotate(modules) {
     case "AugmentAssignTemplate": {
       const exprType = getVariableType(node.name, stack);
       if (!(exprType instanceof Typename) ||
-          (exprType.name !== "Int" && exprType.name !== "Float")) {
+          (exprType.name !== "Int" && exprType.name !== "Float" &&
+           exprType.name !== "String")) {
         throw new InstantiationError(
             "Augassign operations can only be done on int or float " +
             "variables: " + exprType.toString(),
+            [frame].concat(flatten(stack)));
+      }
+      if (exprType.name === "String" && node.op !== "+=") {
+        throw new InstantiationError(
+            "Only the += augassign operation can be used on String types",
             [frame].concat(flatten(stack)));
       }
       const val = resolveExpression(node.val, bindings, stack);
