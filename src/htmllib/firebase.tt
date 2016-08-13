@@ -17,3 +17,18 @@ fn native new(Firebase,
   return firebase;
 """
 
+fn native signInWithRedirect(:Method, fb Firebase) Void"""
+  firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+"""
+
+fn native asyncWaitForUserLogin(:Method, fb Firebase) Promise[Void]"""
+  return newPromise(stack, (resolve, reject) => {
+    const unsubscribe = firebase.auth()["onAuthStateChanged"](user => {
+      if (user) {
+        resolve();
+        unsubscribe();
+      }
+    });
+  });
+"""
+
