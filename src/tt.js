@@ -878,6 +878,17 @@ class Parser {
         "incr": incr,
         "body": body,
       };
+    } else if (this.consume("while")) {
+      this.expect(openParen);
+      const cond = this.parseExpressionTemplate();
+      this.expect(closeParen);
+      const body = this.parseBlockTemplate();
+      return {
+        "type": "WhileTemplate",
+        "token": token,
+        "cond": cond,
+        "body": body,
+      };
     } else if (this.consume("if")) {
       this.expect(openParen);
       const cond = this.parseExpressionTemplate();
@@ -1634,7 +1645,26 @@ function annotate(modules) {
         "cond": cond,
         "incr": incr,
         "body": body,
-        "returns": body.returns,
+        "returns": null,
+        "maybeReturns": body.maybeReturns,
+      };
+    }
+    case "WhileTemplate": {
+      const cond = resolveExpression(node.cond, bindings, stack);
+      const frame = new InstantiationFrame(
+          node.token, currentInstantiationContext);
+      if (!cond.exprType.equals(newTypename("Bool"))) {
+        throw new InstantiationError(
+            "While loop condition must return a bool but got " +
+            cond.exprType.toString(), [frame].concat(flatten(stack)));
+      }
+      const body = resolveStatement(node.body, bindings, stack);
+      return {
+        "type": "While",
+        "token": node.token,
+        "cond": cond,
+        "body": body,
+        "returns": null,
         "maybeReturns": body.maybeReturns,
       };
     }

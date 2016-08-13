@@ -442,6 +442,9 @@ class Compiler {
              this.compileExpression(node.cond) + ";" +
              this.compileExpression(node.incr) + ")" +
              this.compileStatement(node.body);
+    case "While":
+      return "\nwhile (" + this.compileExpression(node.cond) + ")" +
+             this.compileStatement(node.body);
     case "If":
       let str = "\nif (" + this.compileExpression(node.cond) + ")" +
                 this.compileStatement(node.body);

@@ -188,6 +188,15 @@ fn main() Void {
     assertEqual(repr("\\"), r'"\\"');
   }
 
+  //// while statements
+  {
+    let i = 0;
+    while (i < 10) {
+      i++;
+    }
+    assertEqual(i, 10);
+  }
+
   print("synchronous main finished!");
 }
 
