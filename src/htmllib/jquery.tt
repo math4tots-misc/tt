@@ -40,7 +40,7 @@ fn native getAttr(:Method, jq Jquery, attrname String) String"""
 """
 
 fn native asyncReady(:Method, jq Jquery) Promise[Void]"""
-  return new Promise((resolve, reject) => {
+  return newPromise(stack, (resolve, reject) => {
     var_jq.ready(() => resolve());
   });
 """
