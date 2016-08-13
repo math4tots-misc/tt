@@ -11,6 +11,10 @@ fn native __neg__(x Int) Int"""
   return -var_x;
 """
 
+fn native __mod__(a Int, b Int) Int"""
+  return var_a % var_b;
+"""
+
 fn native __lt__(x Int, y Int) Bool """
   return var_x < var_y;
 """
