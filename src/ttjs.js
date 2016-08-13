@@ -416,7 +416,8 @@ class Compiler {
     this._currentFunctionContext = null;
     let result = name + args + compiledBody;
     if (isAsync) {
-      result = "const " + name + " = asyncf(function* " + result + ");";
+      result = "const " + name +
+               " = (() => asyncf(function* " + result + "))();";
     } else {
       result = "function " + result;
     }
