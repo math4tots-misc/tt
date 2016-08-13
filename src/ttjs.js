@@ -356,6 +356,9 @@ class Compiler {
     result += '\n"use strict";';
     result += nativePrelude;
     result += "\n// --- global variable declarations ---";
+    // TODO: Move the global declaration assignments to a static block,
+    // and don't declare a global "stack" variable.
+    result += "\nconst stack = [];";
     for (const decl of this._decls) {
       result += this.compileStatement(decl);
     }

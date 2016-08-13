@@ -1,0 +1,20 @@
+// firebase.tt
+// utilities for interfacing with firebase
+
+class native Firebase;
+class native FirebaseConfig;
+
+fn native new(Firebase,
+              apiKey String,
+              authDomain String,
+              databaseURL String,
+              storageBucket String) Firebase"""
+  firebase["initializeApp"]({
+    "apiKey": var_apiKey,
+    "authDomain": var_authDomain,
+    "databaseURL": var_databaseURL,
+    "storageBucket": var_storageBucket,
+  });
+  return firebase;
+"""
+
