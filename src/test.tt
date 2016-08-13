@@ -143,7 +143,9 @@ fn main() Void {
   {
     // syntactic sugar on function calls
     // push(xs, 5) is semantically equivalent to xs.push(5)
-    let xs = new(List[String]).push("a").push("b").push("cc");
+    let xs = new(List[String]).push("a").push("b");
+    assertEqual(xs, ["a", "b"]);
+    xs.push("cc");
     assertEqual(xs, ["a", "b", "cc"]);
     assertEqual(xs.pop(), "cc");
     assertEqual(xs, ["a", "b"]);
