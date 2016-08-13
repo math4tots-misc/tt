@@ -24,10 +24,6 @@ fn native __isnotnull__(x $T) Bool"""
   return var_x !== null;
 """
 
-fn native __add__(x Int, y Int) Int """
-  return var_x + var_y;
-"""
-
 fn native __add__(x Int, y Float) Float """
   return var_x + var_y;
 """
@@ -44,15 +40,7 @@ fn native __add__(x String, y String) String """
   return var_x + var_y;
 """
 
-fn native __lt__(x Int, y Int) Bool """
-  return var_x < var_y;
-"""
-
 fn native repr(x Bool) String """
-  return "" + var_x;
-"""
-
-fn native repr(x Int) String """
   return "" + var_x;
 """
 

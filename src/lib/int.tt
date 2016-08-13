@@ -1,0 +1,20 @@
+
+fn native __add__(x Int, y Int) Int """
+  return var_x + var_y;
+"""
+
+fn native __sub__(x Int, y Int) Int"""
+  return var_x - var_y;
+"""
+
+fn native __neg__(x Int) Int"""
+  return -var_x;
+"""
+
+fn native __lt__(x Int, y Int) Bool """
+  return var_x < var_y;
+"""
+
+fn native repr(x Int) String """
+  return "" + var_x;
+"""
