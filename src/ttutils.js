@@ -75,7 +75,7 @@ const asyncGetDirFilenames = asyncf(function*(dirname) {
   let libfilenames = null;
   try {
     libfilenames = yield asyncDir(libdir);
-    libfilenames = libfilenames.map(fn => path.join(dirname, fn));
+    libfilenames = libfilenames.map(fn => path.join(libdir, fn));
   } catch (e) {
     console.error("Error while trying to read dir '" + libdir + "'");
     console.error(e);
