@@ -695,6 +695,7 @@ class Parser {
     this._pos = 0;
     this._funcname = null;
     this._staticBlockId = 0;
+    this._insideAsync = false;
   }
   getNextStaticBlockId() {
     return nextStaticBlockId++;
@@ -795,11 +796,14 @@ class Parser {
     const ret = isStatic ?
         new TypenameTemplate(token, "Void") : this.parseTypeTemplate();
     let body = null;
+    const oldInsideAsync = this._insideAsync;
+    this._insideAsync = isAsync;
     if (isNative) {
       body = this.expect("STRING").val;
     } else {
       body = this.parseBlockTemplate();
     }
+    this._insideAsync = oldInsideAsync;
     this._funcname = null;
     return {
       "type": "FunctionTemplate",
@@ -1272,6 +1276,11 @@ class Parser {
         };
       }
     } else if (this.consume("await")) {
+      if (!this._insideAsync) {
+        throw new CompileError(
+            "You can't use await expressions outside of an async " +
+            "function or lambda expression", [token]);
+      }
       const expr = this.parseExpressionTemplate();
       return {
         "type": "AwaitTemplate",
@@ -1285,9 +1294,13 @@ class Parser {
         "token": token,
         "cls": cls,
       };
-    } else if (this.consume("fn")) {
+    } else if (this.consume("fn") || this.consume("async")) {
+      const isAsync = token.type === "async";
       const args = this.parseArgumentsTemplate();
+      const oldInsideAsync = this._insideAsync;
+      this._insideAsync = isAsync;
       const body = this.parseBlockTemplate();
+      this._insideAsync = oldInsideAsync;
       for (let i = 0; i < args.length; i++) {
         if (!args[i][0]) {
           throw new CompileError(
@@ -1303,6 +1316,7 @@ class Parser {
       return {
         "type": "LambdaTemplate",
         "token": token,
+        "isAsync": isAsync,
         "args": args,
         "vararg": args.vararg,
         "body": body,
@@ -2126,12 +2140,15 @@ function annotate(modules) {
         body.returns = newTypename("Void");
       }
       popScope();
-      const exprType = new TemplateType(
-          "Lambda", [body.returns].concat(argtypes));
+      const bodyret = node.isAsync ?
+                      new TemplateType("Promise", [body.returns]) :
+                      body.returns;
+      const exprType = new TemplateType("Lambda", [bodyret].concat(argtypes));
       queueClassInstantiation(exprType);
       return {
         "type": "Lambda",
         "token": node.token,
+        "isAsync": node.isAsync,
         "args": args,
         "body": body,
         "exprType": exprType,

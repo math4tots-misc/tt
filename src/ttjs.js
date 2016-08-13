@@ -512,6 +512,10 @@ class Compiler {
     case "Await":
       return "(yield " + this.compileExpression(node.expr) + ")";
     case "Lambda":
+      if (node.isAsync) {
+        return "asyncf(function*" + this.compileArguments(node.args) +
+               this.compileStatement(node.body) + ")";
+      }
       return "(" + this.compileArguments(node.args) + " => " +
               this.compileStatement(node.body) + ")";
     default:

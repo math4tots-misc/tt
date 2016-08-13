@@ -225,6 +225,15 @@ fn main() Void {
     assertEqual(items, [1, 3]);
   }
 
+  //// async lambda functions
+  startAsync(async() {
+    print("Inside async lambda function");
+    await asyncSleep(10);
+    print("After first asyncSleep in lambda function");
+    await asyncSleep(2000);
+    print("Finishing async lambda function");
+  });
+
   print("synchronous main finished!");
 }
 
