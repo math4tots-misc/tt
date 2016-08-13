@@ -127,6 +127,28 @@ fn main() Void {
     assertEqual(len(table), 0);
   }
 
+  //// List
+  {
+    let xs = new(List[Int]);
+    push(xs, 5);
+    assertEqual(xs, [5]);
+    push(xs, 6);
+    assertEqual(xs, [5, 6]);
+    assertEqual(xs[1], 6);
+    assertEqual(pop(xs), 6);
+    assertEqual(xs, [5]);
+  }
+
+  //// Method syntax
+  {
+    // syntactic sugar on function calls
+    // push(xs, 5) is semantically equivalent to xs.push(5)
+    let xs = new(List[String]).push("a").push("b").push("cc");
+    assertEqual(xs, ["a", "b", "cc"]);
+    assertEqual(xs.pop(), "cc");
+    assertEqual(xs, ["a", "b"]);
+  }
+
   print("synchronous main finished!");
 }
 

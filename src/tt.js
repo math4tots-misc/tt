@@ -1114,6 +1114,12 @@ class Parser {
             "op": op,
             "val": rhs,
           };
+        } else if (this.at(openParen)) {
+          const args =
+              this.parseExpressionListTemplate(openParen, closeParen);
+          args.unshift(expr);
+          expr =
+              makeFunctionCallTemplate(token, name, args, args.varexpr);
         } else {
           expr = {
             "type": "GetAttributeTemplate",
