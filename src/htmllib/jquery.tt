@@ -7,39 +7,41 @@ fn native new(Jquery, selector String) Jquery"""
   return $(var_selector);
 """
 
-fn setId(jq Jquery, id String) Void {
+fn setId(:Method, jq Jquery, id String) Void {
   setAttr(jq, "id", var_id);
 }
 
-fn native append(jq Jquery, child Jquery) Void"""
+fn native append(:Method, jq Jquery, child Jquery) Void"""
   var_jq.append(var_child);
 """
 
-fn native addClass(jq Jquery, cls String) Void"""
+fn native addClass(:Method, jq Jquery, cls String) Void"""
   var_jq.addClass(var_cls);
 """
 
-fn native addCss(jq Jquery, key String, value String) Void"""
+fn native addCss(:Method, jq Jquery, key String, value String) Void"""
   var_jq.css(var_key, var_value);
 """
 
-fn native setText(jq Jquery, text String) Void"""
+fn native setText(:Method, jq Jquery, text String) Void"""
   var_jq.text(var_text);
 """
 
-fn native getText(jq Jquery) String"""
+fn native getText(:Method, jq Jquery) String"""
   return var_jq.text();
 """
 
-fn native setAttr(jq Jquery, attrname String, val String) Void"""
+fn native setAttr(:Method, jq Jquery, attrname String, val String) Void"""
   var_jq.attr(var_attrname, var_val);
 """
 
-fn native getAttr(jq Jquery, attrname String) String"""
+fn native getAttr(:Method, jq Jquery, attrname String) String"""
   return "" + var_jq.attr(var_attrname);
 """
 
-fn native jqueryOnRead(f Lambda[Void]) Void"""
-  $(document).ready(() => var_f(stack));
+fn native asyncReady(:Method, jq Jquery) Promise[Void]"""
+  return new Promise((resolve, reject) => {
+    var_jq.ready(() => resolve());
+  });
 """
 
