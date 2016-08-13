@@ -56,12 +56,12 @@ fn __eq__(xs List[$T], ys List[$T]) Bool {
   return true;
 }
 
-fn native push(xs List[$T], x $T) List[$T]"""
+fn native push(:Method, xs List[$T], x $T) List[$T]"""
   var_xs.push(var_x);
   return var_xs;
 """
 
-fn native pop(xs List[$T]) $T"""
+fn native pop(:Method, xs List[$T]) $T"""
   return var_xs.pop();
 """
 

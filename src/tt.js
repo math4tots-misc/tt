@@ -164,6 +164,22 @@ class Typename extends Type {
   }
 }
 
+class SymbolType extends Type {
+  constructor(name) {
+    super();
+    this.name = name;
+  }
+  equals(other) {
+    return other instanceof SymbolType && this.name === other.name;
+  }
+  toString() {
+    return ":" + this.name;
+  }
+  inspect() {
+    return "SymbolType(" + this.name + ")";
+  }
+}
+
 class TemplateType extends Type {
   constructor(name, args) {
     super();
@@ -299,6 +315,29 @@ class TypenameTemplate extends TypeTemplate {
   }
   serialize(bindings) {
     return this.name;
+  }
+}
+
+class SymbolTypeTemplate extends TypeTemplate {
+  constructor(token, name) {
+    super(token);
+    this.name = name;
+  }
+  bindType(type, bindings) {
+    bindings = bindings || Object.create(null);
+    if (!(type instanceof SymbolType) || this.name !== type.name) {
+      return null;
+    }
+    return bindings;
+  }
+  getFreeVars(boundVars) {
+    return Object.create(null);
+  }
+  resolve(bindings) {
+    return new SymbolType(this.name);
+  }
+  serialize(bindings) {
+    return ":" + this.name;
   }
 }
 
@@ -447,7 +486,7 @@ const symbols = [
   "(", ")", "[", "]", "{", "}", ",", ".", "...",
   ";", "#", "$", "=",
   "+", "-", "*", "/", "%", "++", "--",
-  "&&", "||",
+  "&&", "||", "?", ":",
   "==", "!=", "<", ">", "<=", ">=", "!",
   "+=", "-=", "*=", "/=", "%=",
 ].sort().reverse();
@@ -801,6 +840,9 @@ class Parser {
     if (this.consume("$")) {
       return new VariableTypeTemplate(token, this.expect("TYPENAME").val);
     }
+    if (this.consume(":")) {
+      return new SymbolTypeTemplate(token, this.expect("TYPENAME").val);
+    }
     const name = this.expect("TYPENAME").val;
     if (this.consume(openBracket)) {
       const args = [];
@@ -1149,6 +1191,11 @@ class Parser {
           const args =
               this.parseExpressionListTemplate(openParen, closeParen);
           args.unshift(expr);
+          args.unshift({
+            "type": "TypeExpressionTemplate",
+            "token": token,
+            "cls": new SymbolTypeTemplate(token, "Method"),
+          });
           expr =
               makeFunctionCallTemplate(token, name, args, args.varexpr);
         } else {
@@ -1231,7 +1278,7 @@ class Parser {
         "token": token,
         "expr": expr,
       };
-    } else if (this.at("$") || this.at("TYPENAME")) {
+    } else if (this.at("$") || this.at(":") || this.at("TYPENAME")) {
       const cls = this.parseTypeTemplate();
       return {
         "type": "TypeExpressionTemplate",
@@ -2202,6 +2249,9 @@ function annotate(modules) {
   }
 
   function queueClassInstantiation(cls) {
+    if (cls instanceof SymbolType) {
+      return;
+    }
     const key = cls.toString();
     if (!classInstantiationTable[key]) {
       classInstantiationTable[key] = true;
