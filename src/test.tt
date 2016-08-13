@@ -205,6 +205,24 @@ fn main() Void {
       i++;
     }
     assertEqual(i, 10);
+
+    i = 0;
+    while (true) {
+      if (i > 5) {
+        break;
+      }
+      i++;
+    }
+    assertEqual(i, 6);
+
+    let items = new(List[Int]);
+    for (let i = 0; i < 5; i++) {
+      if (i%2 == 0) {
+        continue;
+      }
+      items.push(i);
+    }
+    assertEqual(items, [1, 3]);
   }
 
   print("synchronous main finished!");

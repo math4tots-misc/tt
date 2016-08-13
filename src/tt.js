@@ -889,6 +889,18 @@ class Parser {
         "cond": cond,
         "body": body,
       };
+    } else if (this.consume("break")) {
+      this.expect(";");
+      return {
+        "type": "BreakTemplate",
+        "token": token,
+      };
+    } else if (this.consume("continue")) {
+      this.expect(";");
+      return {
+        "type": "ContinueTemplate",
+        "token": token,
+      };
     } else if (this.consume("if")) {
       this.expect(openParen);
       const cond = this.parseExpressionTemplate();
@@ -1668,6 +1680,20 @@ function annotate(modules) {
         "maybeReturns": body.maybeReturns,
       };
     }
+    case "BreakTemplate":
+      return {
+        "type": "Break",
+        "token": node.token,
+        "returns": null,
+        "maybeReturns": null,
+      };
+    case "ContinueTemplate":
+      return {
+        "type": "Continue",
+        "token": node.token,
+        "returns": null,
+        "maybeReturns": null,
+      };
     case "IfTemplate": {
       const cond = resolveExpression(node.cond, bindings, stack);
       const frame = new InstantiationFrame(
@@ -1896,7 +1922,8 @@ function annotate(modules) {
       if (exprs.length === 0) {
         throw new InstantiationError(
           "List displays must contain at least one element to allow for " +
-          "type inference", [frame].concat(flatten(stack)));
+          "type inference -- try e.g. new(List[Int]) instead",
+          [frame].concat(flatten(stack)));
       }
       for (const expr of exprs) {
         if (!expr.exprType.equals(exprs[0].exprType)) {
