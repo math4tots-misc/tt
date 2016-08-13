@@ -494,7 +494,13 @@ const asyncMain = ttutils.asyncf(function*() {
     }
     uriTextPairs.push([filename, data]);
   }
-  console.log(compile(uriTextPairs));
+  try {
+    console.log(compile(uriTextPairs));
+  } catch (e) {
+    console.error("Compile error");
+    console.error(e);
+    process.exit(1);
+  }
 });
 
 if (require.main === module) {
