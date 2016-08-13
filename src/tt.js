@@ -28,6 +28,11 @@ Error.stackTraceLimit = Infinity;
 // keyword).
 // Right now, I have runtime checks in ttjs for this.
 
+// TODO: Optimization. Allow marking methods as nothrow/constexpr/nostack,
+// such that functions marked as such are not passed an explicit stack.
+// This will probably make it a lot easier for the closure compiler to
+// inline common functions like __add__(Int, Int) to the native add operator.
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {
