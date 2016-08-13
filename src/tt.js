@@ -13,6 +13,12 @@ Error.stackTraceLimit = Infinity;
 // phase. Modify the code such that you get a compile time error if you
 // try to assign to a final variable.
 
+// TODO: Right now you can refer to any variable in scope from a lambda
+// function. However, I want to limit this only to final variables like
+// in Java. The behavior right now is ok for javascript, but may cause
+// strange behavior in languages like Java/C++ where the variables cannot
+// outlive the stack frame of the function in which it was declared.
+
 // TODO: Static assert statements to test compile time instantiation
 // logic.
 
