@@ -1,0 +1,25 @@
+// asyncqueue.tt
+
+class native AsyncQueue[$T];
+
+fn native new(AsyncQueue[$T]) AsyncQueue[$T]"""
+  return {items: [], listeners: []};
+"""
+
+fn native push(:Method, queue AsyncQueue[$T], t $T) Void"""
+  if (var_queue.listeners.length > 0) {
+    var_queue.listeners.shift()(var_t);
+  } else {
+    var_queue.items.push(var_t);
+  }
+"""
+
+fn native asyncPop(:Method, queue AsyncQueue[$T]) Promise[$T]"""
+  return newPromise(stack, (resolve, reject) => {
+    if (var_queue.items.length > 0) {
+      resolve(var_queue.items.shift());
+    } else {
+      var_queue.listeners.push(resolve);
+    }
+  });
+"""

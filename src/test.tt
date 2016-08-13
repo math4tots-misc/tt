@@ -226,13 +226,30 @@ fn main() Void {
   }
 
   //// async lambda functions
-  startAsync(async() {
-    print("Inside async lambda function");
-    await asyncSleep(10);
-    print("After first asyncSleep in lambda function");
-    await asyncSleep(2000);
-    print("Finishing async lambda function");
-  });
+  {
+    final someList = new(List[Int]);
+    startAsync(async() {
+      assertEqual(someList, new(List[Int]));
+      await asyncSleep(10);
+      assertEqual(someList, [151]);
+    });
+    startAsync(async() {
+      someList.push(151);
+    });
+  }
+
+  //// async queue
+  {
+    final queue = new(AsyncQueue[Int]);
+    startAsync(async() {
+      final item = await queue.asyncPop();
+      assertEqual(item, 244);
+    });
+    startAsync(async() {
+      await asyncSleep(50);
+      queue.push(244);
+    });
+  }
 
   print("synchronous main finished!");
 }

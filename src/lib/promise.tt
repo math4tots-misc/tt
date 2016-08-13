@@ -1,5 +1,4 @@
 class native Promise[$T];
-class native AsyncQueue[$T];
 
 //// TODO: setTimeout(..., 0) doesn't actually give delay of 0ms, because
 // the HTML5 spec sets this to 4ms for any value less than that (
@@ -33,25 +32,3 @@ fn native startAsync(promise Promise[$T]) Void"""
 fn startAsync(f Lambda[Promise[$T]]) Void {
   startAsync(call(f));
 }
-
-fn native new(AsyncQueue[$T]) AsyncQueue[$T]"""
-  return {items: [], listeners: []};
-"""
-
-fn native push(queue AsyncQueue[$T], t $T) Void"""
-  if (var_queue.listeners.length > 0) {
-    var_queue.listeners.shift()(t);
-  } else {
-    var_queue.items.push(t);
-  }
-"""
-
-fn native asyncPop(queue AsyncQueue[$T]) Promise[$T]"""
-  return newPromise(stack, (resolve, reject) => {
-    if (var_queue.items.length > 0) {
-      resolve(var_queue.items.shift());
-    } else {
-      var_queue.listeners.push(resolve);
-    }
-  });
-"""
