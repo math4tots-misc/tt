@@ -636,6 +636,7 @@ function lex(uri, text) {
 
 const augmentAssignOperands = [
   "+=", "-=",  "/=",  "*=", "%=",
+  "++", "--",
 ];
 
 // HACK: staticBlockIds have to be unique across the entire program.
@@ -1177,7 +1178,8 @@ class Parser {
         };
       } else if (augmentAssignOperands.some(op => this.at(op))) {
         const op = this.next().type;
-        const rhs = this.parseExpressionTemplate();
+        const rhs = (op === "++" || op === "--") ?
+                    null : this.parseExpressionTemplate();
         return {
           "type": "AugmentAssignTemplate",
           "token": token,
@@ -1914,8 +1916,15 @@ function annotate(modules) {
             "Only the += augassign operation can be used on String types",
             [frame].concat(flatten(stack)));
       }
-      const val = resolveExpression(node.val, bindings, stack);
-      if (!val.exprType.equals(exprType)) {
+      if ((node.op === "++" || node.op === "--") && exprType.name !== "Int") {
+        throw new InstantiationError(
+            "++ and -- operators can only be used on Int types " +
+            "but found: " + exprType.name,
+            [frame].concat(flatten(stack)));
+      }
+      const val = node.val === null ?
+                  null : resolveExpression(node.val, bindings, stack);
+      if (val !== null && !val.exprType.equals(exprType)) {
         throw new InstantiationError(
             "Expected " + exprType.toString() + " but got " +
             val.exprType.toString(), [frame].concat(flatten(stack)));

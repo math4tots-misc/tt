@@ -447,6 +447,9 @@ class Compiler {
       return "(var_" + node.name + " = " +
              this.compileExpression(node.val) + ")";
     case "AugmentAssign":
+      if (node.val === null) {
+        return "(var_" + node.name + " " + node.op + ")";
+      }
       return "(var_" + node.name + " " + node.op + " " +
              this.compileExpression(node.val) + ")";
     case "GetAttribute":

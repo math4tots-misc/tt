@@ -158,6 +158,20 @@ fn main() Void {
     assertEqual(s, "abbc");
   }
 
+  //// int/float
+  {
+    let i = 0;
+    assertEqual(i, 0);
+    i++;
+    assertEqual(i, 1);
+    i++;
+    assertEqual(i, 2);
+    i--;
+    assertEqual(i, 1);
+    i--;
+    assertEqual(i, 0);
+  }
+
   print("synchronous main finished!");
 }
 
