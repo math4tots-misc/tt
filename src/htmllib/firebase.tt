@@ -39,3 +39,8 @@ fn native asyncRead(:Method, fb Firebase, key String) Promise[Json]"""
     }, reject);
   });
 """
+
+fn native asyncWrite(:Method, fb Firebase, key String, val Json)
+    Promise[Void]"""
+  return registerPromise(stack, var_fb.database().ref(var_key).set(var_val));
+"""
