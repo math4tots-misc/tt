@@ -1619,6 +1619,11 @@ function annotate(modules) {
         throw new InstantiationError(
             "Function might not return",
             [frame].concat(flatten(stack)));
+      } else if (!body.maybeReturns.equals(bodyret)) {
+        throw new InstantiationError(
+            "Expected " + bodyret.toString() + " return type, but got " +
+            body.maybeReturns.toString(),
+            [frame].concat(flatten(stack)));
       }
     }
     return {
