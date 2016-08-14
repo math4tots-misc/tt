@@ -251,6 +251,20 @@ fn main() Void {
     });
   }
 
+  //// Maybe
+  {
+    let a = new(Maybe[Int]);
+    assert(a.isNothing());
+    assertEqual(a, new(Maybe[Int]));
+    assertEqual(repr(a), "new(Maybe[Int])");
+    a = new(Maybe, 5);
+    assertFalse(a.isNothing());
+    assertEqual(a.get(), 5);
+    assertEqual(a, new(Maybe, 5));
+    assertFalse(a == new(Maybe, 3));
+    assertEqual(repr(a), "new(Maybe,5)");
+  }
+
   print("synchronous main finished!");
 }
 

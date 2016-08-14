@@ -1,0 +1,43 @@
+// maybe.tt
+// A value that is allowed to be null.
+
+// At least for javascript, there is no space overhead.
+// an object is just itself.
+// There is some cpu overhead due to requiring separate function calls
+// to access things, but the method bodies are so trivial I feel as though
+// a good compiler should be able to elide them.
+
+class native Maybe;  // abstract
+class native Maybe[$T];
+
+fn native new(Maybe[$T]) Maybe[$T]"""
+  return null;
+"""
+
+fn native new(Maybe, t $T) Maybe[$T]"""
+  return var_t;
+"""
+
+fn native isNothing(:Method, m Maybe[$T]) Bool"""
+  return var_m === null;
+"""
+
+fn native get(:Method, m Maybe[$T]) $T"""
+  if (var_m === null) {
+    throw new Error("Tried to get a Nothing");
+  }
+  return var_m;
+"""
+
+fn __eq__(a Maybe[$T], b Maybe[$T]) Bool {
+  return a.isNothing() && b.isNothing() ||
+         !a.isNothing() && !b.isNothing() && a.get() == b.get();
+}
+
+fn repr(m Maybe[$T]) String {
+  if (m.isNothing()) {
+    return "new(" + typestr(Maybe[$T]) + ")";
+  } else {
+    return "new(Maybe," + repr(m.get()) + ")";
+  }
+}
