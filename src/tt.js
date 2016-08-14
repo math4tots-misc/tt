@@ -48,6 +48,16 @@ Error.stackTraceLimit = Infinity;
 // for namespacing, and other type-fu, but not as an actual type for
 // a variable.
 
+// TODO: Abstract functions. Like normal functions, but have no bodies.
+// They would be used purely as functions that take types as input and
+// types as output.
+
+// TODO: Function call type expressions. Abstract functions would be
+// basically useless without this. Allow specifying types with return types
+// of functions. Coming up with a nice clean syntax for this might be
+// tricky. Low priority though, since it doesn't seem all that critical
+// to have this feature right now.
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {
