@@ -2,6 +2,7 @@
 // Some functions for manipulating the DOM
 
 class native Jquery;
+class native JqueryEvent;
 
 fn native new(Jquery, selector String) Jquery"""
   return $(var_selector);
@@ -42,6 +43,14 @@ fn native getAttr(:Method, jq Jquery, attrname String) String"""
 fn native asyncReady(:Method, jq Jquery) Promise[Void]"""
   return newPromise(stack, (resolve, reject) => {
     var_jq.ready(() => resolve());
+  });
+"""
+
+fn native asyncClick(:Method, jq Jquery) Promise[JqueryEvent]"""
+  return newPromise(stack, (resolve, reject) => {
+    var_jq.one("click", event => {
+      resolve(event);
+    });
   });
 """
 

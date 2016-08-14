@@ -130,13 +130,7 @@ function displayErrorAndDie(stack, e) {
                 errorMessage + "\\n" +
                 stackTrace + "\\n" +
                 javascriptTrace);
-  try {
-    if (typeof process !== "undefined") {
-      process.exit(1);
-    }
-  } catch (e) {
-    throw e;
-  }
+  throw e;
 }
 
 /**
