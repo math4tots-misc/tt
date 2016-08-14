@@ -1,6 +1,8 @@
 // firebase.tt
 // utilities for interfacing with firebase
-
+/*
+<script src="https://www.gstatic.com/firebasejs/3.2.0/firebase.js"></script>
+*/
 class native Firebase;
 
 fn native new(Firebase,

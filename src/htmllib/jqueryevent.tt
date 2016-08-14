@@ -1,5 +1,5 @@
 // jqueryevent.tt
-
+// See jquery.tt for javascript dependencies
 class native JqueryEvent;
 
 fn native getType(:Method, event JqueryEvent) String"""

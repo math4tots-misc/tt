@@ -1,6 +1,12 @@
 // layout.tt
 // jquery ui layout plugin
-
+/*
+In addition to jquery.tt's dependencies.
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-layout/1.4.3/layout-default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-layout/1.4.3/jquery.layout.min.js"></script>
+*/
 class native JqueryLayout;
 
 fn native new(JqueryLayout, jq Jquery) JqueryLayout"""
