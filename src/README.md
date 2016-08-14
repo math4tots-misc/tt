@@ -1,5 +1,54 @@
 # tt programming language
 
+## list of special functions
+
+1. Dunder (double underscore) functions.
+   The names are usually same as those in Python.
+   Comparison
+   * \_\_eq\_\_
+   * \_\_ne\_\_
+   * \_\_lt\_\_
+   * \_\_gt\_\_
+   * \_\_le\_\_
+   * \_\_ge\_\_
+
+   Arithmetic
+   * \_\_add\_\_
+   * \_\_sub\_\_
+   * \_\_mul\_\_
+   * \_\_div\_\_
+   * \_\_mod\_\_
+
+
+2. Special function names.
+   * len  -- size of a container
+   * repr  -- for a more detailed conversion to String
+   * str  -- for conversion to String
+   * int  -- for conversion to Int
+   * float  -- for conversion to Float
+
+
+## Type expressions
+
+  There are 4 types of type expressions
+
+  1. Typename
+     These are just names. Like `Int` or `String`.
+
+  2. TemplateType
+     These are types with arguments. Like `List[Int]`.
+
+  3. SymbolType
+     These are essentially compile time strings.
+     Symbol types always start with a `:`.
+     A common symbol type that is used is `:Method`.
+     Symbol types are abstract in that they can't actually be the
+     type of a variable. They are just used to decorate the type of
+     a function or class.
+
+  4. VariableType
+     These are, as their name suggests, variables that stand in for one of
+     the other concrete types. They start with a dollar sign, like in `$T`.
 
 ## design principles
 
@@ -50,3 +99,4 @@
   Barring the above two rules, the performance mantra is same as in C++:
 
     What you do use, you couldn’t hand code any better.
+
