@@ -5,7 +5,7 @@ class native Maybe;  // abstract
 class native Maybe[$T];
 
 fn native new(Maybe[$T]) Maybe[$T]"""
-  return {isNothing: true};
+  return {isNothing: true, value: null};
 """
 
 fn native new(Maybe, t $T) Maybe[$T]"""
