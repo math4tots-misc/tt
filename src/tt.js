@@ -58,6 +58,11 @@ Error.stackTraceLimit = Infinity;
 // tricky. Low priority though, since it doesn't seem all that critical
 // to have this feature right now.
 
+// TODO: Figure out how I'm going to handle iterables. E.g. I would
+// rather that 'Table[$V]'.keys() return an iterable than a list.
+// For now I'm using the listOfKeys() method to separate it,
+// but eventually I think I'd want something more convenient.
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {
