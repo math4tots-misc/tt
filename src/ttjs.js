@@ -268,7 +268,10 @@ const promiseToStackMap = new Map();
 
 // let nextPromiseId = 1;
 function newPromise(stack, resolver) {
-  const promise = new Promise(resolver);
+  return registerPromise(stack, new Promise(resolver));
+}
+
+function registerPromise(stack, promise) {
   promiseToStackMap.set(promise, stack);
   // const id = nextPromiseId++;
   // promise.id = id;
@@ -277,6 +280,7 @@ function newPromise(stack, resolver) {
   addStackSnapshotForPromise(stack, promise);
   return promise;
 }
+
 function markPromiseAwaited(promise) {
   // console.error("markPromiseAwaited id = " + promise.id);
   removeFromPromisePool(promise);
