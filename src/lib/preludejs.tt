@@ -1,7 +1,7 @@
 // Like prelude, but specific to javascript target
 
 fn native error(x String) Void """
-  throw new Error(var_x);
+  throw new TtError("Error: " + var_x);
 """
 
 fn native __not__(x Bool) Bool """

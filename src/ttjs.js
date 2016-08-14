@@ -60,6 +60,22 @@ var Stack;
 const nativePrelude = `
 //// Begin native prelude
 
+// If a TtError is thrown, the assumption will be that the
+// runtime is still running fine. The exception was thrown
+// in a controlled environment.
+// As such, when displaying the error message, we shouldn't have to
+// include the javascript stack trace.
+//
+// If any other kind of exception is thrown, it is a surprise to me and
+// will be considered a bug in the implementation. As such it's important
+// in this case to show the javascript stack trace.
+class TtError extends Error {
+  constructor(message) {
+    super(message);
+    this.ttmessage = message;
+  }
+}
+
 /**
  * @private
  * @param {Stack} stack
@@ -84,6 +100,7 @@ function padstr(str, len) {
 }
 
 /**
+ * @private
  * @param {Stack} stack
  */
 function getStackTraceMessage(stack) {
@@ -91,28 +108,55 @@ function getStackTraceMessage(stack) {
   for (const tag of stack) {
     const [funcname, uri, lineno] = tagList[tag].split("@");
     message += "\\n  " + padstr(funcname, 20) +
-               "in " + padstr("'" + uri + "'", 20) +
-               "line " + padstr(lineno, 5);
+               " in " + padstr("'" + uri + "'", 20) +
+               " line " + padstr(lineno, 5);
   }
   return message;
 }
 
+function displayErrorAndDie(stack, e) {
+  // If we have a TtError, we extract the message and omit the
+  // javascript trace.
+  // Otherwise, we dump as much as we can.
+  const errorMessage = (e instanceof TtError) ?
+                       e.ttmessage : e.toString();
+  const javascriptTrace = (e instanceof TtError) ?
+                          "" : e.stack;
+  const stackTrace = stack.length > 0 ?
+                     getStackTraceMessage(stack).trim() : "";
+  console.error("==========================\\n" +
+                "*** UNCAUGHT EXCEPTION ***\\n" +
+                "==========================\\n" +
+                errorMessage + "\\n" +
+                stackTrace + "\\n" +
+                javascriptTrace);
+  try {
+    if (typeof process !== "undefined") {
+      process.exit(1);
+    }
+  } catch (e) {
+    throw e;
+  }
+}
+
 /**
+ * @private
  * @param {Stack=} stack
  */
-function tryAndCatch(f, stack) {
+function tryOrDie(f, stack) {
   stack = stack || makeStack();
   try {
     f(stack);
   } catch (e) {
-    if (stack.length > 0) {
-      console.error(getStackTraceMessage(stack).trim());
-    }
-    throw e;
+    displayErrorAndDie(stack, e);
   } finally {
     deleteStack(stack);
   }
 }
+
+/**
+ * @private
+ */
 function asyncf(unwrappedGenerator) {
   function* generator() {
     const oldStack = arguments[0];
@@ -151,6 +195,7 @@ function asyncf(unwrappedGenerator) {
 }
 
 /**
+ * @private
  * @param {*=} val
  * @param {boolean=} thr
  */
@@ -212,7 +257,7 @@ function finalizePromisePool(stack) {
       message +=
           getStackTraceMessage(getStackSnapshotOfPromise(promise));
     }
-    throw new Error(message);
+    throw new TtError(message);
   }
 }
 function addToPromisePool(stack, promise) {
@@ -369,7 +414,7 @@ class Compiler {
     }
     result += "\n// --- tag list, for generating helpful stack traces ---";
     result += "\nconst tagList = " + JSON.stringify(this._tagList) + ";";
-    result += "\ntryAndCatch(stack => {";
+    result += "\ntryOrDie(stack => {";
     result += "\n// --- call all the static stuff ---";
     for (const func of funcs) {
       if (func.isStatic) {

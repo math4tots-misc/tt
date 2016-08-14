@@ -20,12 +20,10 @@ fn native startAsync(promise Promise[$T]) Void"""
     finalizePromise(var_promise);
   }, error => {
     finalizePromise(var_promise);
-    const rstack = error.ttstackSnapshot || stack;
-    if (rstack.length > 0) {
-      console.error(getStackTraceMessage(rstack));
-    }
-    console.error(error);
     throw error;
+  }).catch(error => {
+    const rstack = error.ttstackSnapshot || stack;
+    displayErrorAndDie(rstack, error);
   });
 """
 
