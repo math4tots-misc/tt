@@ -27,6 +27,9 @@
    * int  -- for conversion to Int
    * float  -- for conversion to Float
 
+3. Special method names.
+   * to  -- for conversion to arbitrary types.
+            e.g. new(Json, 5.5).to(Int);
 
 ## Type expressions
 

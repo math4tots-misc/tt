@@ -273,6 +273,21 @@ fn main() Void {
     assertEqual(repr(a), "new(Maybe,5)");
   }
 
+  //// Json
+  {
+    let a = new(Json, "a");
+    let b = new(Json, [1, 2, 3]);
+
+    assertEqual(b.to(List[Float]), [1.0, 2.0, 3.0]);
+    assertEqual(b.to(List[Int]), [1, 2, 3]);
+
+    let c = new(Json, 15.2);
+    assertEqual(repr(c), "15.2");
+
+    let d = new(Json, new(Table, "a", 4));
+    assertEqual(repr(d), '{"a":4}');
+  }
+
   print("synchronous main finished!");
 }
 

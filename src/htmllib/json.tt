@@ -6,7 +6,7 @@
 //   * string (String)
 //   * boolean (Bool)
 //   * Array (List[Json])
-//   * Object (Table[Json])
+//   * Object (kind of like Table[Json])
 
 class native Json;
 
@@ -14,7 +14,11 @@ fn native new(Json) Json"""
   return null;
 """
 
-fn native new(Json, var_x Float) Json"""
+fn native new(Json, x Int) Json"""
+  return var_x;
+"""
+
+fn native new(Json, x Float) Json"""
   return var_x;
 """
 
@@ -27,38 +31,180 @@ fn native new(Json, x Bool) Json"""
 """
 
 fn native new(Json, x List[Json]) Json"""
-  return var_x;
+  return Array.from(var_x);
 """
 
+fn new(Json, x List[$T]) Json {
+  let xs = new(List[Json]);
+  for (let i = 0; i < len(x); i++) {
+    xs.push(new(Json, x[i]));
+  }
+  return xs;
+}
+
 fn native new(Json, x Table[Json]) Json"""
-  return var_x;
+  const x = {};
+  for (const key of var_x.keys()) {
+    x[key] = var_x.get(key);
+  }
+  return x;
+"""
+
+fn new(Json, x Table[$V]) Json {
+  final r = new(Json, new(Table[Json]));
+  final keys = x.getListOfKeys();
+  for (let i = 0; i < len(keys); i++) {
+    final key = keys[i];
+    r[key] = new(Json, x[key]);
+  }
+  return r;
+}
+
+fn native getType(:Method, x Json) String"""
+  return var_x === null ? "null" :
+         typeof var_x === "number" ? "number" :
+         typeof var_x === "string" ? "string" :
+         typeof var_x === "boolean" ? "boolean" :
+         Array.isArray(var_x) ? "array" :
+         "object";
 """
 
 fn native isNull(:Method, x Json) Bool"""
   return var_x === null;
 """
 
-fn native isA(:Method, x Json, Float) Bool"""
+fn native isNumber(:Method, x Json) Bool"""
   return typeof var_x === "number";
 """
 
-fn native isA(:Method, x Json, String) Bool"""
+fn native isString(:Method, x Json) Bool"""
   return typeof var_x === "string";
 """
 
-fn native isA(:Method, x Json, Bool) Bool"""
+fn native isBoolean(:Method, x Json) Bool"""
   return typeof var_x === "boolean";
 """
 
-fn native isA(:Method, x Json, List[Json]) Bool"""
+fn native isArray(:Method, x Json) Bool"""
   return Array.isArray(var_x);
 """
 
-fn native isA(:Method, x Json, Table[Json]) Bool"""
-  return !Array.isArray(var_x) && var_x !== null &&
-         typeof var_x === "object";
+fn native isObject(:Method, x Json) Bool"""
+  return var_x instanceof Object && !Array.isArray(var_x);
 """
+
+fn __setitem__(x Json, key String, val Json) Void {
+  if (!x.isObject()) {
+    error("Expected object but got " + x.getType());
+  }
+  x.unsafeSetItem(key, val);
+}
+
+fn native unsafeSetItem(:Method, x Json, key String, val Json) Void"""
+  var_x[var_key] = var_val;
+"""
+
+fn __getitem__(x Json, key String) Json {
+  if (!x.isObject()) {
+    error("Expected object but got " + x.getType());
+  }
+  return x.unsafeGetItem(key);
+}
+
+fn native unsafeGetItem(:Method, x Json, key String) Json"""
+  return var_x[var_key];
+"""
+
+fn native unsafeConversion(:Method, x Json, Bool) Bool"""
+  return var_x;
+"""
+
+fn native unsafeConversion(:Method, x Json, Float) Float"""
+  return var_x;
+"""
+
+fn native unsafeConversion(:Method, x Json, String) String"""
+  return var_x;
+"""
+
+fn native unsafeConversion(:Method, x Json, List[Json]) List[Json]"""
+  return Array.from(var_x);
+"""
+
+fn native unsafeConversion(:Method, x Json, Table[Json]) Table[Json]"""
+  const m = new Map();
+  for (const key in var_x) {
+    m.set(key, var_x[key]);
+  }
+  return m;
+"""
+
+fn to(:Method, x Json, Bool) Bool {
+  if (!x.isBoolean()) {
+    error("Expected boolean but got " + x.getType());
+  }
+  return x.unsafeConversion(Bool);
+}
+
+fn to(:Method, x Json, Float) Float {
+  if (!x.isNumber()) {
+    error("Expected number but got " + x.getType());
+  }
+  return x.unsafeConversion(Float);
+}
+
+fn to(:Method, x Json, Int) Int {
+  if (!x.isNumber()) {
+    error("Expected number but got " + x.getType());
+  }
+  return int(x.unsafeConversion(Float));
+}
+
+fn to(:Method, x Json, String) String {
+  if (!x.isString()) {
+    error("Expected string but got " + x.getType());
+  }
+  return x.unsafeConversion(String);
+}
+
+fn to(:Method, x Json, List[Json]) List[Json] {
+  if (!x.isArray()) {
+    error("Expected array but got " + x.getType());
+  }
+  return x.unsafeConversion(List[Json]);
+}
+
+fn to(:Method, x Json, Table[Json]) Table[Json] {
+  if (!x.isObject()) {
+    error("Expected object but got " + x.getType());
+  }
+  return x.unsafeConversion(Table[Json]);
+}
+
+fn to(:Method, x Json, List[$T]) List[$T] {
+  final xs = x.to(List[Json]);
+  final ys = new(List[$T]);
+  for (let i = 0; i < len(xs); i++) {
+    ys.push(xs[i].to($T));
+  }
+  return ys;
+}
+
+fn to(:Method, x Json, Table[$T]) Table[$T] {
+  final xs = x.to(Table[Json]);
+  final ys = new(Table[$T]);
+  final keys = xs.getListOfKeys();
+  for (let i = 0; i < len(keys); i++) {
+    final key = keys[i];
+    ys[key] = xs[key].to($T);
+  }
+  return ys;
+}
 
 fn native repr(x Json) String"""
   return JSON.stringify(var_x);
 """
+
+fn __eq__(a Json, b Json) Bool {
+  return a is b || repr(a) == repr(b);
+}
