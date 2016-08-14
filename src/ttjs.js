@@ -478,22 +478,22 @@ class Compiler {
       const keyword = node.isFinal ? "const" : "let";
       const val = node.val === null ?
           getDefaultValue(node.cls) :
-          this.compileExpression(node.val);
+          this.compileTopLevelExpression(node.val);
       return "\n" + keyword + " var_" + node.name + " = " + val + ";";
     case "For":
       return "\nfor (" + this.compileStatement(node.init).trim() +
-             this.compileExpression(node.cond) + ";" +
-             this.compileExpression(node.incr) + ")" +
+             this.compileTopLevelExpression(node.cond) + ";" +
+             this.compileTopLevelExpression(node.incr) + ")" +
              this.compileStatement(node.body);
     case "While":
-      return "\nwhile (" + this.compileExpression(node.cond) + ")" +
+      return "\nwhile (" + this.compileTopLevelExpression(node.cond) + ")" +
              this.compileStatement(node.body);
     case "Break":
       return "\nbreak;";
     case "Continue":
       return "\ncontinue;";
     case "If":
-      let str = "\nif (" + this.compileExpression(node.cond) + ")" +
+      let str = "\nif (" + this.compileTopLevelExpression(node.cond) + ")" +
                 this.compileStatement(node.body);
       if (node.other !== null) {
         str += "\nelse" + this.compileStatement(node.other);
@@ -507,15 +507,15 @@ class Compiler {
   compileTopLevelExpression(node) {
     const tag = this.getTagFromToken(node.token);
     return "(stack.push(" + tag + "),pop(stack," +
-           this.compileExpression(node) + "))";
+           this.compileInnerExpr(node) + "))";
   }
-  compileExpression(node) {
+  compileInnerExpr(node) {
     switch(node.type) {
     case "FunctionCall":
       const fname = node.name;
       const args = node.args;
       return this.getFunctionNameFromFunctionCallNode(node) + "(stack" +
-             args.map(arg => "," + this.compileExpression(arg)).join("") +
+             args.map(arg => "," + this.compileInnerExpr(arg)).join("") +
              ")";
     case "true":
     case "false":
@@ -530,26 +530,26 @@ class Compiler {
     case "TypeExpression":
       return "undefined";
     case "ListDisplay":
-      return "[" + node.exprs.map(expr => this.compileExpression(expr)) + "]";
+      return "[" + node.exprs.map(expr => this.compileInnerExpr(expr)) + "]";
     case "Assign":
       return "(var_" + node.name + " = " +
-             this.compileExpression(node.val) + ")";
+             this.compileInnerExpr(node.val) + ")";
     case "AugmentAssign":
       if (node.val === null) {
         return "(var_" + node.name + " " + node.op + ")";
       }
       return "(var_" + node.name + " " + node.op + " " +
-             this.compileExpression(node.val) + ")";
+             this.compileInnerExpr(node.val) + ")";
     case "GetAttribute":
-      return this.compileExpression(node.owner) + ".aa" + node.name;
+      return this.compileInnerExpr(node.owner) + ".aa" + node.name;
     case "SetAttribute":
-      return this.compileExpression(node.owner) + ".aa" + node.name +
-             " = " + this.compileExpression(node.val);
+      return this.compileInnerExpr(node.owner) + ".aa" + node.name +
+             " = " + this.compileInnerExpr(node.val);
     case "LogicalBinaryOperation":
-      return "(" + this.compileExpression(node.left) + node.op +
-             this.compileExpression(node.right) + ")";
+      return "(" + this.compileInnerExpr(node.left) + node.op +
+             this.compileInnerExpr(node.right) + ")";
     case "Await":
-      return "(yield " + this.compileExpression(node.expr) + ")";
+      return "(yield " + this.compileInnerExpr(node.expr) + ")";
     case "Lambda":
       if (node.isAsync) {
         return "asyncf(function*" + this.compileArguments(node.args) +
