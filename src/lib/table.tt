@@ -4,6 +4,7 @@
 // ECMA2015 also doesn't offer object equality, but an implementation
 // seemed simple enough so is offered here.
 
+class native Table;  // Abstract
 class native Table[$V];
 
 fn native new(Table[$V]) Table[$V]"""
@@ -14,6 +15,10 @@ fn new(Table[$V], key String, val $V, ...args Args) Table[$V] {
   final m = new(Table[$V], ...args);
   m[key] = val;
   return m;
+}
+
+fn new(Table, key String, val $V, ...args Args) Table[$V] {
+  return new(Table[$V], key, val, ...args);
 }
 
 fn native __setitem__(t Table[$V], key String, value $V) Void"""
@@ -32,12 +37,12 @@ fn native __getitem__(t Table[$V], key String) $V"""
   return result;
 """
 
-fn native listOfKeys(:Method, t Table[$V]) List[String]"""
+fn native getListOfKeys(:Method, t Table[$V]) List[String]"""
   return Array.from(var_t.keys());
 """
 
 fn repr(t Table[$V]) String {
-  final keys = t.listOfKeys().sort();
+  final keys = t.getListOfKeys().sort();
   let s = "{";
   for (let i = 0; i < len(keys); i++) {
     let key = keys[i];
@@ -54,8 +59,8 @@ fn __eq__(a Table[$V], b Table[$V]) Bool {
   if (len(a) != len(b)) {
     return false;
   }
-  final akeys = a.listOfKeys().sort();
-  final bkeys = b.listOfKeys().sort();
+  final akeys = a.getListOfKeys().sort();
+  final bkeys = b.getListOfKeys().sort();
   if (akeys != bkeys) {
     return false;
   }
