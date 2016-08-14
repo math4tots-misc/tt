@@ -297,6 +297,22 @@ fn main() Void {
     // Test the 'to(Json)' method.
     assertEqual(d, new(Table, "a", 4).to(Json));
     assertEqual(a, "a".to(Json));
+
+    {
+      let a = new(Json,
+          "a", 4,
+          "b", [1, 2, 3, 4, 5],
+          "c", new(Table, "5", "hello world!"),
+      );
+
+      // conversion to JSON should be smooth,
+      assertEqual(a["b"], [1, 2, 3, 4, 5].to(Json));
+
+      // conversion from JSON should also be smooth
+      assertEqual(a["b"].to(List[Int]), [1, 2, 3, 4, 5]);
+
+      assertEqual(a["c"].to(Table[String]), new(Table, "5", "hello world!"));
+    }
   }
 
   //// Symbol test

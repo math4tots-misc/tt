@@ -30,6 +30,14 @@ fn native new(Json, x Bool) Json"""
   return var_x;
 """
 
+fn native new(Json, List) Json"""
+  return [];
+"""
+
+fn native new(Json, Table) Json"""
+  return {};
+"""
+
 fn native new(Json, x List[Json]) Json"""
   return Array.from(var_x);
 """
@@ -39,7 +47,22 @@ fn new(Json, x List[$T]) Json {
   for (let i = 0; i < len(x); i++) {
     xs.push(new(Json, x[i]));
   }
-  return xs;
+  return xs.to(Json);
+}
+
+fn new(Json, key String, val $V, ...args Args) Json {
+  final table = new(Json, Table);
+  table.set(key, val, ...args);
+  return table;
+}
+
+fn set(:Method, x Json, key String, val $V) Void {
+  x[key] = val;
+}
+
+fn set(:Method, x Json, key String, val $V, ...args Args) Void {
+  x[key] = val;
+  x.set(...args);
 }
 
 fn native new(Json, x Table[Json]) Json"""
@@ -102,6 +125,10 @@ fn __setitem__(x Json, key String, val Json) Void {
     error("Expected object but got " + x.getType());
   }
   x.unsafeSetItem(key, val);
+}
+
+fn __setitem__(x Json, key String, val $V) Void {
+  x[key] = val.to(Json);
 }
 
 fn native unsafeSetItem(:Method, x Json, key String, val Json) Void"""
