@@ -39,6 +39,15 @@ Error.stackTraceLimit = Infinity;
 // This will probably make it a lot easier for the closure compiler to
 // inline common functions like __add__(Int, Int) to the native add operator.
 
+// TODO: Abstract types. Allow types/classes to be marked abstract.
+// Abstract types are like normal types except that no runtime value
+// can have an abstract type as its type.
+// For instance, no runtime value should actually have a "SymbolType" as
+// its type. So all Symbol types would be abstract.
+// I should also let classes be marked abstract. Such that they are used
+// for namespacing, and other type-fu, but not as an actual type for
+// a variable.
+
 // error
 class CompileError extends Error {
   constructor(message, tokens) {
