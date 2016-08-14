@@ -32,7 +32,7 @@ fn native asyncWaitForUserLogin(:Method, fb Firebase) Promise[Void]"""
   });
 """
 
-fn native asyncRead(:Method, fb Firebase, key String) Promise[Maybe[Json]]"""
+fn native asyncRead(:Method, fb Firebase, key String) Promise[Json]"""
   return newPromise(stack, (resolve, reject) => {
     var_fb.database().ref(var_key).once("value").then(snapshot => {
       resolve(snapshot.val());
