@@ -424,9 +424,20 @@ class Compiler {
     result += "\n})();";
     return result.trim();
   }
-  compileArguments(args) {
+  compileArguments(rawArgs) {
+    let nextNullArgId = 0;
+    const args = [];
+    for (const [rawName, cls] of rawArgs) {
+      let name;
+      if (rawName === null) {
+        name = "varnull_" + nextNullArgId++;
+      } else {
+        name = "var_" + rawName;
+      }
+      args.push([name, cls]);
+    }
     return "(stack" +
-           args.map(arg => ", var_" + arg[0] + "/*" +
+           args.map(arg => ", " + arg[0] + "/*" +
                            arg[1].toString() + "*/").join("") +
            ")";
   }
