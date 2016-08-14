@@ -51,15 +51,15 @@ fn native swapDoc(cm CodeMirror, doc CodeMirrorDoc) CodeMirrorDoc"""
   return var_cm.swapDoc(var_doc);
 """
 
-fn native setValue(doc CodeMirrorDoc, value String) Void"""
+fn native setValue(:Method, doc CodeMirrorDoc, value String) Void"""
   var_doc.setValue(var_value);
 """
 
-fn native getValue(doc CodeMirrorDoc) String"""
+fn native getValue(:Method, doc CodeMirrorDoc) String"""
   return var_doc.getValue();
 """
 
-fn native setReadonly(cm CodeMirror, value Bool) Void"""
+fn native setReadonly(:Method, cm CodeMirror, value Bool) Void"""
   var_cm.setOption("readOnly", var_value);
 """
 
