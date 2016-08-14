@@ -23,7 +23,7 @@ fn native signInWithRedirect(:Method, fb Firebase) Void"""
 
 fn native asyncWaitForUserLogin(:Method, fb Firebase) Promise[Void]"""
   return newPromise(stack, (resolve, reject) => {
-    const unsubscribe = firebase.auth()["onAuthStateChanged"](user => {
+    const unsubscribe = firebase.auth().onAuthStateChanged(user => {
       if (user) {
         resolve();
         unsubscribe();

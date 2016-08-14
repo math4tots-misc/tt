@@ -1,0 +1,12 @@
+// jqueryevent.tt
+
+class native JqueryEvent;
+
+fn native getType(:Method, event JqueryEvent) String"""
+  return var_event.type;
+"""
+
+fn repr(event JqueryEvent) String {
+  return "<JqueryEvent " + event.getType() + ">";
+}
+
