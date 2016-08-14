@@ -1,11 +1,20 @@
 // table.tt
 // Like a map, but keys must be strings
+// This is a poor man's Map until I can get a real Map implementation.
+// ECMA2015 also doesn't offer object equality, but an implementation
+// seemed simple enough so is offered here.
 
 class native Table[$V];
 
 fn native new(Table[$V]) Table[$V]"""
   return new Map();
 """
+
+fn new(Table[$V], key String, val $V, ...args Args) Table[$V] {
+  final m = new(Table[$V], ...args);
+  m[key] = val;
+  return m;
+}
 
 fn native __setitem__(t Table[$V], key String, value $V) Void"""
   var_t.set(var_key, var_value);
@@ -23,7 +32,43 @@ fn native __getitem__(t Table[$V], key String) $V"""
   return result;
 """
 
-fn native discard(t Table[$V], key String) Void"""
+fn native listOfKeys(:Method, t Table[$V]) List[String]"""
+  return Array.from(var_t.keys());
+"""
+
+fn repr(t Table[$V]) String {
+  final keys = t.listOfKeys().sort();
+  let s = "{";
+  for (let i = 0; i < len(keys); i++) {
+    let key = keys[i];
+    if (i != 0) {
+      s += ", ";
+    }
+    s += key + ":" + repr(t[key]);
+  }
+  s += "}";
+  return s;
+}
+
+fn __eq__(a Table[$V], b Table[$V]) Bool {
+  if (len(a) != len(b)) {
+    return false;
+  }
+  final akeys = a.listOfKeys().sort();
+  final bkeys = b.listOfKeys().sort();
+  if (akeys != bkeys) {
+    return false;
+  }
+  for (let i = 0; i < len(akeys); i++) {
+    final key = akeys[i];
+    if (a[key] != b[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+fn native discard(:Method, t Table[$V], key String) Void"""
   var_t.delete(var_key);
 """
 

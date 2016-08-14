@@ -121,8 +121,10 @@ fn main() Void {
     table["x"] = 5;
     assertEqual(table["x"], 5);
     assertEqual(len(table), 1);
+    assertEqual(table, new(Table[Int], "x", 5));
+    assertEqual(str(table), '{x:5}');
     assert("x" in table);
-    discard(table, "x");
+    table.discard("x");
     assert("x" not in table);
     assertEqual(len(table), 0);
   }
@@ -137,6 +139,10 @@ fn main() Void {
     assertEqual(xs[1], 6);
     assertEqual(pop(:Method, xs), 6);
     assertEqual(xs, [5]);
+
+    let ys = ["a", "z", "b", "e", "d"];
+    assert(ys is ys.sort());
+    assertEqual(ys, ["a", "b", "d", "e", "z"]);
   }
 
   //// Method syntax
