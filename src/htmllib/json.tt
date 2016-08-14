@@ -1,0 +1,64 @@
+// json.tt
+
+// Json can be
+//   * null
+//   * number (Float)
+//   * string (String)
+//   * boolean (Bool)
+//   * Array (List[Json])
+//   * Object (Table[Json])
+
+class native Json;
+
+fn native new(Json) Json"""
+  return null;
+"""
+
+fn native new(Json, var_x Float) Json"""
+  return var_x;
+"""
+
+fn native new(Json, x String) Json"""
+  return var_x;
+"""
+
+fn native new(Json, x Bool) Json"""
+  return var_x;
+"""
+
+fn native new(Json, x List[Json]) Json"""
+  return var_x;
+"""
+
+fn native new(Json, x Table[Json]) Json"""
+  return var_x;
+"""
+
+fn native isNull(:Method, x Json) Bool"""
+  return var_x === null;
+"""
+
+fn native isA(:Method, x Json, Float) Bool"""
+  return typeof var_x === "number";
+"""
+
+fn native isA(:Method, x Json, String) Bool"""
+  return typeof var_x === "string";
+"""
+
+fn native isA(:Method, x Json, Bool) Bool"""
+  return typeof var_x === "boolean";
+"""
+
+fn native isA(:Method, x Json, List[Json]) Bool"""
+  return Array.isArray(var_x);
+"""
+
+fn native isA(:Method, x Json, Table[Json]) Bool"""
+  return !Array.isArray(var_x) && var_x !== null &&
+         typeof var_x === "object";
+"""
+
+fn native repr(x Json) String"""
+  return JSON.stringify(var_x);
+"""
