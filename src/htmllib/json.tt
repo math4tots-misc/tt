@@ -60,6 +60,10 @@ fn new(Json, x Table[$V]) Json {
   return r;
 }
 
+fn to(:Method, x $X, Json) Json {
+  return new(Json, x);
+}
+
 fn native getType(:Method, x Json) String"""
   return var_x === null ? "null" :
          typeof var_x === "number" ? "number" :

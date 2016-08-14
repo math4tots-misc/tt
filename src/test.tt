@@ -293,6 +293,10 @@ fn main() Void {
 
     let d = new(Json, new(Table, "a", 4));
     assertEqual(repr(d), '{"a":4}');
+
+    // Test the 'to(Json)' method.
+    assertEqual(d, new(Table, "a", 4).to(Json));
+    assertEqual(a, "a".to(Json));
   }
 
   print("synchronous main finished!");
