@@ -23,6 +23,14 @@ fn native addCss(:Method, jq Jquery, key String, value String) Void"""
   var_jq.css(var_key, var_value);
 """
 
+fn native show(:Method, jq Jquery) Void"""
+  var_jq.show();
+"""
+
+fn native hide(:Method, jq Jquery) Void"""
+  var_jq.hide();
+"""
+
 fn native setText(:Method, jq Jquery, text String) Void"""
   var_jq.text(var_text);
 """
