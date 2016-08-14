@@ -83,6 +83,15 @@
       Reference counting or even just letting memory leak in the very
       worst case might still be better.
 
+  2. Don't fight the underlying semantics
+     Swift for instance makes working with JSON really tedious by trying
+     to be "type-safe".
+     It's ok to have areas that are less "safe" in some ways, if the
+     underlying semantics are "unsafe" like with JSON.
+     In tt, the interactions are completely strongly statically typed,
+     but Json itself is just treated as one blob type, and will throw
+     an exception if you try to use it in the wrong way.
+
 3. Fast
   1. If it can be done fast while preserving the above two philosophies,
      do it.
