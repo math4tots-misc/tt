@@ -127,6 +127,13 @@ fn main() Void {
     table.discard("x");
     assert("x" not in table);
     assertEqual(len(table), 0);
+
+    // Test that if key appears more than once,
+    // we only keep the last one.
+    final t = new(Table, "x", "aa", "y", "b", "x", "ff");
+    assertEqual(t, new(Table, "x", "ff", "y", "b"));
+    assertEqual(t["x"], "ff");
+    assertEqual(len(t), 2);
   }
 
   //// List

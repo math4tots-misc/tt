@@ -12,9 +12,18 @@ fn native new(Table[$V]) Table[$V]"""
 """
 
 fn new(Table[$V], key String, val $V, ...args Args) Table[$V] {
-  final m = new(Table[$V], ...args);
-  m[key] = val;
-  return m;
+  return new(Table[$V]).set(key, val, ...args);
+}
+
+fn set(:Method, t Table[$V], key String, val $V) Table[$V] {
+  t[key] = val;
+  return t;
+}
+
+fn set(:Method, t Table[$V], key String, val $V, ...args Args) Table[$V] {
+  t[key] = val;
+  t.set(...args);
+  return t;
 }
 
 fn new(Table, key String, val $V, ...args Args) Table[$V] {
