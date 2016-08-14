@@ -875,7 +875,11 @@ class Parser {
       return new VariableTypeTemplate(token, this.expect("TYPENAME").val);
     }
     if (this.consume(":")) {
-      return new SymbolTypeTemplate(token, this.expect("TYPENAME").val);
+      return new SymbolTypeTemplate(
+          token,
+          (this.consume("NAME") ||
+           this.consume("INT") ||
+           this.expect("TYPENAME")).val);
     }
     const name = this.expect("TYPENAME").val;
     if (this.consume(openBracket)) {

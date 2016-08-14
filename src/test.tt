@@ -299,6 +299,14 @@ fn main() Void {
     assertEqual(a, "a".to(Json));
   }
 
+  //// Symbol test
+  {
+    assertEqual(symbolTest(:1), 11);
+    assertEqual(symbolTest(:2), 33);
+    assertEqual(symbolTest(:abc), 566);
+    assertEqual(symbolTest(:Abc), 14);
+  }
+
   print("synchronous main finished!");
 }
 
@@ -375,4 +383,20 @@ fn async asyncFunction() Void {
   // asyncFunction()     in 'test.tt'           line 158
 
   print("I'm at the end of asyncFunction (after await asyncSleep)");
+}
+
+fn symbolTest(:1) Int {
+  return 11;
+}
+
+fn symbolTest(:2) Int {
+  return 33;
+}
+
+fn symbolTest(:abc) Int {
+  return 566;
+}
+
+fn symbolTest(:Abc) Int {
+  return 14;
 }
