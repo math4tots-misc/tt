@@ -22,3 +22,7 @@ fn native __lt__(x Int, y Int) Bool """
 fn native repr(x Int) String """
   return "" + var_x;
 """
+
+fn native int(x Float) Int"""
+  return var_x|0;
+"""
