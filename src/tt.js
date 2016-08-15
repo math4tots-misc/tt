@@ -502,7 +502,7 @@ class VariableTypeTemplate extends TypeTemplate {
 // Lexer
 
 const keywords = [
-  "fn", "class", "let", "final", "static", "native", "async", "await",
+  "fn", "class", "let", "final", "auto", "static", "native", "async", "await",
   "return",
   "is", "not", "in",
   "for", "if", "else", "while", "break", "continue",
@@ -917,8 +917,9 @@ class Parser {
     const token = this.peek();
     if (this.at(openBrace)) {
       return this.parseBlockTemplate();
-    } else if (this.at("let") || this.at("final")) {
-      const isFinal = !!this.consume("final");
+    } else if (this.at("let") || this.at("final") || this.at("auto")) {
+      const isAuto = !!this.consume("auto");
+      const isFinal = isAuto || !!this.consume("final");
       if (!isFinal) {
         this.expect("let");
       }
@@ -933,6 +934,7 @@ class Parser {
       return {
         "type": "DeclarationTemplate",
         "token": token,
+        "isAuto": isAuto,
         "isFinal": isFinal,
         "name": name,
         "cls": cls,
@@ -949,6 +951,17 @@ class Parser {
     } else if (this.consume("for")) {
       this.expect(openParen);
       const init = this.parseStatementTemplate();
+      if (init.type !== "DeclarationTemplate" &&
+          init.type !== "ExpressionStatementTemplate") {
+        throw new CompileError(
+            "The initializer of a for statement must be a declaration or " +
+            "an expression", [init.token]);
+      }
+      if (init.type === "DeclarationTemplate" && init.isAuto) {
+        throw new CompileError(
+            "The initializer of a for statement cannot be auto",
+            [init.token]);
+      }
       const cond = this.parseExpressionTemplate();
       this.expect(";");
       const incr = this.parseExpressionTemplate();
@@ -1693,20 +1706,26 @@ function annotate(modules) {
         "maybeReturns": mret,
       };
     case "DeclarationTemplate":
-      const val =resolveExpression(node.val, bindings, stack);
+      const val = resolveExpression(node.val, bindings, stack);
       const cls = node.cls === null ?
           val.exprType : resolveTypeTemplate(node.cls, bindings);
       const frame = new InstantiationFrame(
           node.token, currentInstantiationContext);
-      if (val !== null && !val.exprType.equals(cls)) {
+      if (!val.exprType.equals(cls)) {
         throw new InstantiationError(
             "Expected " + cls.toString() + " but got an expression of " +
             "type " + val.toString(), [frame].concat(flatten(stack)));
+      }
+      if (node.isAuto) {
+        // Instantiate the delete function for this variable so that
+        // it is available for the code generator to use.
+        queueFunctionInstantiation("delete", [cls], [frame, stack]);
       }
       declareVariable(node.name, cls, [frame].concat(flatten(stack)));
       return {
         "type": "Declaration",
         "token": node.token,
+        "isAuto": node.isAuto,
         "isFinal": node.isFinal,
         "name": node.name,
         "cls": cls,

@@ -332,6 +332,15 @@ fn main() Void {
     assertEqual(symbolTest(:Abc), 14);
   }
 
+  //// auto test
+  {
+    let x = new(List[Int]);
+    {
+      auto f = new(ExampleDeletable, x, 14);
+    }
+    assertEqual(x, [14]);
+  }
+
   print("synchronous main finished!");
 }
 
@@ -424,4 +433,17 @@ fn symbolTest(:abc) Int {
 
 fn symbolTest(:Abc) Int {
   return 14;
+}
+
+class ExampleDeletable {
+  let xs List[Int];
+  let x Int;
+}
+
+fn new(ExampleDeletable, xs List[Int], x Int) ExampleDeletable {
+  return malloc(ExampleDeletable, xs, x);
+}
+
+fn delete(e ExampleDeletable) Void {
+  e.xs.push(e.x);
 }

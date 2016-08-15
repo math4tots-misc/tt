@@ -22,6 +22,8 @@
 
 2. Special function names.
    * new  -- for creating new instances of objects
+   * delete  -- if x is an auto variable, "delete(x)" always gets called
+                when x goes out of scope.
    * malloc  -- should only be used in 'new' functions
    * len  -- size of a container
    * repr  -- for a more detailed conversion to String

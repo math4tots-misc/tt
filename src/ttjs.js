@@ -1,5 +1,9 @@
 // jshint esversion: 6
 // For browser, use with browserify
+
+// TODO: The way that auto declaration is implemented is a HACK.
+// Come up with a cleaner implementation.
+
 const tt = require("./tt.js");
 const ttutils = require("./ttutils.js");
 
@@ -297,6 +301,69 @@ function doEval(str) {
   return eval(str);
 }
 
+function blockHasAutos(node) {
+  for (const stmt of node.stmts) {
+    if (stmt.type === "Declaration" && stmt.isAuto) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function transformBlockWithAutos(node) {
+  if (!blockHasAutos(node)) {
+    return node;
+  }
+  let i = 0;
+  while (true) {
+    const stmt = node.stmts[i];
+    if (stmt.type === "Declaration" && stmt.isAuto) {
+      break;
+    }
+    i++;
+  }
+  const decl = node.stmts[i];
+  const firstBlock = {
+    "type": "Block",
+    "token": node.token,
+    "stmts": node.stmts.slice(0, i+1),
+  };
+  const secondBlock = transformBlockWithAutos({
+    "type": "Block",
+    "token": decl.token,
+    "stmts": node.stmts.slice(i+1),
+  });
+  const finallyBlock = {
+    "type": "Block",
+    "token": decl.token,
+    "stmts": [{
+        "type": "ExpressionStatement",
+        "token": decl.token,
+        "expr": {
+          "type": "FunctionCall",
+          "token": decl.token,
+          "name": "delete",
+          "args": [{
+            "type": "Name",
+            "token": decl.token,
+            "name": decl.name,
+            "exprType": decl.cls,
+          }],
+          // HACK: The return type of the delete function
+          // should not be relevant.
+          "exprType": null,
+        },
+    }],
+  };
+  firstBlock.stmts.push({
+    "type": "TryFinally",
+    "token": decl.token,
+    "body": secondBlock,
+    "fin": finallyBlock,
+  });
+  return firstBlock;
+}
+
 class Compiler {
   constructor(uriTextPairs) {
     this._uriTextPairs = uriTextPairs;
@@ -461,9 +528,11 @@ class Compiler {
   }
   compileStatement(node) {
     switch(node.type) {
-    case "Block":
-      const stmts = node.stmts.map(stmt => this.compileStatement(stmt));
+    case "Block": {
+      const n = transformBlockWithAutos(node);
+      const stmts = n.stmts.map(stmt => this.compileStatement(stmt));
       return "\n{" + stmts.join("").replace(/\n/g, "\n  ") + "\n}";
+    }
     case "ExpressionStatement":
       return "\n" + this.compileTopLevelExpression(node.expr) + ";";
     case "Return":
@@ -475,6 +544,9 @@ class Compiler {
       const keyword = node.isFinal ? "const" : "let";
       const val = this.compileTopLevelExpression(node.val);
       return "\n" + keyword + " var_" + node.name + " = " + val + ";";
+    case "TryFinally":
+      return "\ntry" + this.compileStatement(node.body) +
+             "\nfinally" + this.compileStatement(node.fin);
     case "For":
       return "\nfor (" + this.compileStatement(node.init).trim() +
              this.compileTopLevelExpression(node.cond) + ";" +
