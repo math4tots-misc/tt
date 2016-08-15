@@ -1,6 +1,6 @@
 // jshint esversion: 6
 
-const xxutils = Object.create(null);
+const ttutils = Object.create(null);
 (function(exports) {
 "use strict";
 
@@ -108,6 +108,6 @@ exports.asyncGetDirFilenames = asyncGetDirFilenames;
 exports.asyncDir = asyncDir;
 exports.sanitizeString = sanitizeString;
 
-})(xxutils);
+})(ttutils);
 
-module.exports = xxutils;
+module.exports = ttutils;
