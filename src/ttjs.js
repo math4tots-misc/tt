@@ -24,28 +24,10 @@ class CompilationContext {
   getClassFromType(type) {
     return this.compiler.getClassFromType(type);
   }
-  getDefaultValue(type) {
-    return getDefaultValue(type);
-  }
 }
 
 function compile(uriTextPairs) {
   return new Compiler(uriTextPairs).compile();
-}
-
-function getDefaultValue(type) {
-  if (type instanceof tt.Typename) {
-    switch(type.name) {
-    case "Int": return "0";
-    case "Float": return "0.0";
-    case "String": return "''";
-    }
-  } else if (type instanceof tt.TemplateType) {
-    switch(type.name) {
-    case "List": return "[]";
-    }
-  }
-  return "null";
 }
 
 const nativeTypedefs = `
@@ -491,9 +473,7 @@ class Compiler {
       return "\nreturn " + this.compileTopLevelExpression(node.expr) + ";";
     case "Declaration":
       const keyword = node.isFinal ? "const" : "let";
-      const val = node.val === null ?
-          getDefaultValue(node.cls) :
-          this.compileTopLevelExpression(node.val);
+      const val = this.compileTopLevelExpression(node.val);
       return "\n" + keyword + " var_" + node.name + " = " + val + ";";
     case "For":
       return "\nfor (" + this.compileStatement(node.init).trim() +

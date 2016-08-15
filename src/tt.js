@@ -506,9 +506,9 @@ const keywords = [
   "return",
   "is", "not", "in",
   "for", "if", "else", "while", "break", "continue",
-  "true", "false", "null",
+  "true", "false",
 
-  "and", "or",
+  "and", "or", "null",
   "var", "const", "goto", "function", "def", "const",
   "package", "import", "as",
 ];
@@ -924,7 +924,11 @@ class Parser {
       }
       const name = this.expect("NAME").val;
       const cls = this.at("=") ? null : this.parseTypeTemplate();
-      const val = this.consume("=") ? this.parseExpressionTemplate() : null;
+      if (!this.at("=")) {
+        throw new CompileError("Variables must be initialized!", [token]);
+      }
+      this.expect("=");
+      const val = this.parseExpressionTemplate();
       this.expect(";");
       return {
         "type": "DeclarationTemplate",
@@ -1112,14 +1116,8 @@ class Parser {
     }
     if (this.consume("is")) {
       if (this.consume("not")) {
-        if (this.consume("null")) {
-          return makeFunctionCallTemplate(token, "__isnotnull__", [expr]);
-        } else {
-          const rhs = this.parseAdditiveTemplate();
-          return makeFunctionCallTemplate(token, "__isnot__", [expr, rhs]);
-        }
-      } else if (this.consume("null")) {
-        return makeFunctionCallTemplate(token, "__isnull__", [expr]);
+        const rhs = this.parseAdditiveTemplate();
+        return makeFunctionCallTemplate(token, "__isnot__", [expr, rhs]);
       } else {
         const rhs = this.parseAdditiveTemplate();
         return makeFunctionCallTemplate(token, "__is__", [expr, rhs]);
@@ -1695,8 +1693,7 @@ function annotate(modules) {
         "maybeReturns": mret,
       };
     case "DeclarationTemplate":
-      const val = node.val === null ?
-          null : resolveExpression(node.val, bindings, stack);
+      const val =resolveExpression(node.val, bindings, stack);
       const cls = node.cls === null ?
           val.exprType : resolveTypeTemplate(node.cls, bindings);
       const frame = new InstantiationFrame(

@@ -18,7 +18,7 @@ fn main() Void {
     assertEqual("hi", "hi");
   }
 
-  //// is, is not, is null, is not null
+  //// is, is not
   {
     let x = malloc(Sample[Int], 0);
     let y = x;
@@ -26,12 +26,6 @@ fn main() Void {
     assert(x is x);
     assert(x is y);
     assert(x is not z);
-    assert(x is not null);
-    assert(y is not null);
-    assert(z is not null);
-
-    let a Sample[Int];
-    assert(a is null);
   }
 
   //// String literal
@@ -51,17 +45,15 @@ fn main() Void {
     assertFalse("abc" < "abc");
   }
 
-  //// Default variable values.
+  //// Global variables.
+  assertEqual(globalInt, 55778);
   {
-    let i Int;
-    assertEqual(i, 0);
-
-    let s String;
-    assertEqual(s, "");
-
-    assertEqual(globalInt, 0);
-    assertEqual(globalFloat, 0.0);
+    assertEqual(globalInt, 55778);
+    assertEqual(globalFloat, 88.88);
+    globalInt = 15523;
+    assertEqual(globalInt, 15523);
   }
+  assertEqual(globalInt, 15523);
 
   //// malloc
   {
@@ -347,8 +339,8 @@ class Sample[$T] {
   let t $T;
 }
 
-let globalInt Int;
-let globalFloat Float;
+let globalInt Int = 55778;
+let globalFloat Float = 88.88;
 
 fn concatTypenames($X) String {
   return typestr($X);
