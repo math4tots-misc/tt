@@ -28,6 +28,10 @@ fn __eq__(a Maybe[$T], b Maybe[$T]) Bool {
          !a.isNothing() && !b.isNothing() && a.get() == b.get();
 }
 
+fn to(:Method, t $T, Maybe) Maybe[$T] {
+  return new(Maybe, t);
+}
+
 fn repr(m Maybe[$T]) String {
   if (m.isNothing()) {
     return "new(" + typestr(Maybe[$T]) + ")";

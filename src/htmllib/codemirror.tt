@@ -47,7 +47,7 @@ fn new(CodeMirrorDoc) CodeMirrorDoc {
   return new(CodeMirrorDoc, "");
 }
 
-fn native swapDoc(cm CodeMirror, doc CodeMirrorDoc) CodeMirrorDoc"""
+fn native swapDoc(:Method, cm CodeMirror, doc CodeMirrorDoc) CodeMirrorDoc"""
   return var_cm.swapDoc(var_doc);
 """
 
@@ -59,7 +59,11 @@ fn native getValue(:Method, doc CodeMirrorDoc) String"""
   return var_doc.getValue();
 """
 
-fn native setReadonly(:Method, cm CodeMirror, value Bool) Void"""
+fn native setReadOnly(:Method, cm CodeMirror, value Bool) Void"""
   var_cm.setOption("readOnly", var_value);
+"""
+
+fn native getDoc(:Method, cm CodeMirror) CodeMirrorDoc"""
+  var_cm.getDoc();
 """
 
