@@ -21,6 +21,8 @@
 
 
 2. Special function names.
+   * new  -- for creating new instances of objects
+   * malloc  -- should only be used in 'new' functions
    * len  -- size of a container
    * repr  -- for a more detailed conversion to String
    * str  -- for conversion to String
