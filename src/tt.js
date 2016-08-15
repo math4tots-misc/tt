@@ -34,6 +34,14 @@ Error.stackTraceLimit = Infinity;
 // keyword).
 // Right now, I have runtime checks in ttjs for this.
 
+// TODO: As it stands, promises can be awaited on at most once in my
+// language, because the mechanism for checking that a promise has
+// been awaited on at least once will crash when the same promise is
+// awaited again.
+// However, Promise/A+ promises can be awaited on many times.
+// It doesn't seem that important right now, but in the future I might
+// consider it.
+
 // TODO: Optimization. Allow marking methods as nothrow/constexpr/nostack,
 // such that functions marked as such are not passed an explicit stack.
 // This will probably make it a lot easier for the closure compiler to
