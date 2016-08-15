@@ -56,7 +56,7 @@ fn native asyncReady(:Method, jq Jquery) Promise[Void]"""
   });
 """
 
-fn native asyncClick(:Method, jq Jquery) Promise[JqueryEvent]"""
+fn native asyncOnClick(:Method, jq Jquery) Promise[JqueryEvent]"""
   return newPromise(stack, (resolve, reject) => {
     var_jq.one("click", event => {
       resolve(event);
