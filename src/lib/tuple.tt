@@ -42,181 +42,119 @@
 // Another disadvantage is that this approach puts an arbitrary
 // upper limit to Tuple size.
 
+// I've decided to use the varargs/linkedlist approach.
+// Perhaps in the future I could do a contiguous memory tuple
+// with more mature meta-programming tools.
+
+class native Tuple;  // abstract
 class Tuple[] {}
-class Tuple[$X0] {
-  let x0 $X0;
-}
-class Tuple[$X0, $X1] {
-  let x0 $X0;
-  let x1 $X1;
-}
-class Tuple[$X0, $X1, $X2] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-}
-class Tuple[$X0, $X1, $X2, $X3] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-  let x3 $X3;
-}
-class Tuple[$X0, $X1, $X2, $X3, $X4] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-  let x3 $X3;
-  let x4 $X4;
-}
-class Tuple[$X0, $X1, $X2, $X3, $X4, $X5] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-  let x3 $X3;
-  let x4 $X4;
-  let x5 $X5;
-}
-class Tuple[$X0, $X1, $X2, $X3, $X4, $X5, $X6] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-  let x3 $X3;
-  let x4 $X4;
-  let x5 $X5;
-  let x6 $X6;
-}
-class Tuple[$X0, $X1, $X2, $X3, $X4, $X5, $X6, $X7] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-  let x3 $X3;
-  let x4 $X4;
-  let x5 $X5;
-  let x6 $X6;
-  let x7 $X7;
-}
-class Tuple[$X0, $X1, $X2, $X3, $X4, $X5, $X6, $X7, $X8] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-  let x3 $X3;
-  let x4 $X4;
-  let x5 $X5;
-  let x6 $X6;
-  let x7 $X7;
-  let x8 $X8;
-}
-class Tuple[$X0, $X1, $X2, $X3, $X4, $X5, $X6, $X7, $X8, $X9] {
-  let x0 $X0;
-  let x1 $X1;
-  let x2 $X2;
-  let x3 $X3;
-  let x4 $X4;
-  let x5 $X5;
-  let x6 $X6;
-  let x7 $X7;
-  let x8 $X8;
-  let x9 $X9;
+class Tuple[$Head, ...Rest] {
+  let head $Head;  // car
+  let tail Tuple[...Rest];  // cdr
 }
 
-
-fn tuple() Tuple[] {
+fn new(Tuple) Tuple[] {
   return malloc(Tuple[]);
 }
-fn tuple(x0 $X0) Tuple[$X0] {
-  final t = malloc(Tuple[$X0]);
-  t.x0 = x0;
-  return t;
-}
-fn tuple(x0 $X0, x1 $X1) Tuple[$X0, $X1] {
-  final t = malloc(Tuple[$X0, $X1]);
-  t.x0 = x0;
-  t.x1 = x1;
-  return t;
-}
-fn tuple(x0 $X0, x1 $X1, x2 $X2) Tuple[$X0, $X1, $X2] {
-  final t = malloc(Tuple[$X0, $X1, $X2]);
-  t.x0 = x0;
-  t.x1 = x1;
-  t.x2 = x2;
-  return t;
-}
-fn tuple(x0 $X0, x1 $X1, x2 $X2, x3 $X3) Tuple[$X0, $X1, $X2, $X3] {
-  final t = malloc(Tuple[$X0, $X1, $X2, $X3]);
-  t.x0 = x0;
-  t.x1 = x1;
-  t.x2 = x2;
-  t.x3 = x3;
-  return t;
+
+fn new(Tuple, a $A, ...rest Rest) Tuple[$A, ...Rest] {
+  return malloc(Tuple[$A, ...Rest], a, new(Tuple, ...rest));
 }
 
+fn tuple(...args Args) Tuple[...Args] {
+  return new(Tuple, ...args);
+}
+
+fn get(:Method, a Tuple[$A0, ...Rest], :0) $A0 {
+  return a.head;
+}
+
+fn get(:Method, a Tuple[$A0, $A1, ...Rest], :1) $A1 {
+  return a.tail.get(:0);
+}
+
+fn get(:Method, a Tuple[$A0, $A1, $A2, ...Rest], :2) $A2 {
+  return a.tail.get(:1);
+}
+
+fn get(:Method, a Tuple[$A0, $A1, $A2, $A3, ...Rest], :3) $A3 {
+  return a.tail.get(:2);
+}
+
+fn get(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, ...Rest], :4) $A4 {
+  return a.tail.get(:3);
+}
+
+fn get(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, ...Rest], :5) $A5 {
+  return a.tail.get(:4);
+}
+
+fn get(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, $A6, ...Rest], :6) $A6 {
+  return a.tail.get(:5);
+}
+
+fn get(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7, ...Rest], :7)
+    $A7 {
+  return a.tail.get(:6);
+}
+
+fn set(:Method, a Tuple[$A0, ...Rest], :0, v $A0) $A0 {
+  return a.head = v;
+}
+
+fn set(:Method, a Tuple[$A0, $A1, ...Rest], :1, v $A1) $A1 {
+  return a.tail.set(:0, v);
+}
+
+fn set(:Method, a Tuple[$A0, $A1, $A2, ...Rest], :2, v $A2) $A2 {
+  return a.tail.set(:1, v);
+}
+
+fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, ...Rest], :3, v $A3) $A3 {
+  return a.tail.set(:2, v);
+}
+
+fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, ...Rest], :4, v $A4) $A4 {
+  return a.tail.set(:3, v);
+}
+
+fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, ...Rest], :5, v $A5) $A5 {
+  return a.tail.set(:4, v);
+}
+
+fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, $A6, ...Rest], :6, v $A6) $A6 {
+  return a.tail.set(:5, v);
+}
+
+fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7, ...Rest], :7)
+    $A7 {
+  return a.tail.get(:6);
+}
 
 fn __eq__(a Tuple[], b Tuple[]) Bool {
   return true;
 }
-fn __eq__(a Tuple[$X0], b Tuple[$X0]) Bool {
-  return a.x0 == b.x0;
-}
-fn __eq__(a Tuple[$X0, $X1], b Tuple[$X0, $X1]) Bool {
-  return a.x0 == b.x0 &&
-         a.x1 == b.x1;
-}
-fn __eq__(a Tuple[$X0, $X1, $X2], b Tuple[$X0, $X1, $X2]) Bool {
-  return a.x0 == b.x0 &&
-         a.x1 == b.x1 &&
-         a.x2 == b.x2;
-}
-fn __eq__(a Tuple[$X0, $X1, $X2, $X3], b Tuple[$X0, $X1, $X2, $X3]) Bool {
-  return a.x0 == b.x0 &&
-         a.x1 == b.x1 &&
-         a.x2 == b.x2 &&
-         a.x3 == b.x3;
+
+fn __eq__(a Tuple[$X, ...Rest], b Tuple[$X, ...Rest]) Bool {
+  return a.head == b.head && a.tail == b.tail;
 }
 
-
-fn lessThan(a Tuple[], b Tuple[]) Bool {
+fn __lt__(a Tuple[], b Tuple[]) Bool {
   return false;
 }
-fn lessThan(a Tuple[$X0], b Tuple[$X0]) Bool {
-  return a.x0 < b.x0;
-}
-fn lessThan(a Tuple[$X0, $X1], b Tuple[$X0, $X1]) Bool {
-  return a.x0 < b.x0 || a.x0 == b.x0 &&
-         a.x1 < b.x1;
-}
-fn lessThan(a Tuple[$X0, $X1, $X2], b Tuple[$X0, $X1, $X2]) Bool {
-  return a.x0 < b.x0 || a.x0 == b.x0 &&
-        (a.x1 < b.x1 || a.x1 == b.x1 &&
-         a.x2 < b.x2);
-}
-fn lessThan(a Tuple[$X0, $X1, $X2, $X3], b Tuple[$X0, $X1, $X2, $X3]) Bool {
-  return a.x0 < b.x0 || a.x0 == b.x0 &&
-        (a.x1 < b.x1 || a.x1 == b.x1 &&
-        (a.x2 < b.x2 || a.x2 == b.x2 &&
-         a.x3 < b.x3));
+
+fn __lt__(a Tuple[$X, ...Rest], b Tuple[$X, ...Rest]) Bool {
+  return a.head < b.head || a.head == b.head && a.tail < b.tail;
 }
 
+fn innerRepr(:Method, t Tuple[$X]) String {
+  return repr(t.get(:0));
+}
+
+fn innerRepr(:Method, t Tuple[$X, ...Rest]) String {
+  return repr(t.get(:0)) + ", " + t.tail.innerRepr();
+}
 
 fn repr(t Tuple[$X0]) String {
-  return "tuple(" +
-         repr(t.x0) + ")";
+  return "tuple(" + t.innerRepr() + ")";
 }
-fn repr(t Tuple[$X0, $X1]) String {
-  return "tuple(" +
-         repr(t.x0) + "," +
-         repr(t.x1) + ")";
-}
-fn repr(t Tuple[$X0, $X1, $X2]) String {
-  return "tuple(" +
-         repr(t.x0) + "," +
-         repr(t.x1) + "," +
-         repr(t.x2) + ")";
-}
-fn repr(t Tuple[$X0, $X1, $X2, $X3]) String {
-  return "tuple(" +
-         repr(t.x0) + "," +
-         repr(t.x1) + "," +
-         repr(t.x2) + "," +
-         repr(t.x3) + ")";
-}
-

@@ -3,10 +3,6 @@
 
 class native List[$T];
 
-fn native malloc(List[$T]) List[$T] """
-  return [];
-"""
-
 fn native len(x List[$T]) Int """
   return var_x.length;
 """
@@ -27,9 +23,9 @@ fn native __setitem__(xs List[$T], i Int, t $T) $T """
   return var_xs[var_i] = var_t;
 """
 
-fn new(List[$T]) List[$T] {
-  return malloc(List[$T]);
-}
+fn native new(List[$T]) List[$T]"""
+  return [];
+"""
 
 fn repr(xs List[$T]) String {
   let str = "[";

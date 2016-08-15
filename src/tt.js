@@ -1901,6 +1901,42 @@ function annotate(modules) {
     return result;
   }
 
+  function isValidMallocArgtypes(argtypes, args, frame, stack) {
+    if (argtypes.length === 0) {
+      return false;
+    }
+    const type = argtypes[0];
+    const classtemp = findMatchingClassTemplate(type);
+    if (classtemp === null) {
+      return false;
+    }
+    if (classtemp.isNative) {
+      return false;
+    }
+    if (argtypes.length-1 !== classtemp.attrs.length) {
+      return false;
+    }
+    const cls = instantiateClass(type);
+    for (let i = 0; i < argtypes.length-1; i++) {
+      const actualType = argtypes[i+1];
+      const expectedType = cls.attrs[i][1];
+      if (!actualType.equals(expectedType)) {
+        return false;
+      }
+      if (isTypeExpression(args[i+1])) {
+        throw new InstantiationError(
+            "Expected value expression for " + (i+1) + " argument, " +
+            "but got type expression",
+            [frame].concat(flatten(stack)));
+      }
+    }
+    return cls;
+  }
+
+  function isTypeExpression(node) {
+    return node.type === "TypeExpression";
+  }
+
   function resolveValueOrTypeExpression(node, bindings, stack) {
     const frame =
         new InstantiationFrame(node.token, currentInstantiationContext);
@@ -1909,6 +1945,29 @@ function annotate(modules) {
       const name = node.name;
       const args = resolveExpressionList(node, bindings, stack);
       const argtypes = args.map(arg => arg.exprType);
+      // HACK: If I had more mature meta-programming facilities, I could
+      // cleanly implement malloc in the language itself as native
+      // function.
+      if (name === "malloc") {
+        const cls = isValidMallocArgtypes(argtypes, args, frame, stack);
+        if (cls) {
+          const functemp = findMatchingFunctionTemplate(name, argtypes);
+          if (functemp) {
+            throw new InstantiationError(
+                "User defined malloc function shadows the builtin malloc" +
+                functemp.token.getLocationMessage(),
+                [frame].concat(flatten(stack)));
+          }
+          args.shift();
+          return {
+            "type": "Malloc",
+            "token": node.token,
+            "args": args,
+            "attrnames": cls.attrs.map(attr => attr[0]),
+            "exprType": argtypes[0],
+          };
+        }
+      }
       const rettype = getFunctionReturnType(
           name, argtypes, [frame].concat(flatten(stack)));
       queueFunctionInstantiation(name, argtypes, [frame, stack]);
@@ -1946,7 +2005,7 @@ function annotate(modules) {
         const [name, type] = functemp.vararg;
         if (name) {
           for (let i = functemp.args.length; i < args.length; i++) {
-            if (args[i].type === "TypeExpression") {
+            if (isTypeExpression(args[i])) {
               throw new InstantiationError(
                   "Expected value expressions for vararg part, but got " +
                   "type expression: argumentIndex = " + i +
@@ -1985,13 +2044,15 @@ function annotate(modules) {
         "token": node.token,
         "owner": owner,
         "name": node.name,
-        "exprType": getAttributeType(owner.exprType, node.name, stack),
+        "exprType":
+            getAttributeType(owner.exprType, node.name, frame, stack),
       };
     }
     case "SetAttributeTemplate": {
       const owner = resolveExpression(node.owner, bindings, stack);
       const val = resolveExpression(node.val, bindings, stack);
-      const exprType = getAttributeType(owner.exprType, node.name, stack);
+      const exprType =
+          getAttributeType(owner.exprType, node.name, frame, stack);
       if (!exprType.equals(val.exprType)) {
         throw new InstantiationError(
             owner.exprType + "." + node.name + " is type " + exprType +
@@ -2215,14 +2276,15 @@ function annotate(modules) {
     return resolveTypeTemplate(ret, bindings);
   }
 
-  function getAttributeType(type, name, stack) {
+  function getAttributeType(type, name, frame, stack) {
     for (const [n, t] of instantiateClass(type).attrs) {
       if (name === n) {
         return t;
       }
     }
     throw new InstantiationError(
-        "No such attribute: " + type + "." + name, flatten(stack));
+        "No such attribute: " + type + "." + name,
+        [frame].concat(flatten(stack)));
   }
 
   function resolveTypeTemplate(typeTemplate, bindings) {

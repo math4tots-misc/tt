@@ -20,9 +20,9 @@ fn main() Void {
 
   //// is, is not, is null, is not null
   {
-    let x = malloc(Sample[Int]);
+    let x = malloc(Sample[Int], 0);
     let y = x;
-    let z = malloc(Sample[Int]);
+    let z = malloc(Sample[Int], 0);
     assert(x is x);
     assert(x is y);
     assert(x is not z);
@@ -44,6 +44,13 @@ fn main() Void {
     assert("\\" + "n" != "\n");
   }
 
+  //// String comparison
+  {
+    assert("a" < "b");
+    assert("aa" < "b");
+    assertFalse("abc" < "abc");
+  }
+
   //// Default variable values.
   {
     let i Int;
@@ -56,10 +63,15 @@ fn main() Void {
     assertEqual(globalFloat, 0.0);
   }
 
+  //// malloc
+  {
+    final sample = malloc(Sample[Int], 5);
+  }
+
   //// Class, get/set attributes
   {
-    final sample = malloc(Sample[Int]);
-    assertEqual(sample.t, 0);  // default value
+    final sample = malloc(Sample[Int], 88);
+    assertEqual(sample.t, 88);
     sample.t = 15;
     assertEqual(sample.t, 15);
   }
@@ -87,12 +99,17 @@ fn main() Void {
     let t = tuple(1.0, 2, "world");
     assertEqual(typestr(t), "Tuple[Float,Int,String]");
 
-    assertEqual(t.x0, 1.0);
-    assertEqual(t.x1, 2);
-    assertEqual(t.x2, "world");
+    assertEqual(t.get(:0), 1.0);
+    assertEqual(t.get(:1), 2);
+    assertEqual(t.get(:2), "world");
 
-    t.x0 = 5.0;
-    assertEqual(t.x0, 5.0);
+    t.set(:0, 5.0);
+    assertEqual(t.get(:0), 5.0);
+
+    assert(tuple(10, 5) < tuple(20, 10));
+    assertFalse(tuple(20, 10) < tuple(20, 10));
+    assertFalse(tuple(20, 10) > tuple(20, 10));
+    assert(tuple(20, "b") > tuple(20, "a"));
   }
 
   //// Lambda

@@ -35,3 +35,7 @@ fn repr(s String) String {
   r += '"';
   return r;
 }
+
+fn native __lt__(a String, b String) Bool"""
+  return var_a < var_b;
+"""

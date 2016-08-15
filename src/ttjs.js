@@ -532,6 +532,18 @@ class Compiler {
       return this.getFunctionNameFromFunctionCallNode(node) + "(stack" +
              args.map(arg => "," + this.compileInnerExpr(arg)).join("") +
              ")";
+    case "Malloc": {
+      // HACK: This is a hack. See the comment about this in tt.js
+      let attrstr = "";
+      for (let i = 0; i < node.args.length; i++) {
+        if (i > 0) {
+          attrstr += ",";
+        }
+        attrstr += "aa" + node.attrnames[i] + ":" +
+                   this.compileInnerExpr(node.args[i]);
+      }
+      return "{" + attrstr + "}";
+    }
     case "true":
     case "false":
       return node.type;
