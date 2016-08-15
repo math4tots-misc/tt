@@ -1996,7 +1996,7 @@ function annotate(modules) {
         throw new InstantiationError(
             owner.exprType + "." + node.name + " is type " + exprType +
             " but expression is of type " + val.exprType,
-            [frame].flatten(stack));
+            [frame].concat(flatten(stack)));
       }
       return {
         "type": "SetAttribute",
