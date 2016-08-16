@@ -75,13 +75,15 @@ fn native asyncOnClick(:Method, jq Jquery) Promise[JqueryEvent]"""
 fn native on(:Method, jq Jquery,
              eventType String,
              callback Lambda[Void, JqueryEvent]) Void"""
-  var_jq.on(var_eventType, event => var_callback(stack, event));
+  var_jq.on(var_eventType, event =>
+      var_callback(makeCallbackStack(stack), event));
 """
 
 fn native off(:Method, jq Jquery,
               eventType String,
               callback Lambda[Void, JqueryEvent]) Void"""
-  var_jq.off(var_eventType, event => var_callback(stack, event));
+  var_jq.off(var_eventType, event =>
+      var_callback(makeCallbackStack(stack), event));
 """
 
 fn feed(:Method, jq Jquery,

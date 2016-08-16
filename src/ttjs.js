@@ -289,6 +289,15 @@ function makeStack(oldStack) {
   // console.error("makeStack id = " + id);
   return stack;
 }
+
+/**
+ * @param {Stack} oldStack
+ */
+function makeCallbackStack(oldStack) {
+  const part = oldStack.length > 0 ? [oldStack[oldStack.length-1]] : [];
+  return makeStack(part);
+}
+
 function deleteStack(stack) {
   // console.error("deleteStack id = " + stack.id);
   finalizePromisePool(stack);
