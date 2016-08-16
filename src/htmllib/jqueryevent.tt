@@ -2,11 +2,14 @@
 // See jquery.tt for javascript dependencies
 class native JqueryEvent;
 
-fn native getType(:Method, event JqueryEvent) String"""
-  return var_event.type;
-"""
-
 fn repr(event JqueryEvent) String {
   return "<JqueryEvent " + event.getType() + ">";
 }
 
+fn native getType(:Method, event JqueryEvent) String"""
+  return var_event.type;
+"""
+
+fn native getTarget(:Method, this JqueryEvent) Jquery"""
+  return $(var_this.target);
+"""
