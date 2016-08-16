@@ -121,6 +121,7 @@ function displayErrorAndDie(stack, e) {
 
 /**
  * @private
+ * @param {function(Stack):void} f
  * @param {Stack=} stack
  */
 function tryOrDie(f, stack) {
@@ -301,6 +302,10 @@ function makeCallbackStack(oldStack) {
 function deleteStack(stack) {
   // console.error("deleteStack id = " + stack.id);
   finalizePromisePool(stack);
+}
+
+function runCallback(f, oldStack) {
+  return tryOrDie(f, makeCallbackStack(oldStack));
 }
 
 //// End native prelude`;

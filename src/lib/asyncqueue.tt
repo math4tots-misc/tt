@@ -20,7 +20,7 @@ fn native delete(queue AsyncQueue[$T]) Void"""
     var_queue.listener.reject(new TtError("This queue is being deleted"));
   }
   for (const callback of var_queue.onDeleteCallbacks) {
-    callback(stack, var_queue);
+    runCallback(stack => callback(stack, var_queue), stack);
   }
 """
 

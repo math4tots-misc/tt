@@ -18,4 +18,11 @@ fn native call(f Lambda[$R, ...Args], ...args Args) $R"""eval
 }
 """
 
-
+// similar to call, except that any exception that 'f' throws is caught
+// and displayed to stderr, then swallowed.
+// also spawns a new 'stack' context.
+// Like 'startAsync', but only keeps the last stack frame instead of
+// copying everything.
+fn native callCallback(f Lambda[Void]) Void"""
+  runCallback(var_f, stack);
+"""
