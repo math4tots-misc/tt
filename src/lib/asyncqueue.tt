@@ -27,7 +27,9 @@ fn native delete(queue AsyncQueue[$T]) Void"""
 fn native push(:Method, queue AsyncQueue[$T], t $T) Void"""
   if (var_queue.listener) {
     const listener = var_queue.listener;
-    var_queue.listener = null;
+    if (!var_queue.listener.persistent) {
+      var_queue.listener = null;
+    }
     listener.resolve(var_t);
   } else {
     var_queue.items.push(var_t);
@@ -42,7 +44,8 @@ fn native asyncPop(:Method, queue AsyncQueue[$T]) Promise[$T]"""
       if (var_queue.listener) {
         reject(new TtError("This queue already has a listener"));
       }
-      var_queue.listener = {resolve: resolve, reject: reject};
+      var_queue.listener = {
+          resolve: resolve, reject: reject, persistent: false};
     }
   });
 """
@@ -52,3 +55,44 @@ fn native asyncOnDelete(:Method, queue AsyncQueue[$T]) Promise[Void]"""
     var_queue.onDeleteCallbacks.push(resolve);
   });
 """
+
+// Registers callback for whenever an item is pushed onto this queue.
+// Returns a callback that will undo this registration.
+fn native onItem(:Method, queue AsyncQueue[$T],
+                 f Lambda[Void, $T]) Lambda[Void]"""
+  if (var_queue.listener) {
+    throw new TtError("This queue already has a listener");
+  }
+  const listener = var_queue.listener = {
+    resolve: item => runCallback(stack => var_f(stack, item), makeStack()),
+    reject: () => null,
+    persistent: true,
+  };
+  while (var_queue.items.length > 0) {
+    listener.resolve(var_queue.items.shift());
+  }
+  return () => {
+    if (var_queue.listener === listener) {
+      var_queue.listener = null;
+    }
+  };
+"""
+
+// Feed the contents of 'other' into 'queue'.
+// Basically queue is 'owning' all the items in other.
+fn own(:Method, queue AsyncQueue[$T], other AsyncQueue[$T]) Void {
+
+  final fQueue = queue;
+  final fOther = other;
+
+  fOther.onItem(fn(t $T) {
+    fQueue.push(t);
+  });
+
+  startAsync(async() {
+    await fQueue.asyncOnDelete();
+    delete(fOther);
+  });
+}
+
+

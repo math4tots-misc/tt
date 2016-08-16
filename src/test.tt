@@ -416,6 +416,32 @@ fn async asyncFunction() Void {
   // main()              in 'test.tt'           line 97
   // asyncFunction()     in 'test.tt'           line 158
 
+
+  //// async queue with owning
+  let m = new(Maybe[AsyncQueue[String]]);
+  let mm = new(Maybe[AsyncQueue[String]]);
+  {
+    auto a = new(AsyncQueue[String]);
+    final b = new(AsyncQueue[String]);
+    m = new(Maybe, a);
+    mm = new(Maybe, b);
+    a.own(call(fn() {
+      final c = new(AsyncQueue[String]);
+      c.push("c");
+      return c;
+    }));
+    a.push("a");
+    a.own(b);
+    b.push("b");
+    final xs = new(List[String]);
+    xs.push(await a.asyncPop());
+    xs.push(await a.asyncPop());
+    xs.push(await a.asyncPop());
+    xs.sort();
+    assertEqual(xs, ["a", "b", "c"]);
+  }
+
+
   print("I'm at the end of asyncFunction (after await asyncSleep)");
 }
 

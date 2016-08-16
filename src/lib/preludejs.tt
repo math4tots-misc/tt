@@ -1,5 +1,9 @@
 // Like prelude, but specific to javascript target
 
+fn native jsprint(x $T) Void"""
+  console.log(var_x);
+"""
+
 fn native error(x String) Void """
   throw new TtError("Error: " + var_x);
 """

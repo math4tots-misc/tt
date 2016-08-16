@@ -104,3 +104,8 @@ fn feed(:Method, jq Jquery,
   });
 }
 
+fn events(:Method, jq Jquery, event String) AsyncQueue[JqueryEvent] {
+  final queue = new(AsyncQueue[JqueryEvent]);
+  jq.feed(event, queue);
+  return queue;
+}
