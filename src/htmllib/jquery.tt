@@ -64,14 +64,6 @@ fn native asyncOnClick(:Method, jq Jquery) Promise[JqueryEvent]"""
   });
 """
 
-// I hate callbacks, but the 'on' and 'off' methods are just used to
-// implement the 'feed' method. They really shouldn't be used by
-// anyone else.
-
-// TODO: Figure out what stack is appropriate to use.
-// It's possible that the stack we bind in 'on' and 'off' are expired
-// by the time that these events fire.
-
 // Registers the given callback for given event.
 // Returns a callback that will undo the registration.
 fn native on(:Method, jq Jquery,
