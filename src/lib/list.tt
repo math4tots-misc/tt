@@ -61,6 +61,15 @@ fn native pop(:Method, xs List[$T]) $T"""
   return var_xs.pop();
 """
 
+fn native shift(:Method, xs List[$T]) $T"""
+  return var_xs.shift();
+"""
+
+fn native unshift(:Method, xs List[$T], x $T) List[$T]"""
+  var_xs.unshift(var_x);
+  return var_xs;
+"""
+
 // For now, only strings are sortable, since that's how javascript's
 // builtin array sorts them.
 fn native sort(:Method, xs List[String]) List[String]"""

@@ -171,6 +171,15 @@ fn main() Void {
       xs.splice(1, 2);
       assertEqual(xs, ["a", "d", "e"]);
     }
+
+    {
+      let xs = [1, 2, 3];
+      assert(xs is xs.unshift(5));
+      assertEqual(xs, [5, 1, 2, 3]);
+      assertEqual(xs.shift(), 5);
+      assertEqual(xs.shift(), 1);
+      assertEqual(xs, [2, 3]);
+    }
   }
 
   //// Method syntax
