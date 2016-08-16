@@ -443,6 +443,18 @@ fn async asyncFunction() Void {
     assertEqual(xs, ["a", "b", "c"]);
   }
 
+  //// Scope onDelete
+  {
+    let xs = new(List[Int]);
+    {
+      auto scope = new(Scope);
+      scope.onDelete(fn() {
+        xs.push(5);
+      });
+      assertEqual(xs, new(List[Int]));
+    }
+    assertEqual(xs, [5]);
+  }
 
   print("I'm at the end of asyncFunction (after await asyncSleep)");
 }
