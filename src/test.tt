@@ -279,10 +279,12 @@ fn main() Void {
   {
     let a = new(Maybe[Int]);
     assert(a.isNothing());
+    assertFalse(a.isSomething());
     assertEqual(a, new(Maybe[Int]));
     assertEqual(repr(a), "new(Maybe[Int])");
     a = new(Maybe, 5);
     assertFalse(a.isNothing());
+    assert(a.isSomething());
     assertEqual(a.get(), 5);
     assertEqual(a, new(Maybe, 5));
     assertFalse(a == new(Maybe, 3));

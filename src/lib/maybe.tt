@@ -16,6 +16,10 @@ fn native isNothing(:Method, m Maybe[$T]) Bool"""
   return var_m.isNothing;
 """
 
+fn isSomething(:Method, this Maybe[$T]) Bool {
+  return !this.isNothing();
+}
+
 fn native get(:Method, m Maybe[$T]) $T"""
   if (var_m.isNothing) {
     throw new Error("Tried to get a Nothing");
