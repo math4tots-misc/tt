@@ -19,6 +19,13 @@ Error.stackTraceLimit = Infinity;
 // strange behavior in languages like Java/C++ where the variables cannot
 // outlive the stack frame of the function in which it was declared.
 
+// TODO: Lambda class's argument order is kind of icky in my opinion.
+// I have to order it Lambda[$R, ...Args] so that I can extract
+// return type, but ideally I'd rather write it like
+// Lambda[...Args, $R].
+// If only it were possible to put varargs anywhere, and not just
+// at the end, I could do something like this.
+
 // TODO: Static assert statements to test compile time instantiation
 // logic.
 
