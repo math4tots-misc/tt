@@ -54,15 +54,6 @@ Error.stackTraceLimit = Infinity;
 // This will probably make it a lot easier for the closure compiler to
 // inline common functions like __add__(Int, Int) to the native add operator.
 
-// TODO: Abstract types. Allow types/classes to be marked abstract.
-// Abstract types are like normal types except that no runtime value
-// can have an abstract type as its type.
-// For instance, no runtime value should actually have a "SymbolType" as
-// its type. So all Symbol types would be abstract.
-// I should also let classes be marked abstract. Such that they are used
-// for namespacing, and other type-fu, but not as an actual type for
-// a variable.
-
 // TODO: Abstract functions. Like normal functions, but have no bodies.
 // They would be used purely as functions that take types as input and
 // types as output.
@@ -518,6 +509,7 @@ class VariableTypeTemplate extends TypeTemplate {
 
 const keywords = [
   "fn", "class", "let", "final", "auto", "static", "native", "async", "await",
+  "abstract",
   "return",
   "is", "not", "in",
   "for", "if", "else", "while", "break", "continue",
@@ -798,9 +790,14 @@ class Parser {
   parseClassTemplate() {
     const token = this.expect("class");
     const isNative = !!this.consume("native");
+    const isAbstract = !!this.consume("abstract");
+    if (isAbstract && isNative) {
+      throw new CompileError(
+          "Native classes can't also be abstract", [token]);
+    }
     const pattern = this.parseTypeTemplate();
     let attrs = null;
-    if (isNative) {
+    if (isNative || isAbstract) {
       this.expect(";");
     } else {
       attrs = [];
@@ -817,6 +814,7 @@ class Parser {
       "type": "ClassTemplate",
       "token": token,
       "isNative": isNative,
+      "isAbstract": isAbstract,
       "pattern": pattern,
       "attrs": attrs,
     };
@@ -1551,7 +1549,7 @@ function annotate(modules) {
     const token = classtemp.token;
     const bindings = classtemp.pattern.bindType(cls);
     let attrs = null;
-    if (!classtemp.isNative) {
+    if (!classtemp.isNative && !classtemp.isAbstract) {
       attrs = [];
       for (const [name, typeTemplate] of classtemp.attrs) {
         // NOTE: This causes the resulting type to get queued
@@ -1563,6 +1561,7 @@ function annotate(modules) {
       "type": "Class",
       "token": token,
       "isNative": classtemp.isNative,
+      "isAbstract": classtemp.isAbstract,
       "pattern": cls,
       "attrs": attrs,
     };
@@ -1937,11 +1936,14 @@ function annotate(modules) {
       return false;
     }
     const type = argtypes[0];
+    if (type instanceof SymbolType) {
+      return false;
+    }
     const classtemp = findMatchingClassTemplate(type);
     if (classtemp === null) {
       return false;
     }
-    if (classtemp.isNative) {
+    if (classtemp.isNative || classtemp.isAbstract) {
       return false;
     }
     if (argtypes.length-1 !== classtemp.attrs.length) {

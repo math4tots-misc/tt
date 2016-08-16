@@ -1,7 +1,7 @@
 // maybe.tt
 // A value that is allowed to be null.
 
-class native Maybe;  // abstract
+class abstract Maybe;
 class native Maybe[$T];
 
 fn native new(Maybe[$T]) Maybe[$T]"""

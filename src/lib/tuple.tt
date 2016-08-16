@@ -46,7 +46,7 @@
 // Perhaps in the future I could do a contiguous memory tuple
 // with more mature meta-programming tools.
 
-class native Tuple;  // abstract
+class abstract Tuple;
 class Tuple[] {}
 class Tuple[$Head, ...Rest] {
   let head $Head;  // car
@@ -122,7 +122,8 @@ fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, ...Rest], :5, v $A5) $A5 {
   return a.tail.set(:4, v);
 }
 
-fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, $A6, ...Rest], :6, v $A6) $A6 {
+fn set(:Method, a Tuple[$A0, $A1, $A2, $A3, $A4, $A5, $A6, ...Rest], :6,
+       v $A6) $A6 {
   return a.tail.set(:5, v);
 }
 

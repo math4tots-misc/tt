@@ -4,7 +4,7 @@
 // ECMA2015 also doesn't offer object equality, but an implementation
 // seemed simple enough so is offered here.
 
-class native Table;  // Abstract
+class abstract Table;
 class native Table[$V];
 
 fn native new(Table[$V]) Table[$V]"""
