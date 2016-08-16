@@ -18,6 +18,10 @@ fn native append(:Method, jq Jquery, child Jquery) Void"""
   var_jq.append(var_child);
 """
 
+fn native find(:Method, jq Jquery, selector String) Jquery"""
+  return var_jq.find(var_selector);
+"""
+
 fn native addClass(:Method, jq Jquery, cls String) Void"""
   var_jq.addClass(var_cls);
 """
