@@ -64,3 +64,41 @@ fn native asyncOnClick(:Method, jq Jquery) Promise[JqueryEvent]"""
   });
 """
 
+// I hate callbacks, but the 'on' and 'off' methods are just used to
+// implement the 'feed' method. They really shouldn't be used by
+// anyone else.
+
+// TODO: Figure out what stack is appropriate to use.
+// It's possible that the stack we bind in 'on' and 'off' are expired
+// by the time that these events fire.
+
+fn native on(:Method, jq Jquery,
+             eventType String,
+             callback Lambda[Void, JqueryEvent]) Void"""
+  var_jq.on(var_eventType, event => var_callback(stack, event));
+"""
+
+fn native off(:Method, jq Jquery,
+              eventType String,
+              callback Lambda[Void, JqueryEvent]) Void"""
+  var_jq.off(var_eventType, event => var_callback(stack, event));
+"""
+
+fn feed(:Method, jq Jquery,
+        eventType String, queue AsyncQueue[JqueryEvent]) Void {
+  final finalQueue = queue;
+
+  final callback = fn(event JqueryEvent) {
+    finalQueue.push(event);
+  };
+
+  jq.on(eventType, callback);
+
+  // Start an async 'thread' that will remove the callback once the
+  // queue is deleted.
+  startAsync(async() {
+    await finalQueue.onDelete();
+    jq.off(eventType, callback);
+  });
+}
+
