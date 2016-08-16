@@ -3,12 +3,32 @@
 class native AsyncQueue[$T];
 
 fn native new(AsyncQueue[$T]) AsyncQueue[$T]"""
-  return {items: [], listeners: []};
+  return {
+    deleted: false,
+    items: [],
+    listener: null,
+    onDeleteCallbacks: [],
+  };
+"""
+
+fn native delete(queue AsyncQueue[$T]) Void"""
+  if (var_queue.deleted) {
+    throw new TtError("This queue was already deleted");
+  }
+  var_queue.deleted = true;
+  if (var_queue.listener) {
+    var_queue.listener.reject(new TtError("This queue is being deleted"));
+  }
+  for (const callback of var_queue.onDeleteCallbacks) {
+    callback(stack, var_queue);
+  }
 """
 
 fn native push(:Method, queue AsyncQueue[$T], t $T) Void"""
-  if (var_queue.listeners.length > 0) {
-    var_queue.listeners.shift()(var_t);
+  if (var_queue.listener) {
+    const listener = var_queue.listener;
+    var_queue.listener = null;
+    listener.resolve(var_t);
   } else {
     var_queue.items.push(var_t);
   }
@@ -19,7 +39,10 @@ fn native asyncPop(:Method, queue AsyncQueue[$T]) Promise[$T]"""
     if (var_queue.items.length > 0) {
       resolve(var_queue.items.shift());
     } else {
-      var_queue.listeners.push(resolve);
+      if (var_queue.listener) {
+        reject(new TtError("This queue already has a listener"));
+      }
+      var_queue.listener = {resolve: resolve, reject: reject};
     }
   });
 """
