@@ -97,7 +97,7 @@ fn feed(:Method, jq Jquery,
   // Start an async 'thread' that will remove the callback once the
   // queue is deleted.
   startAsync(async() {
-    await finalQueue.onDelete();
+    await finalQueue.asyncOnDelete();
     jq.off(eventType, callback);
   });
 }

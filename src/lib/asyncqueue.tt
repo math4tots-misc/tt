@@ -47,7 +47,7 @@ fn native asyncPop(:Method, queue AsyncQueue[$T]) Promise[$T]"""
   });
 """
 
-fn native onDelete(:Method, queue AsyncQueue[$T]) Promise[Void]"""
+fn native asyncOnDelete(:Method, queue AsyncQueue[$T]) Promise[Void]"""
   return newPromise(stack, (resolve, reject) => {
     var_queue.onDeleteCallbacks.push(resolve);
   });
