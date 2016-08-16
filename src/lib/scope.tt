@@ -12,8 +12,8 @@ fn new(Scope) Scope {
 }
 
 fn delete(this Scope) Void {
-  for (let i = 0; i < len(this.callbacks); i++) {
-    callCallback(this.callbacks[i]);
+  while (len(this.callbacks) > 0) {
+    callCallback(this.callbacks.shift());
   }
 }
 
