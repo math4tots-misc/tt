@@ -12,6 +12,14 @@ fn native new(Maybe, t $T) Maybe[$T]"""
   return {isNothing: false, value: var_t};
 """
 
+fn nothing($T) Maybe[$T] {
+  return new(Maybe[$T]);
+}
+
+fn just(t $T) Maybe[$T] {
+  return new(Maybe, t);
+}
+
 fn native isNothing(:Method, m Maybe[$T]) Bool"""
   return var_m.isNothing;
 """

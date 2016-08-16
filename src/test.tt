@@ -293,6 +293,7 @@ fn main() Void {
     assert(a.isNothing());
     assertFalse(a.isSomething());
     assertEqual(a, new(Maybe[Int]));
+    assertEqual(a, nothing(Int));
     assertEqual(repr(a), "new(Maybe[Int])");
     a = new(Maybe, 5);
     assertFalse(a.isNothing());
@@ -300,6 +301,7 @@ fn main() Void {
     assertEqual(a.get(), 5);
     assertEqual(a, new(Maybe, 5));
     assertFalse(a == new(Maybe, 3));
+    assertEqual(a, just(5));
     assertEqual(repr(a), "new(Maybe,5)");
   }
 
