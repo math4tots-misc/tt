@@ -68,3 +68,11 @@ fn native sort(:Method, xs List[String]) List[String]"""
   return var_xs;
 """
 
+fn removeElementAtIndex(:Method, this List[$T], i Int) Void {
+  this.splice(i, 1);
+}
+
+fn native splice(:Method, this List[$T], startIndex Int, count Int) Void"""
+  var_this.splice(var_startIndex, var_count);
+"""
+

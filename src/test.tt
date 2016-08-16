@@ -159,6 +159,18 @@ fn main() Void {
     let ys = ["a", "z", "b", "e", "d"];
     assert(ys is ys.sort());
     assertEqual(ys, ["a", "b", "d", "e", "z"]);
+
+    {
+      let xs = ["a", "b", "c", "d", "e"];
+      xs.removeElementAtIndex(2);
+      assertEqual(xs, ["a", "b", "d", "e"]);
+    }
+
+    {
+      let xs = ["a", "b", "c", "d", "e"];
+      xs.splice(1, 2);
+      assertEqual(xs, ["a", "d", "e"]);
+    }
   }
 
   //// Method syntax
