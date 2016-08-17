@@ -481,6 +481,19 @@ fn async asyncFunction() Void {
       await scope.asyncOnDelete();
     }
     assertEqual(xs, [5, 15, 25]);
+
+    // Make scope1 own scope2.
+    // And when scope1 is deleted, make sure that scope2 was
+    // deleted as well.
+    {
+      auto scope1 = new(Scope);
+      final scope2 = new(Scope);
+      scope1.own(scope2);
+      scope2.onDelete(fn() {
+        xs.push(35);
+      });
+    }
+    assertEqual(xs, [5, 15, 25, 35]);
   }
 
   await asyncSleep(1000);

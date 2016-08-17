@@ -22,6 +22,12 @@ fn delete(this Scope) Void {
   }
 }
 
+fn own(:Method, this Scope, x $T) Void {
+  this.onDelete(fn() {
+    delete(x);
+  });
+}
+
 fn onDelete(:Method, this Scope, callback Lambda[Void]) Void {
   if (this.deleted) {
     callCallback(callback);
