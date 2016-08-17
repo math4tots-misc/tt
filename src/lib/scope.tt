@@ -4,21 +4,39 @@
 // A convenient way to tie callbacks to scopes.
 
 class Scope {
+  let deleted Bool;
   let callbacks List[Lambda[Void]];
 }
 
 fn new(Scope) Scope {
-  return malloc(Scope, new(List[Lambda[Void]]));
+  return malloc(Scope, false, new(List[Lambda[Void]]));
 }
 
 fn delete(this Scope) Void {
+  if (this.deleted) {
+    error("Scope already deleted");
+  }
+  this.deleted = true;
   while (len(this.callbacks) > 0) {
     callCallback(this.callbacks.shift());
   }
 }
 
 fn onDelete(:Method, this Scope, callback Lambda[Void]) Void {
-  this.callbacks.push(callback);
+  if (this.deleted) {
+    callCallback(callback);
+  } else {
+    this.callbacks.push(callback);
+  }
 }
 
-
+// TODO: Once it is possible to await on a promise more than once,
+// consider keeping one 'onDelete' promise to return here.
+fn native asyncOnDelete(:Method, this Scope) Promise[Void]"""
+  if (var_this.aadeleted) {
+    return registerPromise(stack, Promise.resolve());
+  }
+  return newPromise(stack, (resolve, reject) => {
+    var_this.aacallbacks.push(resolve);
+  });
+"""

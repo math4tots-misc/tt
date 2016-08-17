@@ -423,24 +423,6 @@ fn makeLambda(...Args) Lambda[Int, ...Args] {
 
 fn async asyncFunction() Void {
   print("I'm at the beginning of asyncFunction");
-  await asyncSleep(1000);
-
-  // asyncSleep(1000);
-  """Uncommenting the above line should produce a message like the
-  following:
-
-  Error: await or runAsync not used on some promise(s)
-  Most recent call last:
-    main()              in 'test.tt'           line 97
-    asyncFunction()     in 'test.tt'           line 158
-  """;
-
-  // error("Hoi");
-  // Uncommenting the above line should show a nice stack trace like:
-  // Most recent call last:
-  // main()              in 'test.tt'           line 97
-  // asyncFunction()     in 'test.tt'           line 158
-
 
   //// async queue with owning
   let m = new(Maybe[AsyncQueue[String]]);
@@ -477,9 +459,49 @@ fn async asyncFunction() Void {
       assertEqual(xs, new(List[Int]));
     }
     assertEqual(xs, [5]);
+    {
+      final scope = new(Scope);
+      scope.onDelete(fn() {
+        xs.push(15);
+      });
+      delete(scope);
+      await scope.asyncOnDelete();
+    }
+    assertEqual(xs, [5, 15]);
+
+    {
+      final scope = new(Scope);
+      scope.onDelete(fn() {
+        xs.push(25);
+      });
+      startAsync(async() {
+        await asyncSleep(10);
+        delete(scope);
+      });
+      await scope.asyncOnDelete();
+    }
+    assertEqual(xs, [5, 15, 25]);
   }
 
-  print("I'm at the end of asyncFunction (after await asyncSleep)");
+  await asyncSleep(1000);
+
+  // asyncSleep(1000);
+  """Uncommenting the above line should produce a message like the
+  following:
+
+  Error: await or runAsync not used on some promise(s)
+  Most recent call last:
+    main()              in 'test.tt'           line 97
+    asyncFunction()     in 'test.tt'           line 158
+  """;
+
+  // error("Hoi");
+  // Uncommenting the above line should show a nice stack trace like:
+  // Most recent call last:
+  // main()              in 'test.tt'           line 97
+  // asyncFunction()     in 'test.tt'           line 158
+
+print("I'm at the end of asyncFunction (after await asyncSleep)");
 }
 
 fn symbolTest(:1) Int {
