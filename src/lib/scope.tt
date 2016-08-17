@@ -30,8 +30,6 @@ fn onDelete(:Method, this Scope, callback Lambda[Void]) Void {
   }
 }
 
-// TODO: Once it is possible to await on a promise more than once,
-// consider keeping one 'onDelete' promise to return here.
 fn native asyncOnDelete(:Method, this Scope) Promise[Void]"""
   if (var_this.aadeleted) {
     return registerPromise(stack, Promise.resolve());
