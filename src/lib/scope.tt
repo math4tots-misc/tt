@@ -44,3 +44,14 @@ fn native asyncOnDelete(:Method, this Scope) Promise[Void]"""
     var_this.aacallbacks.push(resolve);
   });
 """
+
+// Like asyncOnDelete, but sometimes you want something to be called
+// after all the other callbacks have been called.
+fn native asyncAfterDelete(:Method, this Scope) Promise[Void]"""
+  if (var_this.aadeleted) {
+    return registerPromise(stack, Promise.resolve());
+  }
+  return newPromise(stack, (resolve, reject) => {
+    var_this.aacallbacks.unshift(resolve);
+  });
+"""

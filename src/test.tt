@@ -494,6 +494,21 @@ fn async asyncFunction() Void {
       });
     }
     assertEqual(xs, [5, 15, 25, 35]);
+
+    xs = [5];
+    {
+      final scope = new(Scope);
+      scope.onDelete(fn() {
+        xs.push(15);
+      });
+      startAsync(async() {
+        await scope.asyncAfterDelete();
+        xs.push(25);
+      });
+      delete(scope);
+      await scope.asyncAfterDelete();
+    }
+    assertEqual(xs, [5, 15, 25]);
   }
 
   await asyncSleep(1000);
