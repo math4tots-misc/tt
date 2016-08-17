@@ -5,13 +5,15 @@ const tt = Object.create(null);
 "use strict";
 Error.stackTraceLimit = Infinity;
 
-// TODO: mark some functions as constexpr -- that is functions that
-// can be evaluated at compile time for use in compile time debugging
-// and operations. And also implement those for compile time evaluation.
+// TODO: Make it possible to mark some functions as constexpr --
+// that is functions that can be evaluated at compile time for use in
+// compile time debugging and operations.
+// And also implement those for compile time evaluation.
 
-// TODO: Right now, final variables are not enforced in the annotation
-// phase. Modify the code such that you get a compile time error if you
-// try to assign to a final variable.
+// TODO: Right now, final variables are only enforced by the generated
+// javascript (those variables are marked 'const'). Catch attempts to
+// assign to final variables in either the parse phase or the
+// annotation phase.
 
 // TODO: Right now you can refer to any variable in scope from a lambda
 // function. However, I want to limit this only to final variables like
@@ -23,11 +25,24 @@ Error.stackTraceLimit = Infinity;
 // I have to order it Lambda[$R, ...Args] so that I can extract
 // return type, but ideally I'd rather write it like
 // Lambda[...Args, $R].
-// If only it were possible to put varargs anywhere, and not just
-// at the end, I could do something like this.
+// Improve the type expression grammar such that I can put varargs
+// anywhere in an argument list, not just at the end, and then
+// see if you can rearrange the Lambda order.
 
-// TODO: Static assert statements to test compile time instantiation
-// logic.
+// TODO: Implement static assert statements to test compile time
+// instantiation logic. '#error' is already implemented. '#assert'
+// might look similar. Although it will be a bit more complex since
+// it would have to accept an expression argument.
+
+// TODO: Allow '#error' to accept a compile time expression (see constexpr),
+// not just a string literal.
+
+// TODO: Make the special form '#error' a constexpr function 'error'
+// instead. In general, I want to avoid "special forms" if we can just
+// use functions.
+
+// TODO: Only for node.js: when the program exits, if not all
+// Scopes have been deleted, it should print out a warning.
 
 // TODO: Allow spread operator to appear at any position, not just the end.
 // If the spread operator appears in the middle, or there are multiple of
