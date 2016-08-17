@@ -18,7 +18,7 @@ fn delete(this Scope) Void {
   }
   this.deleted = true;
   while (len(this.callbacks) > 0) {
-    callCallback(this.callbacks.shift());
+    callCallback(this.callbacks.pop());
   }
 }
 
