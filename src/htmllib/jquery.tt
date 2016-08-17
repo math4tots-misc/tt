@@ -86,6 +86,13 @@ fn native on(:Method, jq Jquery,
   return () => var_jq.off(var_eventType, callback);
 """
 
+fn on(:Method, this Jquery,
+      eventType String, scope Scope,
+      callback Lambda[Void, JqueryEvent]) Void {
+  final unregisterCallback = this.on(eventType, callback);
+  scope.onDelete(unregisterCallback);
+}
+
 fn feed(:Method, jq Jquery,
         eventType String, queue AsyncQueue[JqueryEvent]) Void {
   final finalQueue = queue;
