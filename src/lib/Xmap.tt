@@ -1,0 +1,92 @@
+// Xmap.tt
+// Like Map, but equality is by object identity, instead of '=='.
+// This is thin wrapper around javascript's "Map".
+
+class abstract Xmap;
+class native Xmap[$K, $V];
+
+fn native new(Xmap[$K, $V]) Xmap[$K, $V]"""
+  return new Map();
+"""
+
+fn new(Xmap[$K, $V], key $K, val $V, ...args Args) Xmap[$K, $V] {
+  return new(Xmap[$K, $V]).set(key, val, ...args);
+}
+
+fn new(Xmap, key $K, val $V, ...args Args) Xmap[$K, $V] {
+  return new(Xmap[$K, $V], key, val, ...args);
+}
+
+fn set(:Method, t Xmap[$K, $V], key $K, val $V) Xmap[$K, $V] {
+  t[key] = val;
+  return t;
+}
+
+fn set(:Method, t Xmap[$K, $V], key $K, val $V, ...args Args) Xmap[$K, $V] {
+  t[key] = val;
+  t.set(...args);
+  return t;
+}
+
+fn native __setitem__(t Xmap[$K, $V], key $K, value $V) Void"""
+  var_t.set(var_key, var_value);
+"""
+
+fn native __contains__(t Xmap[$K, $V], key $K) Bool"""
+  return var_t.has(var_key);
+"""
+
+fn __getitem__(t Xmap[$K, $V], key $K) $V {
+  if (key not in t) {
+    error("No such key: " + repr(key));
+  }
+  return t.unsafeGetItem(key);
+}
+
+fn native unsafeGetItem(:Method, t Xmap[$K, $V], key $K) $V"""
+  return var_t.get(var_key);
+"""
+
+fn native getListOfKeys(:Method, t Xmap[$K, $V]) List[$K]"""
+  return Array.from(var_t.keys());
+"""
+
+fn repr(t Xmap[$K, $V]) String {
+  final keys = t.getListOfKeys().sort();
+  let s = "new(Xmap, ";
+  for (let i = 0; i < len(keys); i++) {
+    let key = keys[i];
+    if (i != 0) {
+      s += ", ";
+    }
+    s += repr(key) + "," + repr(t[key]);
+  }
+  s += ")";
+  return s;
+}
+
+fn __eq__(a Xmap[$K, $V], b Xmap[$K, $V]) Bool {
+  if (len(a) != len(b)) {
+    return false;
+  }
+  final akeys = a.getListOfKeys().sort();
+  final bkeys = b.getListOfKeys().sort();
+  if (akeys != bkeys) {
+    return false;
+  }
+  for (let i = 0; i < len(akeys); i++) {
+    final key = akeys[i];
+    if (a[key] != b[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+fn native discard(:Method, t Xmap[$K, $V], key $K) Void"""
+  var_t.delete(var_key);
+"""
+
+fn native len(t Xmap[$K, $V]) Int"""
+  return var_t.size;
+"""

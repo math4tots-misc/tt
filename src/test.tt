@@ -145,6 +145,27 @@ fn main() Void {
     assertEqual(len(t), 2);
   }
 
+  //// Xmap
+  {
+    final map = new(Xmap[Int, Int]);
+    assert(41 not in map);
+    assertEqual(len(map), 0);
+    map[41] = 415;
+    assertEqual(map[41], 415);
+    assertEqual(len(map), 1);
+    assertEqual(map, new(Xmap, 41, 415));
+    assert(map != new(Xmap, 41, 415, 11, 4));
+    assertEqual(str(map), "new(Xmap, 41,415)");
+    assert(41 in map);
+    map.discard(41);
+    assertEqual(len(map), 0);
+    final t = new(Xmap, "x", "aa", "y", "b", "x", "ff");
+    assertEqual(t, new(Xmap, "x", "ff", "y", "b"));
+    assertEqual(t["x"], "ff");
+    assertEqual(len(t), 2);
+    assertEqual(str(t), "new(Xmap, \"x\",\"ff\", \"y\",\"b\")");
+  }
+
   //// List
   {
     let xs = new(List[Int]);
