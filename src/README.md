@@ -30,6 +30,8 @@
    * str  -- for conversion to String
    * int  -- for conversion to Int
    * float  -- for conversion to Float
+   * just  -- for creating a Maybe type with a given value
+   * nothing  -- for creating a Maybe type with Nothing.
 
 3. Special method names.
    * to  -- for conversion to arbitrary types.
