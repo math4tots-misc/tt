@@ -50,3 +50,11 @@ fn native asyncWrite(:Method, fb Firebase, key String, val Json)
 fn native asyncDelete(:Method, fb Firebase, key String) Promise[Void]"""
   return registerPromise(stack, var_fb.database().ref(var_key).remove());
 """
+
+fn native getCurrentUserId(:Method, fb Firebase) String"""
+  const user = var_fb.auth().currentUser;
+  if (!user) {
+    throw new TtError("User not yet authenticated");
+  }
+  return user.uid;
+"""
