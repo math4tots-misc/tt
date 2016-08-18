@@ -180,6 +180,13 @@ fn main() Void {
       assertEqual(xs.shift(), 1);
       assertEqual(xs, [2, 3]);
     }
+
+    assertEqual(list(Int).sort(), list(Int));
+
+    {
+      final xs = [5, 6, 1, 2];
+      assertEqual(xs.sort(), [1, 2, 5, 6]);
+    }
   }
 
   //// Method syntax
