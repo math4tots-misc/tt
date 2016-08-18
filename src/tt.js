@@ -64,6 +64,14 @@ Error.stackTraceLimit = Infinity;
 // It doesn't seem that important right now, but in the future I might
 // consider it.
 
+// TODO: Compile time assertions. In particular, assertThrows, assert
+// that instantiating a particular function template throws a compile
+// time error. This is useful in tests.
+// You should note however, that given the current way of instantiating
+// functions, the process is pretty fragile, and properly throwing an
+// exception and recovering might be difficult. A major refactor is
+// probably going to be needed first.
+
 // TODO: Optimization. Allow marking methods as nothrow/constexpr/nostack,
 // such that functions marked as such are not passed an explicit stack.
 // This will probably make it a lot easier for the closure compiler to
@@ -1059,6 +1067,7 @@ class Parser {
   parseExpressionListTemplate(open, close) {
     this.expect(open);
     const exprs = [];
+    const argkeys = [];
     exprs.varexpr = null;
     while (!this.consume(close)) {
       if (this.consume("...")) {
@@ -1070,11 +1079,18 @@ class Parser {
         this.expect(close);
         break;
       }
+      if (this.at("NAME") && this.at(":", 1)) {
+        argkeys.push(this.expect("NAME").val);
+        this.expect(":");
+      } else {
+        argkeys.push(null);
+      }
       exprs.push(this.parseExpressionTemplate());
       if (!this.at(close)) {
         this.expect(",");
       }
     }
+    exprs.argkeys = argkeys;
     return exprs;
   }
   parseExpressionTemplate() {
@@ -1273,8 +1289,10 @@ class Parser {
             "token": token,
             "cls": new SymbolTypeTemplate(token, "Method"),
           });
-          expr =
-              makeFunctionCallTemplate(token, name, args, args.varexpr);
+          args.argkeys.unshift(null);
+          args.argkeys.unshift(null);
+          expr = makeFunctionCallTemplate(token, name, args,
+                                          args.varexpr, args.argkeys);
         } else {
           expr = {
             "type": "GetAttributeTemplate",
@@ -1321,7 +1339,9 @@ class Parser {
     } else if (this.consume("NAME")) {
       if (this.at(openParen)) {
         const args = this.parseExpressionListTemplate(openParen, closeParen);
-        return makeFunctionCallTemplate(token, token.val, args, args.varexpr);
+        return makeFunctionCallTemplate(token, token.val, args,
+                                        args.varexpr,
+                                        args.argkeys);
       } else if (this.consume("=")) {
         const val = this.parseExpressionTemplate();
         return {
@@ -1412,6 +1432,10 @@ class Parser {
     } else if (this.at(openBracket)) {
       const exprs = this.parseExpressionListTemplate(
           openBracket, closeBracket);
+      if (exprs.argkeys.some(key => key !== null)) {
+        throw new CompileError(
+            "List displays can't have keyword arguments", [token]);
+      }
       return {
         "type": "ListDisplayTemplate",
         "token": token,
@@ -1433,13 +1457,14 @@ function parseModule(uri, text) {
 
 // ast
 
-function makeFunctionCallTemplate(token, name, exprs, varexpr) {
+function makeFunctionCallTemplate(token, name, exprs, varexpr, argkeys) {
   return {
     "type": "FunctionCallTemplate",
     "token": token,
     "name": name,
     "exprs": exprs,
     "varexpr": varexpr || null,
+    "argkeys": argkeys || null,
   };
 }
 
@@ -1993,6 +2018,14 @@ function annotate(modules) {
       const name = node.name;
       const args = resolveExpressionList(node, bindings, stack);
       const argtypes = args.map(arg => arg.exprType);
+      const argkeys = node.argkeys;
+
+      if (argkeys !== null) {
+        while (argkeys.length < args.length) {
+          argkeys.push(null);
+        }
+      }
+
       // HACK: If I had more mature meta-programming facilities, I could
       // cleanly implement malloc in the language itself as native
       // function.
@@ -2044,6 +2077,14 @@ function annotate(modules) {
                 functemp.token.getLocationMessage(),
                 [frame].concat(flatten(stack)));
           }
+        }
+        if (argkeys !== null && argkeys[i] !== null &&
+            argkeys[i] !== functemp.args[i][0]) {
+          throw new InstantiationError(
+              "Keyword argument mismatch, expected '" + functemp.args[i][0] +
+              "' but got '" + argkeys[i] + "' " +
+              functemp.token.getLocationMessage(),
+              [frame].concat(flatten(stack)));
         }
       }
 

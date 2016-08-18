@@ -394,6 +394,23 @@ fn main() Void {
     assertEqual(x, [14]);
   }
 
+  //// keyword args test
+  // With these, the test is just that they compile.
+  {
+    testKeywordArgs("a", "b");
+    testKeywordArgs("a", otherName: "b");
+    testKeywordArgs(someName: "a", "b");
+    testKeywordArgs(someName: "a", otherName: "b");
+    // TODO: if an 'assertThrows' compile time macro becomes available,
+    // should check that invalid keyword names throw an error.
+    // #assertThrows testKeywordArgs(asdf: "a", "b");
+
+    "a".testMethodKeywordArgs("b", "c");
+    "a".testMethodKeywordArgs("b", otherName: "c");
+    "a".testMethodKeywordArgs(someName: "b", "c");
+    "a".testMethodKeywordArgs(someName: "b", otherName: "c");
+  }
+
   print("synchronous main finished!");
 }
 
@@ -588,3 +605,8 @@ fn new(ExampleDeletable, xs List[Int], x Int) ExampleDeletable {
 fn delete(e ExampleDeletable) Void {
   e.xs.push(e.x);
 }
+
+fn testKeywordArgs(someName String, otherName String) Void {}
+
+fn testMethodKeywordArgs(:Method, this String,
+                         someName String, otherName String) Void {}

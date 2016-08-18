@@ -61,7 +61,7 @@
 
 ## design principles
 
-1. Safe/Debuggable
+1. Safe
   1. It's ok to pay with performance if it improves debugging
     Examples:
     * Explicit stack traces with line numbers
@@ -85,7 +85,7 @@
       but I couldn't really think of one (maybe Rust's way? but that seems
       hard to do, to incorporate life-times into the type system).
       Raw manual memory management can get super painful, and flies in
-      the face of safe/debuggable as well as being tedious.
+      the face of safe/debuggable.
       Reference counting or even just letting memory leak in the very
       worst case might still be better.
 
@@ -94,9 +94,11 @@
      to be "type-safe".
      It's ok to have areas that are less "safe" in some ways, if the
      underlying semantics are "unsafe" like with JSON.
+     Just make sure that the boundaries of what is "safe" and what isn't
+     is clear.
      In tt, the interactions are completely strongly statically typed,
      but Json itself is just treated as one blob type, and will throw
-     an exception if you try to use it in the wrong way.
+     a runtime exception if you try to use it in the wrong way.
 
 3. Fast
   1. If it can be done fast while preserving the above two philosophies,
@@ -117,4 +119,42 @@
   Barring the above two rules, the performance mantra is same as in C++:
 
     What you do use, you couldn’t hand code any better.
+
+## Features
+
+### Keyword arguments
+
+If you have a function definition that looks like:
+
+    fn updatePetName(oldPetName String, newName String) {...}
+
+and you use it:
+
+    updatePetName("Fluffy", "Snuggles");
+
+It's not immediately clear whether "Fluffy" or "Snuggles" is the new name.
+
+Keyword arguments feature can make this clearer:
+
+    updatePetName("Fluffy", newName: "Snuggles");
+
+Now it's very obvious to whoever is reading the code that "Snuggles" is the
+new name.
+
+The compiler checks that the key actually matches the name of the argument.
+
+So in the above example,
+
+    updatePetName("Fluffy", asdf: "Snuggles");
+
+will not compile.
+
+This is all that "keyword arguments" do in TT. It's not as fancy as keyword
+arguments in many other languages that can do a lot of fancy things like
+reorder arguments and provide optional arguments, but TT uses the types and
+order of arguments so extensively that I think adding features like that
+would make TT code harder to reason about.
+
+The keyword arguments is really about code *Safety*.
+
 
