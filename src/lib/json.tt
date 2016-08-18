@@ -169,9 +169,9 @@ fn native unsafeConversion(:Method, x Json, List[Json]) List[Json]"""
 """
 
 fn native unsafeConversion(:Method, x Json, Table[Json]) Table[Json]"""
-  const m = new Map();
+  const m = {};
   for (const key in var_x) {
-    m.set(key, var_x[key]);
+    m[key] = var_x[key];
   }
   return m;
 """

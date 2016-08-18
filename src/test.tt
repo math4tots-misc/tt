@@ -126,23 +126,23 @@ fn main() Void {
   {
     final table = new(Table[Int]);
     assert("x" not in table);
-    assertEqual(len(table), 0);
+    assertEqual(len(table.getListOfKeys()), 0);
     table["x"] = 5;
     assertEqual(table["x"], 5);
-    assertEqual(len(table), 1);
+    assertEqual(len(table.getListOfKeys()), 1);
     assertEqual(table, new(Table[Int], "x", 5));
     assertEqual(str(table), '{x:5}');
     assert("x" in table);
     table.discard("x");
     assert("x" not in table);
-    assertEqual(len(table), 0);
+    assertEqual(len(table.getListOfKeys()), 0);
 
     // Test that if key appears more than once,
     // we only keep the last one.
     final t = new(Table, "x", "aa", "y", "b", "x", "ff");
     assertEqual(t, new(Table, "x", "ff", "y", "b"));
     assertEqual(t["x"], "ff");
-    assertEqual(len(t), 2);
+    assertEqual(len(t.getListOfKeys()), 2);
   }
 
   //// Xmap
