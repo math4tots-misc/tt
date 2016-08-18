@@ -411,6 +411,11 @@ fn main() Void {
     "a".testMethodKeywordArgs(someName: "b", otherName: "c");
   }
 
+  //// new method definition syntax
+  {
+    assertEqual("hi".randomMethodOnString(5), 2 + 5);
+  }
+
   print("synchronous main finished!");
 }
 
@@ -610,3 +615,9 @@ fn testKeywordArgs(someName String, otherName String) Void {}
 
 fn testMethodKeywordArgs(:Method, this String,
                          someName String, otherName String) Void {}
+
+class fn String {
+  fn randomMethodOnString(x Int) Int {
+    return len(this) + x;
+  }
+}

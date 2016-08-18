@@ -790,7 +790,19 @@ class Parser {
     const classtemps = [];
     const decltemps = [];
     while (!this.at("EOF")) {
-      if (this.at("static") || this.at("fn")) {
+      if (this.at("class") && this.at("fn", 1)) {
+        const token = this.expect("class");
+        this.expect("fn");
+        const methodtempl = new SymbolTypeTemplate(token, "Method");
+        const typetempl = this.parseTypeTemplate();
+        this.expect(openBrace);
+        while (!this.consume(closeBrace)) {
+          const functemp = this.parseFunctionTemplate();
+          functemp.args.unshift(["this", typetempl]);
+          functemp.args.unshift([null, methodtempl]);
+          functemps.push(functemp);
+        }
+      } else if (this.at("static") || this.at("fn")) {
         functemps.push(this.parseFunctionTemplate());
       } else if (this.at("class")) {
         classtemps.push(this.parseClassTemplate());
