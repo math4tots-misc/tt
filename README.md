@@ -62,18 +62,3 @@ There are three design principles, in order of importance:
      In tt, the interactions are completely strongly statically typed,
      but Json itself is just treated as one blob type, and will throw
      a runtime exception if you try to use it in the wrong way.
-
-3. Fast
-  1. If it can be done fast while preserving the above two philosophies,
-     do it.
-     Examples:
-     * Template Meta-programming
-       Not yet fully implemented, but with instantiation stack traces
-       (compile time trace based on what uses what) and a scripting-like
-       meta-programming language that makes it easy, debuggable and fun.
-       I'm thinking of basically a Python/Javascript/PHP kind of language.
-     * Zero cost function dispatch.
-       Since the types are all known at compile time, when transpiling,
-       there doesn't need to be any runtime abstraction layer (e.g.
-       a class that handles dispatching TT method names to javascript
-       method names).
