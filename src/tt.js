@@ -1531,6 +1531,58 @@ function checkForDuplicateFunctionDefinitions(functemps) {
   }
 }
 
+// TODO: Finish the annotator and replace the contents
+// of the 'annotate' function.
+class Annotator {
+  constructor(modules) {
+    const functemps = [];
+    const classtemps = [];
+    const decltemps = [];
+    for (const mod of modules) {
+      if (mod.type !== "UnexpandedModule") {
+        throw new CompileError("Expected Module: " + mod, []);
+      }
+      for (const functemp of mod.functemps) {
+        functemps.push(functemp);
+      }
+      for (const classtemp of mod.classtemps) {
+        classtemps.push(classtemp);
+      }
+      for (const decltemp of mod.decltemps) {
+        decltemps.push(decltemp);
+      }
+    }
+    checkForDuplicateClassDefinitions(classtemps);
+    checkForDuplicateFunctionDefinitions(functemps);
+    this.functemps = functemps;
+    this.classtemps = classtemps;
+    this.decltemps = decltemps;
+
+    this.funcs = [];
+    this.clss = [];
+    this.decls = [];
+
+    this.funcTable = Object.create(null);
+    this.classTable = Object.create(null);
+    this.currentContext = null;
+    this.scope = Object.create(null);
+    this.scopeStack = [];
+
+    this.stack = [];
+  }
+  pushNormalScope() {
+    this.scopeStack.push(this.scope);
+  }
+  popScope() {
+    this.scope = this.scopeStack.pop();
+  }
+  getVariableType(name) {
+    if (!this.scope[name]) {
+      throw new InstantiationError("No such variable " + name, this.stack);
+    }
+  }
+}
+
 function annotate(modules) {
   // collect all the function templates.
   const functemps = [];
