@@ -416,6 +416,33 @@ fn main() Void {
     assertEqual("hi".randomMethodOnString(5), 2 + 5);
   }
 
+  //// for in loop
+  {
+    final xs = list(Int);
+    for x in [366, 34, 18] {
+      xs.push(x);
+    }
+    assertEqual(xs, [366, 34, 18]);
+  }
+  {
+    final xs = list(Int);
+    for x in range(5) {
+      xs.push(x);
+    }
+    assertEqual(xs, [0, 1, 2, 3, 4]);
+  }
+  {
+    final xs = list(Int);
+    for x in range(5, 8) {
+      xs.push(x);
+    }
+    assertEqual(xs, [5, 6, 7]);
+
+    for (x, y) in zip(range(5, 10), range(20, 30)) {
+      let tuple(z, a, d ...rest) = x;
+    }
+  }
+
   print("synchronous main finished!");
 }
 

@@ -1,0 +1,20 @@
+// listiterator.tt
+
+class ListIterator[$T] {
+  let list List[$T];
+  let i Int;
+}
+
+fn iter(this List[$T]) ListIterator[$T] {
+  return malloc(ListIterator[$T], this, 0);
+}
+
+fn hasNext(this ListIterator[$T]) Bool {
+  return this.i < len(this.list);
+}
+
+fn next(this ListIterator[$T]) $T {
+  let x = this.list[this.i];
+  this.i = this.i + 1;
+  return x;
+}

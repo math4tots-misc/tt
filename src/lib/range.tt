@@ -1,0 +1,35 @@
+// range.tt
+
+class Range {
+  let start Int;
+  let end Int;
+}
+
+class RangeIterator {
+  let range Range;
+  let i Int;
+}
+
+fn range(start Int, end Int) Range {
+  return malloc(Range, start, end);
+}
+
+fn range(end Int) Range {
+  return range(0, end);
+}
+
+fn iter(this Range) RangeIterator {
+  return malloc(RangeIterator, this, this.start);
+}
+
+fn hasNext(this RangeIterator) Bool {
+  return this.i < this.range.end;
+}
+
+fn next(this RangeIterator) Int {
+  let n = this.i;
+  this.i = this.i + 1;
+  return n;
+}
+
+

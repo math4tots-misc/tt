@@ -997,6 +997,19 @@ class Parser {
         "expr": expr,
       };
     } else if (this.consume("for")) {
+      if (this.at("NAME")) {
+        const name = this.expect("NAME").val;
+        this.expect("in");
+        const iter = this.parseExpressionTemplate();
+        const body = this.parseBlockTemplate();
+        return {
+          "type": "ForInTemplate",
+          "token": token,
+          "name": name,
+          "iter": iter,
+          "body": body,
+        };
+      }
       this.expect(openParen);
       const init = this.parseStatementTemplate();
       if (init.type !== "DeclarationTemplate" &&
@@ -1820,8 +1833,10 @@ function annotate(modules) {
       };
     case "ForTemplate": {
       pushScope();
-      const init = resolveStatement(node.init, bindings, stack);
-      const cond = resolveExpression(node.cond, bindings, stack);
+      const init = node.init === null ?
+                   null : resolveStatement(node.init, bindings, stack);
+      const cond = node.init === null ?
+                   null : resolveExpression(node.cond, bindings, stack);
       const frame = new InstantiationFrame(
           node.token, currentInstantiationContext);
       if (!cond.exprType.equals(newTypename("Bool"))) {
@@ -1829,7 +1844,8 @@ function annotate(modules) {
             "For loop condition must return a bool but got " +
             cond.exprType.toString(), [frame].concat(flatten(stack)));
       }
-      const incr = resolveExpression(node.incr, bindings, stack);
+      const incr = node.incr === null ?
+                   null : resolveExpression(node.incr, bindings, stack);
       const body = resolveStatement(node.body, bindings, stack);
       popScope();
       return {
@@ -1842,6 +1858,49 @@ function annotate(modules) {
         "returns": null,
         "maybeReturns": body.maybeReturns,
       };
+    }
+    case "ForInTemplate": {
+      return resolveStatement({
+        "type": "ForTemplate",
+        "token": node.token,
+        "init": {
+          "type": "DeclarationTemplate",
+          "token": node.token,
+          "isAuto": false,
+          "isFinal": false,
+          "name": "__iter",
+          "cls": null,
+          "val": makeFunctionCallTemplate(node.token, "iter", [
+              node.iter,
+          ]),
+        },
+        "cond": makeFunctionCallTemplate(node.token, "hasNext", [{
+          "type": "NameTemplate",
+          "token": node.token,
+          "name": "__iter",
+        }]),
+        "incr": null,
+        "body": {
+          "type": "BlockTemplate",
+          "token": node.token,
+          "stmts": [
+            {
+              "type": "DeclarationTemplate",
+              "token": node.token,
+              "isAuto": false,
+              "isFinal": false,
+              "name": node.name,
+              "cls": null,
+              "val": makeFunctionCallTemplate(node.token, "next", [{
+                "type": "NameTemplate",
+                "token": node.token,
+                "name": "__iter",
+              }]),
+            },
+            node.body,
+          ],
+        },
+      }, bindings, stack);
     }
     case "WhileTemplate": {
       const cond = resolveExpression(node.cond, bindings, stack);

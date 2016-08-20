@@ -562,9 +562,13 @@ class Compiler {
       return "\ntry" + this.compileStatement(node.body) +
              "\nfinally" + this.compileStatement(node.fin);
     case "For":
-      return "\nfor (" + this.compileStatement(node.init).trim() +
-             this.compileTopLevelExpression(node.cond) + ";" +
-             this.compileTopLevelExpression(node.incr) + ")" +
+      return "\nfor (" +
+             (this.init === null ?
+              ";" : this.compileStatement(node.init).trim()) +
+             (node.cond === null ?
+              "" : this.compileTopLevelExpression(node.cond)) + ";" +
+             (node.incr === null ?
+              "" : this.compileTopLevelExpression(node.incr)) + ")" +
              this.compileStatement(node.body);
     case "While":
       return "\nwhile (" + this.compileTopLevelExpression(node.cond) + ")" +
