@@ -20,26 +20,26 @@ or on any environment with 'node' on it, you can run
 There are three design principles, in order of importance:
 
 1. Safe
-  1. It's ok to pay with performance if it improves debugging
+  1. Even if you are super tired on a Friday night and you can't
+     think straight because your head is throbbing, you should still be
+     able to make modifications with minimal chance of introducing a new bug.
+  2. It's ok to pay with performance if it improves debugging
     Examples:
     * Explicit stack traces with line numbers
     * async/await should have complete stack traces
       The performance cost here is copying the full stack trace
       when calling an async function
-  2. (From Python) In the face of ambiguity, refuse the temptation to guess.
+  3. (From Python) In the face of ambiguity, refuse the temptation to guess.
     Examples:
     * (From Python) A bug in the user's code should not be allowed to lead to
        undefined behavior; a core dump is never the user's fault.
-  3. (From Python) Errors should never pass silently.
+  4. (From Python) Errors should never pass silently.
     Examples:
     * If 'await' or 'runAsync' is never called on a Promise, it will
       throw an error when the enclosing async stack frame group exits.
     * NO null.
       If you really need an absence of value, a "Maybe" type is available.
-  4. (From Python) Readability counts.
-  5. Even if you are super tired on a Friday night and you can't
-     think straight because your head is throbbing, you should still be
-     able to make modifications with minimal chance of introducing a new bug.
+  5. (From Python) Readability counts.
 
 2. Fun
   1. It's ok to pay with performance if it adds fun
