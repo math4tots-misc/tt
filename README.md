@@ -17,7 +17,7 @@ or on any environment with 'node' on it, you can run
 
 ## Design principles
 
-There are three design principles, in order of importance:
+There are two design principles, in order of importance:
 
 1. Safe
   1. Even if you are super tired on a Friday night and you can't
