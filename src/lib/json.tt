@@ -8,7 +8,8 @@
 //   * Array (List[Json])
 //   * Object (kind of like Table[Json])
 
-class native Json;
+class native Json
+  "null|number|string|boolean|!Array<$Self>|!Object<string,$Self>"
 
 fn native new(Json) Json"""
   return null;

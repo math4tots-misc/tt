@@ -3,7 +3,7 @@
 /*
 <script src="https://www.gstatic.com/firebasejs/3.2.0/firebase.js"></script>
 */
-class native Firebase;
+class native Firebase "*"
 
 fn native new(Firebase,
               apiKey String,

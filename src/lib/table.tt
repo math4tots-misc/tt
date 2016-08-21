@@ -2,10 +2,10 @@
 // Thin layer on top of Javascript's Objects.
 
 class abstract Table;
-class native Table[$V];
+class native Table[$V] "!Object<string,$V>"
 
 fn native new(Table[$V]) Table[$V]"""
-  return new Map();
+  return {};
 """
 
 fn new(Table[$V], key String, val $V, ...args Args) Table[$V] {
@@ -32,11 +32,11 @@ fn native __setitem__(t Table[$V], key String, value $V) Void"""
 """
 
 fn native __contains__(t Table[$V], key String) Bool"""
-  return var_t.hasOwnProperty(var_key);
+  return Object.hasOwnProperty.apply(var_t, [var_key]);
 """
 
 fn native __getitem__(t Table[$V], key String) $V"""
-  if (!var_t.hasOwnProperty(var_key)) {
+  if (!Object.hasOwnProperty.apply(var_t, [var_key])) {
     throw new Error("No such key: '" + var_key + "'");
   }
   return var_t[var_key];

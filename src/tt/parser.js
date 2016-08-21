@@ -115,11 +115,7 @@ class Parser {
     if (isAbstract) {
       this.expect(";");
     } else if (isNative) {
-      if (this.at("STRING")) {
-        nativeAnnotation = this.expect("STRING").val;
-      } else {
-        this.expect(";");
-      }
+      nativeAnnotation = this.expect("STRING").val;
     } else {
       attrs = [];
       this.expect(openBrace);
