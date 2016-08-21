@@ -1,6 +1,6 @@
 // jqueryevent.tt
 // See jquery.tt for javascript dependencies
-class native JqueryEvent "*"
+class native JqueryEvent;
 
 fn repr(event JqueryEvent) String {
   return "<JqueryEvent " + event.getType() + ">";

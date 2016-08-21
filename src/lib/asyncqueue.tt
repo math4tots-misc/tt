@@ -1,11 +1,6 @@
 // asyncqueue.tt
 
-class native AsyncQueue[$T] "!{
-  deleted:boolean,
-  items:!Array<$T>,
-  listener: (null|{resolve:function($T),reject:function(Error)}),
-  onDeleteCallbacks: !Array<function(Stack,$Self)>,
-}"
+class native AsyncQueue[$T];
 
 fn native new(AsyncQueue[$T]) AsyncQueue[$T]"""
   return {
@@ -68,12 +63,11 @@ fn native onItem(:Method, queue AsyncQueue[$T],
   if (var_queue.listener) {
     throw new TtError("This queue already has a listener");
   }
-  var_queue.listener = {
+  const listener = var_queue.listener = {
     resolve: item => runCallback(stack => var_f(stack, item), makeStack()),
     reject: () => null,
     persistent: true,
   };
-  const listener = var_queue.listener;
   while (var_queue.items.length > 0) {
     listener.resolve(var_queue.items.shift());
   }

@@ -1,7 +1,7 @@
 // list.tt
 // All functions related to dealing with lists.
 
-class native List[$T] "!Array<$T>"
+class native List[$T];
 
 fn native new(List[$T]) List[$T]"""
   return [];

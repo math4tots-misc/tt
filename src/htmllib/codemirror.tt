@@ -10,8 +10,8 @@ Expects:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/addon/comment/comment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/keymap/vim.min.js"></script>
 */
-class native CodeMirror "*"
-class native CodeMirrorDoc "*"
+class native CodeMirror;
+class native CodeMirrorDoc;
 
 fn native new(CodeMirror, jq Jquery) CodeMirror"""
   if (var_jq.prop("tagName") !== "TEXTAREA") {

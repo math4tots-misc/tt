@@ -1,6 +1,6 @@
 // Like prelude, but specific to javascript target
 
-class native Void "!undefined"
+class native Void "undefined"
 class native Bool "boolean"
 class native Int "number"
 class native Float "number"

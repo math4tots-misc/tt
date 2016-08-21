@@ -1121,10 +1121,10 @@ function annotate(modules) {
     console.log(var_t);
   """
 
-  class native Baz ""
-  class native Void ""
-  class native String ""
-  class native Int ""
+  class native Baz;
+  class native Void;
+  class native String;
+  class native Int;
   class Baz2 [$T] {
     let t $T;
   }

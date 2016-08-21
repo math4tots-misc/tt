@@ -42,8 +42,6 @@ const nativeTypedefs = `
  */
 var Stack;
 
-
-
 `;
 
 const nativePrelude = `
@@ -67,9 +65,8 @@ class TtError extends Error {
 
 /**
  * @private
- * @template T
  * @param {Stack} stack
- * @param {T} value
+ * @param {*} value
  */
 function pop(stack, value) {
   stack.pop();
@@ -104,9 +101,6 @@ function getStackTraceMessage(stack) {
   return message;
 }
 
-/**
- * @param {Stack} stack
- */
 function displayErrorAndDie(stack, e) {
   // If we have a TtError, we extract the message and omit the
   // javascript trace.
@@ -115,9 +109,8 @@ function displayErrorAndDie(stack, e) {
                        e.ttmessage : e.toString();
   const javascriptTrace = (e instanceof TtError) ?
                           "" : e.stack;
-  const untrimmedTrace = getStackTraceMessage(stack);
-  const trimmedTrace = untrimmedTrace.trim();
-  const stackTrace = stack.length > 0 ? trimmedTrace : "";
+  const stackTrace = stack.length > 0 ?
+                     getStackTraceMessage(stack).trim() : "";
   console.error("==========================\\n" +
                 "*** UNCAUGHT EXCEPTION ***\\n" +
                 "==========================\\n" +
@@ -145,8 +138,6 @@ function tryOrDie(f, stack) {
 
 /**
  * @private
- * @template Args
- * @param {function(...Args): !Iterator<?>} unwrappedGenerator
  */
 function asyncf(unwrappedGenerator) {
   function* generator() {
@@ -178,8 +169,7 @@ function asyncf(unwrappedGenerator) {
     }
   }
   return function(oldStack) {
-    const generatorObject =
-        /** @type{!Iterator<?>} */ (generator.apply(null, arguments));
+    const generatorObject = generator.apply(null, arguments);
     return newPromise(oldStack, (resolve, reject) => {
       asyncfHelper(generatorObject, resolve, reject);
     });
@@ -188,7 +178,6 @@ function asyncf(unwrappedGenerator) {
 
 /**
  * @private
- * @param {!Iterator<?>} generatorObject
  * @param {*=} val
  * @param {boolean=} thr
  */
@@ -585,10 +574,7 @@ class Compiler {
   }
   compileNativeAnnotationOf(cls) {
     let ann = cls.nativeAnnotation;
-    const bindings = Object.create(cls.bindings);
-    bindings.Self = cls.pattern;
-    const keys = Object.keys(cls.bindings).concat(Object.keys(bindings));
-    for (let key of keys) {
+    for (let key of Object.keys(cls.bindings)) {
       const rawKey = key;
       if (key.startsWith("...")) {
         key = "\\.\\.\\." + key.slice(3);
@@ -596,7 +582,7 @@ class Compiler {
         key = "\\$" + key;
       }
       key += "\\b";
-      let val = bindings[rawKey];
+      let val = cls.bindings[rawKey];
       if (rawKey.startsWith("...")) {
         val = val.map(t => this.getClassNameFromType(t)).join(",");
         if (val.length > 0) {
@@ -648,9 +634,7 @@ class Compiler {
       }
       ann += "\n * @param {" + this.getClassNameFromType(t) + "} var_" + n;
     }
-    if (!func.ret.equals(new type.Typename("Void"))) {
-      ann += "\n * @return {" + this.getClassNameFromType(func.ret) + "}";
-    }
+    ann += "\n * @return {" + this.getClassNameFromType(func.ret) + "}";
     ann += "\n */";
     if (func.isNative) {
       let body = func.body;
@@ -661,7 +645,6 @@ class Compiler {
       return "\n\n// native function: " +
              serializeFunctionInstantiation(func.name, argtypes) +
              func.ret.toString() +
-             "\n" + ann +
              "\nfunction " + name + args + "\n{" + body + "\n}";
     }
     this._currentFunctionContext =

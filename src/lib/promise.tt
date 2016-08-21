@@ -1,4 +1,4 @@
-class native Promise[$T] "!Promise<$T>"
+class native Promise[$T];
 
 //// TODO: setTimeout(..., 0) doesn't actually give delay of 0ms, because
 // the HTML5 spec sets this to 4ms for any value less than that (

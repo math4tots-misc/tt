@@ -3,7 +3,7 @@
 // This is thin wrapper around javascript's "Map".
 
 class abstract Xmap;
-class native Xmap[$K, $V] "Map<$K,$V>"
+class native Xmap[$K, $V];
 
 fn native new(Xmap[$K, $V]) Xmap[$K, $V]"""
   return new Map();
