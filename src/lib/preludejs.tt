@@ -1,5 +1,11 @@
 // Like prelude, but specific to javascript target
 
+class native Void "undefined"
+class native Bool "boolean"
+class native Int "number"
+class native Float "number"
+class native String "string"
+
 fn native jsprint(x $T) Void"""
   console.log(var_x);
 """

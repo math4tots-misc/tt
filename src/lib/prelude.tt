@@ -1,9 +1,4 @@
-
-class native Void;
-class native Bool;
-class native Int;
-class native Float;
-class native String;
+// prelude.tt
 
 fn error(x $X) Void {
   error(repr(x));

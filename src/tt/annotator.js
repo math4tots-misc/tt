@@ -140,6 +140,7 @@ function annotate(modules) {
       "isAbstract": classtemp.isAbstract,
       "pattern": cls,
       "attrs": attrs,
+      "nativeAnnotation": classtemp.nativeAnnotation,
     };
   }
 
@@ -170,7 +171,11 @@ function annotate(modules) {
       const varargname = functemp.vararg[0];
       for (let i = argnames.length; i < argtypes.length; i++) {
         const j = i - argnames.length;
-        args.push([varargname + "__" + j, argtypes[i]]);
+        if (varargname === null) {
+          args.push([null, argtypes[i]]);
+        } else {
+          args.push([varargname + "__" + j, argtypes[i]]);
+        }
       }
     }
     if (functemp.isNative) {

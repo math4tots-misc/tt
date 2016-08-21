@@ -111,8 +111,15 @@ class Parser {
     }
     const pattern = this.parseTypeTemplate();
     let attrs = null;
-    if (isNative || isAbstract) {
+    let nativeAnnotation = null;
+    if (isAbstract) {
       this.expect(";");
+    } else if (isNative) {
+      if (this.at("STRING")) {
+        nativeAnnotation = this.expect("STRING").val;
+      } else {
+        this.expect(";");
+      }
     } else {
       attrs = [];
       this.expect(openBrace);
@@ -131,6 +138,7 @@ class Parser {
       "isAbstract": isAbstract,
       "pattern": pattern,
       "attrs": attrs,
+      "nativeAnnotation": nativeAnnotation,
     };
   }
   parseFunctionTemplate() {
