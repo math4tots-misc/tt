@@ -1,15 +1,14 @@
-// jshint esversion: 6
-// For browser, use with browserify
+// genjs.js
+// Code generation, javascript
 
-// TODO: The way that auto declaration is implemented is a HACK.
-// Come up with a cleaner implementation.
-
-const tt = require("./tt.js");
+const err = require("./err.js");
+const annotator = require("./annotator.js");
 const ttutils = require("./ttutils.js");
 
-const ttjs = Object.create(null);
-(function(exports) {
-"use strict";
+const CompileError = err.CompileError;
+const parseAndAnnotate = annotator.parseAndAnnotate;
+const serializeFunctionInstantiation =
+    annotator.serializeFunctionInstantiation;
 
 class CompilationContext {
   constructor(compiler, func) {
@@ -385,7 +384,7 @@ class Compiler {
     this._fnameCache = Object.create(null);
     this._tagCache = Object.create(null);
     this._tagList = [];
-    this._program = tt.parseAndAnnotate(this._uriTextPairs);
+    this._program = parseAndAnnotate(this._uriTextPairs);
     this._funcs = this._program.funcs;
     this._clss = this._program.clss;
     this._decls = this._program.decls;
@@ -402,7 +401,7 @@ class Compiler {
   initializeFunctionNameFromNode(node) {
     const name = node.name;
     const argtypes = node.args.map(arg => arg[1]);
-    const key = tt.serializeFunctionInstantiation(name, argtypes);
+    const key = serializeFunctionInstantiation(name, argtypes);
     this._fnameCache[key] = name + "__$" + this.getNewId();
   }
   getClassFromType(type) {
@@ -421,18 +420,18 @@ class Compiler {
     return this._typeToClassCache[key];
   }
   getFunctionNameFromNameAndArgtypes(name, argtypes, tokens) {
-    const key = tt.serializeFunctionInstantiation(name, argtypes);
+    const key = serializeFunctionInstantiation(name, argtypes);
     if (!this._fnameCache[key]) {
-      throw new tt.CompileError("No such function: " + key, tokens || []);
+      throw new CompileError("No such function: " + key, tokens || []);
     }
     return this._fnameCache[key];
   }
   getFunctionNameFromFunctionNode(node) {
     const name = node.name;
     const argtypes = node.args.map(arg => arg[1]);
-    const key = tt.serializeFunctionInstantiation(name, argtypes);
+    const key = serializeFunctionInstantiation(name, argtypes);
     if (!this._fnameCache[key]) {
-      throw new tt.CompileError(
+      throw new CompileError(
           "Function never instantiated: " + key, []);
     }
     return this._fnameCache[key];
@@ -440,9 +439,9 @@ class Compiler {
   getFunctionNameFromFunctionCallNode(node) {
     const name = node.name;
     const argtypes = node.args.map(arg => arg.exprType);
-    const key = tt.serializeFunctionInstantiation(name, argtypes);
+    const key = serializeFunctionInstantiation(name, argtypes);
     if (!this._fnameCache[key]) {
-      throw new tt.CompileError(
+      throw new CompileError(
           "Function never instantiated: " + key, [node.token]);
     }
     return this._fnameCache[key];
@@ -523,12 +522,12 @@ class Compiler {
         body = f(new CompilationContext(this, func));
       }
       return "\n\n// native function: " +
-             tt.serializeFunctionInstantiation(func.name, argtypes) +
+             serializeFunctionInstantiation(func.name, argtypes) +
              func.ret.toString() +
              "\nfunction " + name + args + "\n{" + body + "\n}";
     }
     this._currentFunctionContext =
-        tt.serializeFunctionInstantiation(func.name, argtypes);
+        serializeFunctionInstantiation(func.name, argtypes);
     const compiledBody = this.compileStatement(func.body);
     this._currentFunctionContext = null;
     let result = name + args + compiledBody;
@@ -585,7 +584,7 @@ class Compiler {
       }
       return str;
     default:
-      throw new tt.CompileError(
+      throw new CompileError(
           "Unrecognized statement: " + node.type, [node.token]);
     }
   }
@@ -655,7 +654,7 @@ class Compiler {
       return "(" + this.compileArguments(node.args) + " => " +
               this.compileStatement(node.body) + ")";
     default:
-      throw new tt.CompileError(
+      throw new CompileError(
           "Unrecognized expression: " + node.type, [node.token]);
     }
   }
@@ -669,38 +668,6 @@ class Compiler {
   }
 }
 
-const asyncMain = ttutils.asyncf(function*() {
-  const libfilenames = yield ttutils.asyncGetDirFilenames("lib");
-  const libhtmlfns = yield ttutils.asyncGetDirFilenames("htmllib");
-  const binfilenames = process.argv.slice(2);
-  const filenames = libfilenames.concat(binfilenames).concat(libhtmlfns);
-  const uriTextPairs = [];
-  for (const filename of filenames) {
-    let data = null;
-    try {
-      data = yield ttutils.asyncReadFile(filename);
-    } catch (e) {
-      console.error("Error while trying to read '" + filename + "'");
-      console.error(e);
-      process.exit(1);
-    }
-    uriTextPairs.push([filename, data]);
-  }
-  try {
-    console.log(compile(uriTextPairs));
-  } catch (e) {
-    console.error("Compile error");
-    console.error(e);
-    process.exit(1);
-  }
-});
-
-if (require.main === module) {
-  asyncMain();
-}
 
 exports.compile = compile;
-
-})(ttjs);
-module.exports = ttjs;
 

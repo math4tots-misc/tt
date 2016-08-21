@@ -1,9 +1,5 @@
 // jshint esversion: 6
 
-const ttutils = Object.create(null);
-(function(exports) {
-"use strict";
-
 function asyncf(generator) {
   return function() {
     const generatorObject = generator.apply(this, arguments);
@@ -107,7 +103,3 @@ exports.asyncReadFile = asyncReadFile;
 exports.asyncGetDirFilenames = asyncGetDirFilenames;
 exports.asyncDir = asyncDir;
 exports.sanitizeString = sanitizeString;
-
-})(ttutils);
-
-module.exports = ttutils;
