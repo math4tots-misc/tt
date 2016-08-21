@@ -147,7 +147,7 @@ fn __getitem__(x Json, key String) Json {
 fn native unsafeGetItem(:Method, x Json, key String) Json"""
   const val = var_x[var_key];
   if (val === undefined) {
-    throw new TtError("No such key in JSON object: " + key);
+    throw new TtError("No such key in JSON object: " + var_key);
   }
   return val;
 """
