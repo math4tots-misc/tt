@@ -139,6 +139,8 @@ function annotate(modules) {
       "isNative": classtemp.isNative,
       "isAbstract": classtemp.isAbstract,
       "pattern": cls,
+      "template": classtemp,
+      "bindings": bindings,
       "attrs": attrs,
       "nativeAnnotation": classtemp.nativeAnnotation,
     };

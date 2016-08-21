@@ -563,7 +563,7 @@ class Compiler {
     s += "\n * " + cls.pattern.toString();
     s += "\n * @typedef{";
     if (cls.nativeAnnotation) {
-      s += cls.nativeAnnotation;
+      s += this.compileNativeAnnotationOf(cls);
     } else {
       s += "*";
     }
@@ -571,6 +571,29 @@ class Compiler {
     s += "\n */";
     s += "\nvar " + name + ";";
     return s;
+  }
+  compileNativeAnnotationOf(cls) {
+    let ann = cls.nativeAnnotation;
+    for (let key of Object.keys(cls.bindings)) {
+      const rawKey = key;
+      if (key.startsWith("...")) {
+        key = "\\.\\.\\." + key.slice(3);
+      } else {
+        key = "\\$" + key;
+      }
+      key += "\\b";
+      let val = cls.bindings[rawKey];
+      if (rawKey.startsWith("...")) {
+        val = val.map(t => this.getClassNameFromType(t)).join(",");
+        if (val.length > 0) {
+          val = ", " + val;
+        }
+      } else {
+        val = this.getClassNameFromType(val);
+      }
+      ann = ann.replace(new RegExp(key, 'mg'), val);
+    }
+    return ann;
   }
   compileAbstractClass(cls) {
     let s = "\n/**";

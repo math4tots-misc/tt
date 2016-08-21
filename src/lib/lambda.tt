@@ -1,6 +1,6 @@
 // lambda.tt
 
-class native Lambda[$Return, ...Args];
+class native Lambda[$Return, ...Args] "function(Stack...Args):$Return"
 
 //// Should I have done something like this?
 // class native Lambda[Args[...Args], $Return];
