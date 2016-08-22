@@ -68,7 +68,7 @@ fn set(:Method, x Json, key String, val $V, ...args Args) Void {
 
 fn native new(Json, x Table[Json]) Json"""
   const x = {};
-  for (const key of var_x.keys()) {
+  for (const key of Object.keys(var_x)) {
     x[key] = var_x.get(key);
   }
   return x;
