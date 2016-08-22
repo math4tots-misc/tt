@@ -31,8 +31,14 @@ class CompilationContext {
   }
 }
 
-function compile(uriTextPairs) {
-  return new Compiler(uriTextPairs).compile();
+function compile(uriTextPairs, printCompileTimes) {
+  const compiler = new Compiler(uriTextPairs, printCompileTimes);
+  const start = Date.now();
+  const result = compiler.compile();
+  if (printCompileTimes) {
+    console.error("Code generation took: " + (Date.now()-start) + "ms");
+  }
+  return result;
 }
 
 const nativeTypedefs = `
@@ -380,13 +386,13 @@ function transformBlockWithAutos(node) {
 }
 
 class Compiler {
-  constructor(uriTextPairs) {
+  constructor(uriTextPairs, printCompileTimes) {
     this._uriTextPairs = uriTextPairs;
     this._nextId = 1;
     this._nameCache = Object.create(null);
     this._tagCache = Object.create(null);
     this._tagList = [];
-    this._program = parseAndAnnotate(this._uriTextPairs);
+    this._program = parseAndAnnotate(this._uriTextPairs, printCompileTimes);
     this._funcs = this._program.funcs;
     this._clss = this._program.clss;
     this._decls = this._program.decls;

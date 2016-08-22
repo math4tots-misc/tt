@@ -1132,12 +1132,21 @@ function annotate(modules) {
   const ast = annotate([result]);
 }
 
-function parseAndAnnotate(uriTextPairs) {
+function parseAndAnnotate(uriTextPairs, printCompileTimes) {
   const mods = [];
+  const parseStart = Date.now();
   for (const [uri, text] of uriTextPairs) {
     mods.push(parseModule(uri, text));
   }
-  return annotate(mods);
+  if (printCompileTimes) {
+    console.error("Parsing took: " + (Date.now()-parseStart) + "ms");
+  }
+  const start = Date.now();
+  const result = annotate(mods);
+  if (printCompileTimes) {
+    console.error("Annotating took: " + (Date.now()-parseStart) + "ms");
+  }
+  return result;
 }
 
 
