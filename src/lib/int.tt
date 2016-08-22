@@ -14,6 +14,10 @@ fn native __neg__(x Int) Int"""
   return -var_x;
 """
 
+fn native __mul__(a Int, b Int) Int"""
+  return var_a * var_b;
+"""
+
 fn native __mod__(a Int, b Int) Int"""
   return var_a % var_b;
 """

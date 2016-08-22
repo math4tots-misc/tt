@@ -13,6 +13,7 @@ fn main() Void {
 
     assert(2 + 2 == 4);
     assertEqual(2 + 2, 4);
+    assertEqual(6 * 7, 42);
     assertEqual(repr(24), "24");
 
     assertEqual("hi", "hi");
