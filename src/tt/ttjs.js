@@ -19,10 +19,10 @@ const asyncMain = ttutils.asyncf(function*() {
     uriTextPairs.push([filename, data]);
   }
   try {
-    // const start = Date.now();
-    // console.log(genjs.compile(uriTextPairs, true));
-    // console.error("Processing took: " + (Date.now()-start) + "ms");
-    console.log(genjs.compile(uriTextPairs));
+    const start = Date.now();
+    console.log(genjs.compile(uriTextPairs, true));
+    console.error("Processing took: " + (Date.now()-start) + "ms");
+    // console.log(genjs.compile(uriTextPairs));
   } catch (e) {
     console.error("Compile error");
     console.error(e);
