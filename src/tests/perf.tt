@@ -1,0 +1,13 @@
+// perf.tt
+// a simple performance test
+
+
+fn main() Void {
+  let total = 0;
+  for x in range(100000000) {
+    total = (7*x - total + x*x) % 200183;
+  }
+  print(total);
+}
+
+
