@@ -2,7 +2,7 @@
 // A value that is allowed to be null.
 
 class abstract Maybe;
-class native Maybe[$T];
+class native Maybe[$T] "{isNothing:boolean,value:$T}"
 
 fn native new(Maybe[$T]) Maybe[$T]"""
   return {isNothing: true, value: null};

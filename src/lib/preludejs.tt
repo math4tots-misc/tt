@@ -2,9 +2,7 @@
 
 class native Void "undefined"
 class native Bool "boolean"
-class native Int "number"
 class native Float "number"
-class native String "string"
 
 fn native jsprint(x $T) Void"""
   console.log(var_x);
@@ -35,10 +33,6 @@ fn native __add__(x Float, y Int) Float """
 """
 
 fn native __add__(x Float, y Float) Float """
-  return var_x + var_y;
-"""
-
-fn native __add__(x String, y String) String """
   return var_x + var_y;
 """
 

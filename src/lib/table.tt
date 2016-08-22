@@ -2,7 +2,7 @@
 // Thin layer on top of Javascript's Objects.
 
 class abstract Table;
-class native Table[$V];
+class native Table[$V] "!Object<string,$V>"
 
 fn native new(Table[$V]) Table[$V]"""
   return new Map();

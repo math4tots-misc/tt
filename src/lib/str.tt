@@ -1,3 +1,10 @@
+// str.tt
+
+class native String "string"
+
+fn native __add__(x String, y String) String """
+  return var_x + var_y;
+"""
 
 fn native len(s String) Int"""
   return var_s.length;

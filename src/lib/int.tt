@@ -1,3 +1,6 @@
+// int.tt
+
+class native Int "number"
 
 fn native __add__(x Int, y Int) Int """
   return var_x + var_y;
