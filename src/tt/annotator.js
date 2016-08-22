@@ -58,6 +58,7 @@ function checkForDuplicateFunctionDefinitions(functemps) {
 function annotate(modules) {
   // collect all the function templates.
   const functemps = [];
+  const functempsByName = Object.create(null);
   const classtemps = [];
   const decltemps = [];
   for (const mod of modules) {
@@ -77,6 +78,13 @@ function annotate(modules) {
 
   checkForDuplicateClassDefinitions(classtemps);
   checkForDuplicateFunctionDefinitions(functemps);
+
+  for (const functemp of functemps) {
+    if (!functempsByName[functemp.name]) {
+      functempsByName[functemp.name] = [];
+    }
+    functempsByName[functemp.name].push(functemp);
+  }
 
   // expand functions as needed.
   const funcs = [];
@@ -976,10 +984,7 @@ function annotate(modules) {
     const key = serializeFunctionInstantiation(name, argtypes);
     if (matchingFunctionTemplateCache[key] === undefined) {
       let bestSoFar = null;
-      for (const functemp of functemps) {
-        if (functemp.name !== name) {
-          continue;
-        }
+      for (const functemp of (functempsByName[name] || [])) {
         const bindings = bindFunctionTemplateWithArgumentTypes(
             functemp, argtypes);
         if (bindings === null) {
