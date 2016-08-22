@@ -92,27 +92,3 @@ fn on(:Method, this Jquery,
   final unregisterCallback = this.on(eventType, callback);
   scope.onDelete(unregisterCallback);
 }
-
-fn feed(:Method, jq Jquery,
-        eventType String, queue AsyncQueue[JqueryEvent]) Void {
-  final finalQueue = queue;
-
-  final callback = fn(event JqueryEvent) {
-    finalQueue.push(event);
-  };
-
-  final unregisterCallback = jq.on(eventType, callback);
-
-  // Start an async 'thread' that will remove the callback once the
-  // queue is deleted.
-  startAsync(async() {
-    await finalQueue.asyncOnDelete();
-    call(unregisterCallback);
-  });
-}
-
-fn events(:Method, jq Jquery, event String) AsyncQueue[JqueryEvent] {
-  final queue = new(AsyncQueue[JqueryEvent]);
-  jq.feed(event, queue);
-  return queue;
-}

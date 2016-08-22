@@ -311,19 +311,6 @@ fn main() Void {
     });
   }
 
-  //// async queue
-  {
-    final queue = new(AsyncQueue[Int]);
-    startAsync(async() {
-      final item = await queue.asyncPop();
-      assertEqual(item, 244);
-    });
-    startAsync(async() {
-      await asyncSleep(50);
-      queue.push(244);
-    });
-  }
-
   //// Maybe
   {
     let a = new(Maybe[Int]);
@@ -500,30 +487,6 @@ fn makeLambda(...Args) Lambda[Int, ...Args] {
 
 fn async asyncFunction() Void {
   print("I'm at the beginning of asyncFunction");
-
-  //// async queue with owning
-  let m = new(Maybe[AsyncQueue[String]]);
-  let mm = new(Maybe[AsyncQueue[String]]);
-  {
-    auto a = new(AsyncQueue[String]);
-    final b = new(AsyncQueue[String]);
-    m = new(Maybe, a);
-    mm = new(Maybe, b);
-    a.own(call(fn() {
-      final c = new(AsyncQueue[String]);
-      c.push("c");
-      return c;
-    }));
-    a.push("a");
-    a.own(b);
-    b.push("b");
-    final xs = new(List[String]);
-    xs.push(await a.asyncPop());
-    xs.push(await a.asyncPop());
-    xs.push(await a.asyncPop());
-    xs.sort();
-    assertEqual(xs, ["a", "b", "c"]);
-  }
 
   //// Scope onDelete
   {
