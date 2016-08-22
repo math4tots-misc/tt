@@ -574,7 +574,10 @@ class Compiler {
   }
   compileNativeAnnotationOf(cls) {
     let ann = cls.nativeAnnotation;
-    for (let key of Object.keys(cls.bindings)) {
+    const bindings = Object.create(cls.bindings);
+    bindings.Self = cls.pattern;
+    const keys = Object.keys(cls.bindings).concat(Object.keys(bindings));
+    for (let key of keys) {
       const rawKey = key;
       if (key.startsWith("...")) {
         key = "\\.\\.\\." + key.slice(3);
@@ -582,7 +585,7 @@ class Compiler {
         key = "\\$" + key;
       }
       key += "\\b";
-      let val = cls.bindings[rawKey];
+      let val = bindings[rawKey];
       if (rawKey.startsWith("...")) {
         val = val.map(t => this.getClassNameFromType(t)).join(",");
         if (val.length > 0) {
