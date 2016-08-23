@@ -1,0 +1,19 @@
+// files.tt
+// some stuff for managing fileio.
+
+fn native asyncReadFile(path String) Promise[String]"""
+  const fs = require('fs');
+  return newPromise(stack, (resolve, reject) => {
+    fs.readFile(var_path, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+"""
+
+
+
+

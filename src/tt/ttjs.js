@@ -2,10 +2,12 @@ const genjs = require("./genjs.js");
 const ttutils = require("./ttutils.js");
 
 const asyncMain = ttutils.asyncf(function*() {
-  const libfilenames = yield ttutils.asyncGetDirFilenames("../lib");
-  const libhtmlfns = yield ttutils.asyncGetDirFilenames("../htmllib");
-  const binfilenames = process.argv.slice(2);
-  const filenames = libfilenames.concat(binfilenames).concat(libhtmlfns);
+  const libdirs = ["../lib", "../htmllib", "../libdesktop"];
+  let filenames = process.argv.slice(2);
+  for (const libdir of libdirs) {
+    filenames =
+        filenames.concat(yield ttutils.asyncGetDirFilenames(libdir));
+  }
   const uriTextPairs = [];
   for (const filename of filenames) {
     let data = null;
