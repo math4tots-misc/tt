@@ -13,7 +13,3 @@ fn native asyncReadFile(path String) Promise[String]"""
     });
   });
 """
-
-
-
-
