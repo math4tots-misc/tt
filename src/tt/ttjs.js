@@ -2,7 +2,7 @@ const genjs = require("./genjs.js");
 const ttutils = require("./ttutils.js");
 
 const asyncMain = ttutils.asyncf(function*() {
-  const libdirs = ["../lib", "../htmllib", "../libdesktop"];
+  const libdirs = ["../lib", "../libhtml", "../libdesktop"];
   let filenames = process.argv.slice(2);
   for (const libdir of libdirs) {
     filenames =
