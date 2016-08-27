@@ -725,20 +725,44 @@ function annotate(modules) {
       return node;
     case "GetAttributeTemplate": {
       const owner = resolveExpression(node.owner, bindings, stack);
+      const type = getAttributeTypeOrNull(owner.exprType, node.name);
+      if (type === null) {
+        return resolveExpression(makeFunctionCallTemplate(
+          node.token, "getattr", [
+            node.owner,
+            {
+              "type": "TypeExpressionTemplate",
+              "token": node.token,
+              "cls": new SymbolTypeTemplate(node.token, node.name),
+            },
+          ]
+        ), bindings, stack);
+      }
       return {
         "type": "GetAttribute",
         "token": node.token,
         "owner": owner,
         "name": node.name,
-        "exprType":
-            getAttributeType(owner.exprType, node.name, frame, stack),
+        "exprType": type,
       };
     }
     case "SetAttributeTemplate": {
       const owner = resolveExpression(node.owner, bindings, stack);
       const val = resolveExpression(node.val, bindings, stack);
-      const exprType =
-          getAttributeType(owner.exprType, node.name, frame, stack);
+      const exprType = getAttributeTypeOrNull(owner.exprType, node.name);
+      if (exprType === null) {
+        return resolveExpression(makeFunctionCallTemplate(
+          node.token, "setattr", [
+            node.owner,
+            {
+              "type": "TypeExpressionTemplate",
+              "token": node.token,
+              "cls": new SymbolTypeTemplate(node.token, node.name),
+            },
+            node.val,
+          ]
+        ), bindings, stack);
+      }
       if (!exprType.equals(val.exprType)) {
         throw new InstantiationError(
             owner.exprType + "." + node.name + " is type " + exprType +
@@ -962,15 +986,27 @@ function annotate(modules) {
     return resolveTypeTemplate(ret, bindings);
   }
 
-  function getAttributeType(type, name, frame, stack) {
-    for (const [n, t] of instantiateClass(type).attrs) {
+  function getAttributeTypeOrNull(type, name) {
+    const cls = instantiateClass(type);
+    if (cls === null || cls.attrs === null) {
+      return null;
+    }
+    for (const [n, t] of cls.attrs) {
       if (name === n) {
         return t;
       }
     }
-    throw new InstantiationError(
-        "No such attribute: " + type + "." + name,
-        [frame].concat(flatten(stack)));
+    return null;
+  }
+
+  function getAttributeType(type, name, frame, stack) {
+    const ret = getAttributeTypeOrNull(type, name);
+    if (ret === null) {
+      throw new InstantiationError(
+          "No such attribute: " + type + "." + name,
+          [frame].concat(flatten(stack)));
+    }
+    return ret;
   }
 
   function resolveTypeTemplate(typeTemplate, bindings) {

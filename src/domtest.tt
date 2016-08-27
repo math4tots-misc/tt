@@ -1,0 +1,16 @@
+// domtest.tt
+
+fn main() Void {
+  print(document);
+  startAsync(asyncMain());
+}
+
+fn async asyncMain() Void {
+  await document.asyncOnLoad();
+  print("Hi");
+  final body = document.body;
+  final header = document.createElement("h2");
+  header.textContent = "Hello world!";
+  print(body);
+  body.appendChild(header);
+}

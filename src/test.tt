@@ -431,6 +431,13 @@ fn main() Void {
     }*/
   }
 
+  //// setattr/getattr shims
+  {
+    final e = malloc(ExSetattr);
+    assertEqual(e.foo, "foo attr");
+    assertEqual(e.foo = 145, "145");
+  }
+
   print("synchronous main finished!");
 }
 
@@ -612,3 +619,15 @@ fn String {
     return len(this) + x;
   }
 }
+
+class ExSetattr {
+}
+
+fn getattr(this ExSetattr, :foo) String {
+  return "foo attr";
+}
+
+fn setattr(this ExSetattr, :foo, val Int) String {
+  return val.to(String);
+}
+

@@ -1,0 +1,17 @@
+// domelement.tt
+
+class native DomElement "!DomElement"
+
+fn native repr(this DomElement) String"""
+  return '<DomElement:' + var_this.nodeName + ' instance>';
+"""
+
+fn native setattr(this DomElement, :textContent, text String) Void"""
+  var_this.textContent = var_text;
+"""
+
+fn DomElement {
+  fn native appendChild(element DomElement) Void"""
+  var_this.appendChild(var_element);
+  """
+}

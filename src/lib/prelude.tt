@@ -34,10 +34,6 @@ fn str(x $T) String {
   return repr(x);
 }
 
-fn print(x Int) Void {
-  print(str(x));
-}
-
 fn print(x $T) Void {
   print(str(x));
 }

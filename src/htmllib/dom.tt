@@ -1,0 +1,23 @@
+// dom.tt
+
+class Dom {}
+final document = malloc(Dom);
+
+fn native getattr(this Dom, :body) DomElement"""
+  return document.body;
+"""
+
+fn Dom {
+  fn native createElement(nodeName String) DomElement"""
+    return document.createElement(var_nodeName);
+  """
+  fn native getElementById(id String) DomElement"""
+    return document.getElementById(var_id);
+  """
+
+  fn native asyncOnLoad() Promise[Void]"""
+    return newPromise(stack, (resolve, reject) => {
+      window.onload = resolve;
+    });
+  """
+}
