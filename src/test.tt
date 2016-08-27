@@ -607,7 +607,7 @@ fn testKeywordArgs(someName String, otherName String) Void {}
 fn testMethodKeywordArgs(:Method, this String,
                          someName String, otherName String) Void {}
 
-class fn String {
+fn String {
   fn randomMethodOnString(x Int) Int {
     return len(this) + x;
   }
