@@ -1,5 +1,7 @@
 // annotator.js
 
+// TODO: Interfaces and Template-interfaces
+
 const err = require("./err.js");
 const parser = require("./parser.js");
 const type = require("./type.js");

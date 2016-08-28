@@ -59,6 +59,23 @@
      These are, as their name suggests, variables that stand in for one of
      the other concrete types. They start with a dollar sign, like in `$T`.
 
+## Type template specificity
+
+When multiple function templates match, we choose the one with the one
+with the most specific left-most argument. If the left-most argument
+types have the same specificity, we consider the next left-most argument type.
+
+From most specific to least specific:
+
+  1. Fully specified type that isn't an interface, with no type variables.
+     This includes all symbols.
+  2. TemplateType with at least one type variable.
+     To compare two TemplateTypes, we consider the leftmost
+     type argument of the template type, and recurse.
+  3. Interface (interfaces are not yet implemented)
+  4. Type variable. This is the least specific as this may literally match
+     anything.
+
 ## Features
 
 ### Keyword arguments

@@ -8,7 +8,8 @@ const Token = err.Token;
 const assertEqual = err.assertEqual;
 
 const keywords = [
-  "fn", "class", "let", "final", "auto", "static", "native", "async", "await",
+  "fn", "class", "interface", "implement",
+  "let", "final", "auto", "static", "native", "async", "await",
   "abstract",
   "return",
   "is", "not", "in",
@@ -21,7 +22,7 @@ const keywords = [
 ];
 const symbols = [
   "(", ")", "[", "]", "{", "}", ",", ".", "...",
-  ";", "#", "$", "=",
+  "@", ";", "#", "$", "=",
   "+", "-", "*", "/", "%", "++", "--",
   "&&", "||", "?", ":",
   "==", "!=", "<", ">", "<=", ">=", "!",
