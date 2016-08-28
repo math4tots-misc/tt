@@ -1,17 +1,36 @@
 // domelement.tt
 
-class native DomElement "!DomElement"
+class native DomElement "!Element"
 
-fn native repr(this DomElement) String"""
-  return '<DomElement:' + var_this.nodeName + ' instance>';
-"""
+fn repr(this DomElement) String {
+  return "<DomElement:" + this.nodeName + " instance>";
+}
 
 fn native setattr(this DomElement, :textContent, text String) Void"""
   var_this.textContent = var_text;
 """
 
+fn native getattr(this DomElement, :textContent) String"""
+  return var_this.textContent;
+"""
+
+fn native getattr(this DomElement, :nodeName) String"""
+  return var_this.nodeName;
+"""
+
 fn DomElement {
   fn native appendChild(element DomElement) Void"""
   var_this.appendChild(var_element);
+  """
+
+  fn to(DomCanvas) DomCanvas {
+    if (this.nodeName != "CANVAS") {
+      error("Expected CANVAS element but found " + this.nodeName);
+    }
+    return this.unsafeCast(DomCanvas);
+  }
+
+  fn native unsafeCast(DomCanvas) DomCanvas"""
+    return var_this;
   """
 }

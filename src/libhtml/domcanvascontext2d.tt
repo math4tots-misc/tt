@@ -1,0 +1,18 @@
+// DomCanvasContext2d.tt
+
+class native DomCanvasContext2d "CanvasRenderingContext2D"
+
+fn native getattr(this DomCanvasContext2d, :fillStyle) String"""
+  return var_this.fillStyle;
+"""
+
+fn native setattr(this DomCanvasContext2d, :fillStyle, style String) String"""
+  return var_this.fillStyle = var_style;
+"""
+
+fn DomCanvasContext2d {
+  fn native fillRect(x Int, y Int, width Int, height Int) Void"""
+    var_this.fillRect(var_x, var_y, var_width, var_height);
+  """
+}
+

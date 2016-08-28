@@ -1,7 +1,12 @@
 // dom.tt
 
-class Dom {}
-final document = malloc(Dom);
+class native Dom "null"
+
+fn native new(Dom) Dom"""
+  return null;
+"""
+
+final document = new(Dom);
 
 fn native getattr(this Dom, :body) DomElement"""
   return document.body;
@@ -11,6 +16,7 @@ fn Dom {
   fn native createElement(nodeName String) DomElement"""
     return document.createElement(var_nodeName);
   """
+
   fn native getElementById(id String) DomElement"""
     return document.getElementById(var_id);
   """

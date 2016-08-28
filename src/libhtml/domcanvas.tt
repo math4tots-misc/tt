@@ -1,0 +1,31 @@
+// canvaselement.tt
+
+class native DomCanvas "!HTMLCanvasElement"
+
+fn native getattr(this DomCanvas, :width) Int"""
+  return var_this.width;
+"""
+
+fn native getattr(this DomCanvas, :height) Int"""
+  return var_this.height;
+"""
+
+fn native setattr(this DomCanvas, :width, value Int) Int"""
+  return var_this.width = var_value;
+"""
+
+fn native setattr(this DomCanvas, :height, value Int) Int"""
+  return var_this.height = var_value;
+"""
+
+fn DomCanvas {
+  fn native to(DomElement) DomElement"""
+    return var_this;
+  """
+
+  fn native getContext2d() DomCanvasContext2d"""
+    return var_this.getContext('2d');
+  """
+}
+
+

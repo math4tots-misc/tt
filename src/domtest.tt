@@ -12,5 +12,12 @@ fn async asyncMain() Void {
   final header = document.createElement("h2");
   header.textContent = "Hello world!";
   print(body);
+  final canvas = document.createElement("canvas").to(DomCanvas);
+  final context = canvas.getContext2d();
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = 'green';
+  context.fillRect(canvas.width/3, canvas.height/3,
+                   canvas.width/3, canvas.height/3);
   body.appendChild(header);
+  body.appendChild(canvas.to(DomElement));
 }
