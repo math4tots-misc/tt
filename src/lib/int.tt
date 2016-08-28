@@ -18,6 +18,10 @@ fn native __mul__(a Int, b Int) Int"""
   return var_a * var_b;
 """
 
+fn native __div__(a Int, b Int) Int"""
+  return ((var_a/var_b)|0);
+"""
+
 fn native __mod__(a Int, b Int) Int"""
   return var_a % var_b;
 """

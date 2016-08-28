@@ -16,6 +16,8 @@ fn main() Void {
     assertEqual(6 * 7, 42);
     assertEqual(repr(24), "24");
 
+    assertEqual(5 / 2, 2);
+
     assertEqual("hi", "hi");
   }
 
