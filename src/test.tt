@@ -500,65 +500,69 @@ fn async asyncFunction() Void {
 
   //// Scope onDelete
   {
-    let xs = new(List[Int]);
     {
-      auto scope = new(Scope);
-      scope.onDelete(fn() {
-        xs.push(5);
-      });
-      assertEqual(xs, new(List[Int]));
-    }
-    assertEqual(xs, [5]);
-    {
-      final scope = new(Scope);
-      scope.onDelete(fn() {
-        xs.push(15);
-      });
-      delete(scope);
-      await scope.asyncOnDelete();
-    }
-    assertEqual(xs, [5, 15]);
-
-    {
-      final scope = new(Scope);
-      scope.onDelete(fn() {
-        xs.push(25);
-      });
-      startAsync(async() {
-        await asyncSleep(10);
+      final xs = new(List[Int]);
+      {
+        auto scope = new(Scope);
+        scope.onDelete(fn() {
+          xs.push(5);
+        });
+        assertEqual(xs, new(List[Int]));
+      }
+      assertEqual(xs, [5]);
+      {
+        final scope = new(Scope);
+        scope.onDelete(fn() {
+          xs.push(15);
+        });
         delete(scope);
-      });
-      await scope.asyncOnDelete();
-    }
-    assertEqual(xs, [5, 15, 25]);
+        await scope.asyncOnDelete();
+      }
+      assertEqual(xs, [5, 15]);
 
-    // Make scope1 own scope2.
-    // And when scope1 is deleted, make sure that scope2 was
-    // deleted as well.
-    {
-      auto scope1 = new(Scope);
-      final scope2 = new(Scope);
-      scope1.own(scope2);
-      scope2.onDelete(fn() {
-        xs.push(35);
-      });
-    }
-    assertEqual(xs, [5, 15, 25, 35]);
+      {
+        final scope = new(Scope);
+        scope.onDelete(fn() {
+          xs.push(25);
+        });
+        startAsync(async() {
+          await asyncSleep(10);
+          delete(scope);
+        });
+        await scope.asyncOnDelete();
+      }
+      assertEqual(xs, [5, 15, 25]);
 
-    xs = [5];
+      // Make scope1 own scope2.
+      // And when scope1 is deleted, make sure that scope2 was
+      // deleted as well.
+      {
+        auto scope1 = new(Scope);
+        final scope2 = new(Scope);
+        scope1.own(scope2);
+        scope2.onDelete(fn() {
+          xs.push(35);
+        });
+      }
+      assertEqual(xs, [5, 15, 25, 35]);
+    }
+
     {
-      final scope = new(Scope);
-      scope.onDelete(fn() {
-        xs.push(15);
-      });
-      startAsync(async() {
+      final xs = [5];
+      {
+        final scope = new(Scope);
+        scope.onDelete(fn() {
+          xs.push(15);
+        });
+        startAsync(async() {
+          await scope.asyncAfterDelete();
+          xs.push(25);
+        });
+        delete(scope);
         await scope.asyncAfterDelete();
-        xs.push(25);
-      });
-      delete(scope);
-      await scope.asyncAfterDelete();
+      }
+      assertEqual(xs, [5, 15, 25]);
     }
-    assertEqual(xs, [5, 15, 25]);
   }
 
   await asyncSleep(1000);

@@ -107,6 +107,17 @@ function annotate(modules) {
     scope = Object.create(scope);
   }
 
+  function pushScopeFinalsOnly() {
+    scopeStack.push(scope);
+    const newScope = Object.create(null);
+    for (key in scope) {
+      if (scope[key].isFinal) {
+        newScope[key] = scope[key];
+      }
+    }
+    scope = Object.create(newScope);
+  }
+
   function popScope() {
     scope = scopeStack.pop();
   }
@@ -833,7 +844,7 @@ function annotate(modules) {
           node.name, [frame].concat(flatten(stack)));
       if (isVariableFinal(node.name)) {
         throw new InstantiationError(
-            "Tried to assign to a final variable '" + node.name + "'",
+            "Tried to assign to final variable '" + node.name + "'",
             [frame].concat(flatten(stack)));
       }
       if (!val.exprType.equals(exprType)) {
@@ -934,7 +945,7 @@ function annotate(modules) {
     }
     case "LambdaTemplate": {
       const args = [];
-      pushScope();
+      pushScopeFinalsOnly();
       for (const [argname, argtypetemp] of node.args) {
         const argtype = resolveTypeTemplate(argtypetemp, bindings);
         args.push([argname, argtype]);
