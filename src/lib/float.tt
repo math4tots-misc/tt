@@ -1,0 +1,38 @@
+// float.tt
+
+class native Float "number"
+
+fn native __add__(x Int, y Float) Float """
+  return var_x + var_y;
+"""
+
+fn native __add__(x Float, y Int) Float """
+  return var_x + var_y;
+"""
+
+fn native __add__(x Float, y Float) Float """
+  return var_x + var_y;
+"""
+
+fn native __lt__(x Float, y Float) Bool """
+  return var_x < var_y;
+"""
+
+fn native repr(x Float) String """
+  return "" + var_x;
+"""
+
+fn native int(x Float) Int"""
+  return var_x|0;
+"""
+
+fn Float {
+  fn to(String) String {
+    return repr(this);
+  }
+
+  fn to(Int) Int {
+    return int(this);
+  }
+}
+

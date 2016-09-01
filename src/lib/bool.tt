@@ -1,0 +1,11 @@
+// bool.tt
+
+class native Bool "boolean"
+
+fn native __not__(x Bool) Bool """
+  return !var_x;
+"""
+
+fn native repr(x Bool) String """
+  return "" + var_x;
+"""

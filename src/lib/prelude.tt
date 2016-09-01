@@ -16,7 +16,7 @@ fn __ne__(x $T, y $T) Bool {
   return !__eq__(x, y);
 }
 
-fn __ge__(x Int, y Int) Bool {
+fn __ge__(x $T, y $T) Bool {
   return !(x < y);
 }
 fn __gt__(x $T, y $T) Bool {

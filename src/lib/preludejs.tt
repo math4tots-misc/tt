@@ -1,8 +1,6 @@
 // Like prelude, but specific to javascript target
 
 class native Void "undefined"
-class native Bool "boolean"
-class native Float "number"
 
 fn native jsprint(x $T) Void"""
   console.log(var_x);
@@ -12,36 +10,12 @@ fn native error(x String) Void """
   throw new TtError("Error: " + var_x);
 """
 
-fn native __not__(x Bool) Bool """
-  return !var_x;
-"""
-
 fn native __is__(x $T, y $T) Bool """
   return var_x === var_y;
 """
 
 fn native __isnot__(x $T, y $T) Bool"""
   return var_x !== var_y;
-"""
-
-fn native __add__(x Int, y Float) Float """
-  return var_x + var_y;
-"""
-
-fn native __add__(x Float, y Int) Float """
-  return var_x + var_y;
-"""
-
-fn native __add__(x Float, y Float) Float """
-  return var_x + var_y;
-"""
-
-fn native repr(x Bool) String """
-  return "" + var_x;
-"""
-
-fn native repr(x Float) String """
-  return "" + var_x;
 """
 
 fn native getStackTraceMessage() String """

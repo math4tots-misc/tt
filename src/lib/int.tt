@@ -34,13 +34,17 @@ fn native repr(x Int) String """
   return "" + var_x;
 """
 
-fn native int(x Float) Int"""
-  return var_x|0;
+fn native float(x Int) Float"""
+  return var_x;
 """
 
 fn Int {
   fn to(String) String {
     return repr(this);
+  }
+
+  fn to(Float) Float {
+    return float(this);
   }
 }
 
