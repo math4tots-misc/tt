@@ -1,2 +1,2 @@
 @echo off
-node %~dp0\..\ttjs.js %*
+node %~dp0\..\tt\ttjs.js %*
