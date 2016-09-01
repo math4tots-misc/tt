@@ -1,0 +1,11 @@
+// dommouseevent.tt
+
+class native DomMouseEvent "!MouseEvent"
+
+fn native getattr(this DomMouseEvent, :offsetX) Float"""
+  return var_this.clientX - var_this.target.getBoundingClientRect().left;
+"""
+
+fn native getattr(this DomMouseEvent, :offsetY) Float"""
+  return var_this.clientY - var_this.target.getBoundingClientRect().top;
+"""

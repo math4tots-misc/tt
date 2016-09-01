@@ -20,4 +20,12 @@ fn async asyncMain() Void {
                    canvas.width/3, canvas.height/3);
   body.appendChild(header);
   body.appendChild(canvas.to(DomElement));
+
+  canvas.onClick(fn(event DomMouseEvent) {
+    print("Canvas clicked!");
+    print("offsetX = " +
+          event.offsetX.to(String) +
+          " and offsetY = " +
+          event.offsetY.to(String));
+  });
 }

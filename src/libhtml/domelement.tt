@@ -20,17 +20,20 @@ fn native getattr(this DomElement, :nodeName) String"""
 
 fn DomElement {
   fn native appendChild(element DomElement) Void"""
-  var_this.appendChild(var_element);
+    var_this.appendChild(var_element);
   """
 
-  fn to(DomCanvas) DomCanvas {
-    if (this.nodeName != "CANVAS") {
-      error("Expected CANVAS element but found " + this.nodeName);
-    }
-    return this.unsafeCast(DomCanvas);
-  }
+  fn native onClick(handler Lambda[Void, DomMouseEvent]) Lambda[Void]"""
+    const listener = event => {
+      runCallback(stack => {
+        var_handler(stack, event);
+      }, stack);
+    };
 
-  fn native unsafeCast(DomCanvas) DomCanvas"""
-    return var_this;
+    var_this.addEventListener('click', listener);
+
+    return stack => {
+      var_this.removeEventListener('click', listener);
+    };
   """
 }

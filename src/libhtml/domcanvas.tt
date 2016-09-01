@@ -23,9 +23,24 @@ fn DomCanvas {
     return var_this;
   """
 
+  fn onClick(handler Lambda[Void, DomMouseEvent]) Lambda[Void] {
+    return this.to(DomElement).onClick(handler);
+  }
+
   fn native getContext2d() DomCanvasContext2d"""
     return var_this.getContext('2d');
   """
 }
 
+fn DomElement {
+  fn to(DomCanvas) DomCanvas {
+    if (this.nodeName != "CANVAS") {
+      error("Expected CANVAS element but found " + this.nodeName);
+    }
+    return this.unsafeCast(DomCanvas);
+  }
 
+  fn native unsafeCast(DomCanvas) DomCanvas"""
+    return var_this;
+  """
+}
