@@ -115,15 +115,19 @@ function annotate(modules) {
     if (!scope[name]) {
       throw new InstantiationError("No such variable " + name, stack);
     }
-    return scope[name];
+    return scope[name].type;
   }
 
-  function declareVariable(name, type, frames) {
+  function isVariableFinal(name) {
+    return scope[name].isFinal;
+  }
+
+  function declareVariable(name, isFinal, type, frames) {
     if (Object.hasOwnProperty.apply(scope, [name])) {
       throw new InstantiationError(
           "Variable " + name + " already declared in scope", frames);
     }
-    scope[name] = type;
+    scope[name] = {"type": type, "isFinal": isFinal};
   }
 
   function instantiateClass(cls) {
@@ -209,7 +213,8 @@ function annotate(modules) {
       const argname = argnames[i];
       if (argname !== null) {
         declareVariable(
-            argnames[i], args[i][1], [frame].concat(flatten(stack)));
+            argnames[i], false,
+            args[i][1], [frame].concat(flatten(stack)));
       }
     }
     if (functemp.vararg) {
@@ -218,7 +223,7 @@ function annotate(modules) {
       for (let i = argnames.length; i < argtypes.length; i++) {
         types.push(argtypes[i]);
       }
-      declareVariable("..." + varargname, types,
+      declareVariable("..." + varargname, false, types,
                       [frame].concat(flatten(stack)));
     }
 
@@ -328,7 +333,8 @@ function annotate(modules) {
         // it is available for the code generator to use.
         queueFunctionInstantiation("delete", [cls], [frame, stack]);
       }
-      declareVariable(node.name, cls, [frame].concat(flatten(stack)));
+      declareVariable(
+          node.name, node.isFinal, cls, [frame].concat(flatten(stack)));
       return {
         "type": "Declaration",
         "token": node.token,
@@ -825,6 +831,11 @@ function annotate(modules) {
       const val = resolveExpression(node.val, bindings, stack);
       const exprType = getVariableType(
           node.name, [frame].concat(flatten(stack)));
+      if (isVariableFinal(node.name)) {
+        throw new InstantiationError(
+            "Tried to assign to a final variable '" + node.name + "'",
+            [frame].concat(flatten(stack)));
+      }
       if (!val.exprType.equals(exprType)) {
         throw new InstantiationError(
             "Variable is type " + exprType.toString() + " but " +
@@ -840,6 +851,11 @@ function annotate(modules) {
       };
     case "AugmentAssignTemplate": {
       const exprType = getVariableType(node.name, stack);
+      if (isVariableFinal(node.name)) {
+        throw new InstantiationError(
+            "You can't Augassign a final variable '" + node.name + "'",
+            [frame].concat(flatten(stack)));
+      }
       if (!(exprType instanceof Typename) ||
           (exprType.name !== "Int" && exprType.name !== "Float" &&
            exprType.name !== "String")) {
@@ -922,7 +938,8 @@ function annotate(modules) {
       for (const [argname, argtypetemp] of node.args) {
         const argtype = resolveTypeTemplate(argtypetemp, bindings);
         args.push([argname, argtype]);
-        declareVariable(argname, argtype, [frame].concat(flatten(stack)));
+        declareVariable(
+          argname, false, argtype, [frame].concat(flatten(stack)));
       }
       if (node.vararg) {
         const [name, typename] = node.vararg;
@@ -936,10 +953,11 @@ function annotate(modules) {
         for (let i = 0; i < types.length; i++) {
           const key = name + "__" + i;
           args.push([key, types[i]]);
-          declareVariable(key, types[i],
+          declareVariable(key, false, types[i],
                           [frame].concat(flatten(stack)));
         }
-        declareVariable("..." + name, types, [frame].concat(flatten(stack)));
+        declareVariable(
+            "..." + name, false, types, [frame].concat(flatten(stack)));
       }
       const argtypes = args.map(arg => arg[1]);
       const body = resolveStatement(node.body, bindings, stack);
