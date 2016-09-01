@@ -1,18 +1,18 @@
 // dom.tt
 
-class native Dom "null"
+class native DomDocument "null"
 
-fn native new(Dom) Dom"""
+fn native new(DomDocument) DomDocument"""
   return null;
 """
 
-final document = new(Dom);
+final document = new(DomDocument);
 
-fn native getattr(this Dom, :body) DomElement"""
+fn native getattr(this DomDocument, :body) DomElement"""
   return document.body;
 """
 
-fn Dom {
+fn DomDocument {
   fn native createElement(nodeName String) DomElement"""
     return document.createElement(var_nodeName);
   """
