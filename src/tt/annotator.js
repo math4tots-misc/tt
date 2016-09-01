@@ -192,7 +192,7 @@ function annotate(modules) {
     const argnames = functemp.args.map(targ => targ[0]);
     const args = [];
     for (let i = 0; i < argnames.length; i++) {
-      args.push([argnames[i], argtypes[i]]);
+      args.push([argnames[i], argtypes[i], functemp.args[i][2]]);
     }
     if (functemp.vararg) {
       const varargname = functemp.vararg[0];
@@ -224,7 +224,8 @@ function annotate(modules) {
       const argname = argnames[i];
       if (argname !== null) {
         declareVariable(
-            argnames[i], false,
+            argnames[i],
+            args[i][2] /* isFinal */,
             args[i][1], [frame].concat(flatten(stack)));
       }
     }
@@ -946,11 +947,11 @@ function annotate(modules) {
     case "LambdaTemplate": {
       const args = [];
       pushScopeFinalsOnly();
-      for (const [argname, argtypetemp] of node.args) {
+      for (const [argname, argtypetemp, isFinal] of node.args) {
         const argtype = resolveTypeTemplate(argtypetemp, bindings);
         args.push([argname, argtype]);
         declareVariable(
-          argname, false, argtype, [frame].concat(flatten(stack)));
+          argname, isFinal, argtype, [frame].concat(flatten(stack)));
       }
       if (node.vararg) {
         const [name, typename] = node.vararg;
@@ -964,7 +965,7 @@ function annotate(modules) {
         for (let i = 0; i < types.length; i++) {
           const key = name + "__" + i;
           args.push([key, types[i]]);
-          declareVariable(key, false, types[i],
+          declareVariable(key, true, types[i],
                           [frame].concat(flatten(stack)));
         }
         declareVariable(

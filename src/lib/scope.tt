@@ -22,8 +22,7 @@ fn delete(this Scope) Void {
   }
 }
 
-fn own(:Method, this Scope, mutableX $T) Void {
-  final x = mutableX;
+fn own(:Method, this Scope, final x $T) Void {
   this.onDelete(fn() {
     delete(x);
   });

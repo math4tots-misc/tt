@@ -76,7 +76,7 @@ class Parser {
         this.expect(openBrace);
         while (!this.consume(closeBrace)) {
           const functemp = this.parseFunctionTemplate();
-          functemp.args.unshift(["this", typetempl]);
+          functemp.args.unshift(["this", typetempl, true /*isFinal*/]);
           functemp.args.unshift([null, methodtempl]);
           functemps.push(functemp);
         }
@@ -194,9 +194,10 @@ class Parser {
         this.expect(closeParen);
         break;
       }
+      const isFinal = !!this.consume("final");
       const name = this.at("NAME") ? this.expect("NAME").val : null;
       const cls = this.parseTypeTemplate();
-      args.push([name, cls]);
+      args.push([name, cls, isFinal]);
       if (!this.at(closeParen)) {
         this.expect(",");
       }
