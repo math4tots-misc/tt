@@ -6,3 +6,5 @@ src/bb.js
 src/processed.txt
 
 src/a.js
+
+.DS_Store
