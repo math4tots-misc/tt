@@ -1,0 +1,21 @@
+{
+  "rules": {
+    "v0_1": {
+      "users": {
+        "$id": {
+          ".read": "$id === auth.uid",
+          ".write": "$id === auth.uid"
+        }
+      },
+      "projects": {
+        "$id": {
+          ".read":
+            "auth !== null && !data.exists() || data.child('owners').hasChild(auth.uid) || data.child('public').val() === true",
+          ".write":
+            "auth !== null && !data.exists() || data.child('owners').hasChild(auth.uid)",
+          ".validate": "newData.hasChild('owners')"
+        }
+      }
+    }
+  }
+}

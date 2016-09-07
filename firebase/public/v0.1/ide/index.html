@@ -1,0 +1,97 @@
+<!DOCTYPE>
+<html>
+  <head>
+    <title>ide2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-layout/1.4.3/layout-default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.2.2/jquery.contextMenu.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/codemirror.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.2/toastr.min.css">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-layout/1.4.3/jquery.layout.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.2.2/jquery.contextMenu.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/keymap/sublime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/addon/comment/comment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.16.0/keymap/vim.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.2.0/firebase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.2/toastr.min.js"></script>
+    <script src="libinit.js"></script>  <!-- Always comes first -->
+    <script src="liblayout.js"></script>
+    <script src="libfiletreeview.js"></script>
+    <script src="libeditor.js"></script>
+    <script src="libprojectdata.js"></script>
+    <script src="libdialog.js"></script>
+    <script src="libpushid.js"></script>
+    <script src="libuserdata.js"></script>
+    <script src="libkeyhandler.js"></script>
+    <script src="libchooseproject.js"></script>
+    <script src="libstdout.js"></script>
+    <script src="../common/xx.js"></script>
+    <script src="index.js"></script> <!-- main: start here -->
+  </head>
+  <body>
+    <div id="before-login">
+      <button id="login-button">Sign in with Google</button>
+    </div>
+    <div id="after-login">
+      <div id="rename-file-dialog" title="Rename File">
+        <form id="rename-file-form">
+          <fieldset>
+            <label for="rename-file-name">New name</label>
+            <input type="text" name="name" id="rename-file-name">
+          </fieldset>
+        </form>
+        <button class="ui-button" type="submit" form="rename-file-form">
+          Submit
+        </button>
+      </div>
+      <div id="new-file-dialog" title="New File">
+        <form id="new-file-form">
+          <fieldset>
+            <label for="new-file-name">Name</label>
+            <input type="text" name="name" id="new-file-name">
+          </fieldset>
+        </form>
+        <button class="ui-button" type="submit" form="new-file-form">
+          Submit
+        </button>
+      </div>
+      <div id="rename-project-dialog" title="Rename Project">
+        <form id="rename-project-form">
+          <fieldset>
+            <label for="rename-project-name">New name</label>
+            <input type="text" name="name" id="rename-project-name">
+          </fieldset>
+        </form>
+        <button class="ui-button" type="submit" form="rename-project-form">
+          Submit
+        </button>
+      </div>
+      <div id="choose-project-dialog" title="Choose Project">
+        <form id="choose-project-form">
+          <fieldset>
+          </fieldset>
+        </form>
+      </div>
+      <div class="ui-layout-west">
+        <div class="help-text">
+          Click on the project name below to open the menu
+        </div>
+        <ul id="file-tree"></ul>
+      </div>
+      <div class="ui-layout-center">
+        <textarea id="editor"></textarea>
+      </div>
+      <div class="ui-layout-south">
+        <textarea id="stdout"></textarea>
+      </div>
+    </div>
+  </body>
+</html>
