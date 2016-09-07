@@ -29,7 +29,30 @@ class TypeTemplate {
     // returns -1 (i.e. this < otherTemplate) if other is more specialized
     boundVars = boundVars || Object.create(null);
     otherBoundVars = otherBoundVars || Object.create(null);
-    const thisHasFreeVars = this.hasFreeVars(boundVars);
+    let self = this;
+    // For 'And' types, we really only care about the most specialized
+    // version.
+    if (self instanceof AndTypeTemplate) {
+      self = self.getMostSpecialized(boundVars);
+    }
+    if (other instanceof AndTypeTemplate) {
+      other = self.getMostSpecialized(boundVars);
+    }
+    if (self instanceof OrTypeTemplate && other instanceof OrTypeTemplate) {
+      // TODO: Figure out a more sensible ordering. For now, having
+      // something that are both 'or' types that can potentially have
+      // multiple implementations is a bad situation.
+      return 0;
+    }
+    if (!(self instanceof OrTypeTemplate) &&
+        other instanceof OrTypeTemplate) {
+      return 1;
+    }
+    if (self instanceof OrTypeTemplate &&
+        !(other instanceof OrTypeTemplate)) {
+      return -1;
+    }
+    const thisHasFreeVars = self.hasFreeVars(boundVars);
     const otherHasFreeVars = other.hasFreeVars(otherBoundVars);
     if (!thisHasFreeVars && !otherHasFreeVars) {
       return 0;
@@ -40,7 +63,7 @@ class TypeTemplate {
     if (thisHasFreeVars && !otherHasFreeVars) {
       return -1;
     }
-    const thisIsFreeVar = this.isFreeVar(boundVars);
+    const thisIsFreeVar = self.isFreeVar(boundVars);
     const otherIsFreeVar = other.isFreeVar(otherBoundVars);
     if (thisIsFreeVar && otherIsFreeVar) {
       return 0;
@@ -51,10 +74,10 @@ class TypeTemplate {
     if (thisIsFreeVar && !otherIsFreeVar) {
       return -1;
     }
-    // At this point, both sides have some free vars, but neither of them
+    // At self point, both sides have some free vars, but neither of them
     // *is* a free var. This must mean that they are both
     // TemplateTypeTemplates.
-    const args = this.args;
+    const args = self.args;
     const oargs = other.args;
     const len = Math.min(args.length, oargs.length);
     boundVars = Object.create(boundVars);
@@ -74,10 +97,10 @@ class TypeTemplate {
     }
     // If one has vararg and the other doesn't, the one that doesn't have
     // a vararg is more specialized.
-    if (this.vararg === null && other.vararg !== null) {
+    if (self.vararg === null && other.vararg !== null) {
       return 1;
     }
-    if (this.vararg !== null && other.vararg === null) {
+    if (self.vararg !== null && other.vararg === null) {
       return -1;
     }
     // They either both have varargs, or they both don't.
@@ -138,6 +161,90 @@ class SymbolTypeTemplate extends TypeTemplate {
   }
   serialize(bindings) {
     return ":" + this.name;
+  }
+}
+
+class AndTypeTemplate extends TypeTemplate {
+  constructor(token, templates) {
+    super(token);
+    this.templates = templates;
+  }
+  getMostSpecialized(boundVars) {
+    let m = this.templates[0];
+    for (const t of this.templates) {
+      if (m.compareSpecialization(t) < 0) {
+        m = t;
+      }
+    }
+    return m;
+  }
+  bindType(type, bindings) {
+    bindings = bindings || Object.create(null);
+    for (const t of this.templates) {
+      bindings = t.bindType(type, bindings);
+      if (bindings === null) {
+        return null;
+      }
+    }
+    return bindings;
+  }
+  resolve(bindings) {
+    return this.templates[0].resolve(bindings);
+  }
+  getFreeVars(boundVars) {
+    const freeVars = Object.create(null);
+    for (const t of this.templates) {
+      for (const freeVar in t.getFreeVars(boundVars)) {
+        freeVars[freeVar] = true;
+      }
+    }
+    return freeVars;
+  }
+  serialize(bindings) {
+    return this.templates.map(t => t.serialize(bindings)).join("=");
+  }
+}
+
+class OrTypeTemplate extends TypeTemplate {
+  constructor(token, templates) {
+    super(token);
+    this.templates = templates;
+  }
+  resolve(bindings) {
+    return this.templates[bindings["|or"].get(this)].resolve(bindings);
+  }
+  bindType(type, bindings) {
+    const m = bindings["|or"] || new Map();
+    bindings["|or"] = m;
+    for (let i = 0; i < this.templates.length; i++) {
+      const t = this.templates[i];
+      const b = Object.create(null);
+      for (const k in bindings) {
+        b[k] = bindings[k];
+      }
+      b["|or"] = new Map(m.get("|or"));
+      const bb = t.bindType(type, b);
+      if (bb) {
+        m.set(this, i);
+        return t.bindType(type, bindings);
+      }
+    }
+    return null;
+  }
+  getFreeVars(boundVars) {
+    const freeVars = Object.create(null);
+    for (const t of this.templates) {
+      for (const freeVar in t.getFreeVars(boundVars)) {
+        freeVars[freeVar] = true;
+      }
+    }
+    if (!(boundVars["|or"] && boundVars["|or"].has(this))) {
+      freeVars["|or"] = true;
+    }
+    return freeVars;
+  }
+  serialize(bindings) {
+    return this.templates.map(t => t.serialize(bindings)).join("|");
   }
 }
 
@@ -273,6 +380,8 @@ class VariableTypeTemplate extends TypeTemplate {
 exports.TypeTemplate = TypeTemplate;
 exports.TypenameTemplate = TypenameTemplate;
 exports.SymbolTypeTemplate = SymbolTypeTemplate;
+exports.OrTypeTemplate = OrTypeTemplate;
+exports.AndTypeTemplate = AndTypeTemplate;
 exports.TemplateTypeTemplate = TemplateTypeTemplate;
 exports.VariableTypeTemplate = VariableTypeTemplate;
 

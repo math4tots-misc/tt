@@ -440,6 +440,14 @@ fn main() Void {
     assertEqual(e.foo = 145, "145");
   }
 
+  //// or/and type test
+  {
+    assertEqual(orTypeTest(5), "Int");
+    assertEqual(orTypeTest(4.4), "Float");
+    assertEqual(orTypeTest("x"), "different implementation");
+    assertEqual(andTypeTest(["x"]), "List[String] String");
+  }
+
   print("synchronous main finished!");
 }
 
@@ -635,5 +643,17 @@ fn getattr(this ExSetattr, :foo) String {
 
 fn setattr(this ExSetattr, :foo, val Int) String {
   return val.to(String);
+}
+
+fn orTypeTest(x Int|Float|String) String {
+  return typestr(x);
+}
+
+fn orTypeTest(x String) String {
+  return "different implementation";
+}
+
+fn andTypeTest(x $L&List[$T]) String {
+  return typestr($L) + " " + typestr($T);
 }
 

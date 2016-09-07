@@ -110,7 +110,7 @@ function annotate(modules) {
   function pushScopeFinalsOnly() {
     scopeStack.push(scope);
     const newScope = Object.create(null);
-    for (key in scope) {
+    for (const key in scope) {
       if (scope[key].isFinal) {
         newScope[key] = scope[key];
       }

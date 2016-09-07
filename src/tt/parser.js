@@ -10,6 +10,8 @@ const Typename = type.Typename;
 const TypeTemplate = typet.TypeTemplate;
 const TypenameTemplate = typet.TypenameTemplate;
 const SymbolTypeTemplate = typet.SymbolTypeTemplate;
+const OrTypeTemplate = typet.OrTypeTemplate;
+const AndTypeTemplate = typet.AndTypeTemplate;
 const TemplateTypeTemplate = typet.TemplateTypeTemplate;
 const VariableTypeTemplate = typet.VariableTypeTemplate;
 const openParen = lexer.openParen;
@@ -156,7 +158,7 @@ class Parser {
         "staticBlock__" + this.getNextStaticBlockId() :
         this.expect("NAME").val;
     this._funcname = name;
-    const args = isStatic ? [] : this.parseArgumentsTemplate();
+    const args = isStatic ? [] : this.parseArgumentsTemplate(true);
     const ret = isStatic ?
         new TypenameTemplate(token, "Void") : this.parseTypeTemplate();
     let body = null;
@@ -182,7 +184,7 @@ class Parser {
       "body": body,
     };
   }
-  parseArgumentsTemplate() {
+  parseArgumentsTemplate(generalizedTypeTemplate) {
     this.expect(openParen);
     const args = [];
     args.vararg = null;
@@ -196,13 +198,51 @@ class Parser {
       }
       const isFinal = !!this.consume("final");
       const name = this.at("NAME") ? this.expect("NAME").val : null;
-      const cls = this.parseTypeTemplate();
+      const cls = generalizedTypeTemplate ?
+                  this.parseGeneralTypeTemplate() :
+                  this.parseTypeTemplate();
       args.push([name, cls, isFinal]);
       if (!this.at(closeParen)) {
         this.expect(",");
       }
     }
     return args;
+  }
+  parseGeneralTypeTemplate() {
+    return this.parseOrTypeTemplate();
+  }
+  parseOrTypeTemplate() {
+    const token = this.peek();
+    let type = this.parseAndTypeTemplate();
+    if (this.at("|")) {
+      const templates = [type];
+      while (this.consume("|")) {
+        templates.push(this.parseAndTypeTemplate());
+      }
+      return new OrTypeTemplate(token, templates);
+    }
+    return type;
+  }
+  parseAndTypeTemplate() {
+    const token = this.peek();
+    let type = this.parsePrimaryTypeTemplate();
+    if (this.at("&")) {
+      const templates = [type];
+      while (this.consume("&")) {
+        templates.push(this.parsePrimaryTypeTemplate());
+      }
+      return new AndTypeTemplate(token, templates);
+    }
+    return type;
+  }
+  parsePrimaryTypeTemplate() {
+    if (this.consume(openParen)) {
+      const ret = this.parseGeneralTypeTemplate();
+      this.expect(closeParen);
+      return ret;
+    } else {
+      return this.parseTypeTemplate();
+    }
   }
   parseTypeTemplate() {
     const token = this.peek();
