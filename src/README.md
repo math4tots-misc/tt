@@ -7,6 +7,7 @@
   * Templates (code generation like C++, but also does a little pattern matching like Prolog).
   * No 'null' value. You can use a 'Maybe' type if you need to.
   * Type inference for variable declarations. Types can also be specified for safety.
+  * async/await
 
 See test.tt for some language syntax.
 
