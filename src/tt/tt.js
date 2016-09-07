@@ -15,34 +15,37 @@ const tt = (function() {
 
 function asyncf(generator) {
   return function() {
-    const generatorObject = generator.apply(this, arguments);
     return new Promise((resolve, reject) => {
-      asyncfHelper(generatorObject, resolve, reject);
+      try {
+        const generatorObject = generator.apply(null, arguments);
+        _asyncfHelper(generatorObject, resolve, reject);
+      } catch (err) {
+        console.error(err);
+        reject(err);
+      }
     });
   };
 }
 
-function asyncfHelper(generatorObject, resolve, reject, val, thr) {
-  const {value, done} =
-      thr ? generatorObject.throw(val) : generatorObject.next(val);
-  if (done) {
-    resolve(value);
-  } else {
+function _asyncfHelper(generatorObject, resolve, reject, arg, isErr) {
+  try {
+    const {done, value} =
+        isErr ?
+        generatorObject.throw(arg) :
+        generatorObject.next(arg);
+    if (done) {
+      resolve(value);
+      return;
+    }
+    // if done is false, 'value' must be a Promise
     value.then(result => {
-      // NOTE: Any exceptions thrown here will be passed to
-      // the handler in the catch clause below
-      asyncfHelper(generatorObject, resolve, reject, result);
-    }).catch(reason => {
-      try {
-        asyncfHelper(generatorObject, resolve, reject, reason, true);
-      } catch (e) {
-        // TODO: Unfortunately, the exception 'e' doesn't really contain
-        // much helpful stack data... So at the very least we get a
-        // message, but we still don't see where
-        console.error(e);
-        throw e;
-      }
+      _asyncfHelper(generatorObject, resolve, reject, result);
+    }).catch(err => {
+      _asyncfHelper(generatorObject, resolve, reject, err, true);
     });
+  } catch (err) {
+    console.error(err);
+    reject(err);
   }
 }
 
