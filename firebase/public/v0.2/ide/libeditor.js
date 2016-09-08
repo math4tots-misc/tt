@@ -89,11 +89,11 @@ class Editor {
     this._currentDocId = null;
   }
   setVimMode() {
-    toastr.info("Setting keyMap to 'vim' mode");
+    toastr.info("Entering 'vim' mode");
     this._cm.setOption("keyMap", "vim");
   }
   setSublimeMode() {
-    toastr.info("Setting keyMap to 'sublime' mode");
+    toastr.info("Entering 'sublime' mode");
     this._cm.setOption("keyMap", "sublime");
   }
   getKeyMap() {
