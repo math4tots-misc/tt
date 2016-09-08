@@ -3,7 +3,7 @@
 (function(exports) {
 "use strict";
 
-const USER_PATH_ROOT = "v0_1/users";
+const USER_PATH_ROOT = "v0_2/users";
 
 function getUserDataPath(userId) {
   if (!userId) {

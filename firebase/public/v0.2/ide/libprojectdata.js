@@ -7,30 +7,31 @@ const DEFAULT_PROJECT_NAME = "New Project";
 
 const DEFAULT_CONFIG = `
 {
-  "dependencies": {},
+  "dependencies": {
+    "":
+    "This includes the standard library"
+
+
+  },
   "public": true
 }
 `;
 
 const DEFAULT_MAIN = `
-import local.one.foo;
-
-int main() {
-  foo();
-}
-`;
-
-const DEFAULT_LIB = `
-package local.one;
-
-void foo() {
+fn main() Void {
   print("Hello world!");
 }
 `;
 
+const DEFAULT_LIB = `
+fn foo() Void {
+  print("I'm foo");
+}
+`;
 
 
-const PROJECT_PATH_ROOT = "v0_1/projects";
+
+const PROJECT_PATH_ROOT = "v0_2/projects";
 
 function getProjectDataPath(projectId) {
   if (!projectId) {
@@ -166,7 +167,7 @@ class ProjectData {
   }
   getCodeUriPairs() {
     return this.getFilenameContentPairs()
-               .filter(args => args[0].endsWith(".xx"))
+               .filter(args => args[0].endsWith(".tt"))
                .filter(args => !args[0].startsWith("_"))
                .map(args =>
                     [args[0] + " (" + this.getProjectName() + ")", args[1]])
@@ -220,8 +221,8 @@ ProjectData.prototype.asyncLoad = lib.asyncf(function*(projectId) {
       "currentFileId": null,
     };
     this._data.owners[user.uid] = true;
-    this._data.currentFileId = this.makeNewFile("_main.xx", DEFAULT_MAIN);
-    this.makeNewFile("lib.xx", DEFAULT_LIB);
+    this._data.currentFileId = this.makeNewFile("_main.tt", DEFAULT_MAIN);
+    this.makeNewFile("lib.tt", DEFAULT_LIB);
     this.makeNewFile("_config.json", DEFAULT_CONFIG);
     return false;
   } else {

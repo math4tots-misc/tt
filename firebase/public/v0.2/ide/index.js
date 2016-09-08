@@ -136,10 +136,10 @@ const main = lib.asyncf(function*() {
         codeUriPairs.push(cup);
       }
     }
-    if (projectData.fileWithNameExists("_main.xx")) {
+    if (projectData.fileWithNameExists("_main.tt")) {
       codeUriPairs.push([
-          projectData.getContentsOfFileWithName("_main.xx"),
-          "_main.xx (" + projectData.getProjectName() + ")",
+          projectData.getContentsOfFileWithName("_main.tt"),
+          "_main.tt (" + projectData.getProjectName() + ")",
       ]);
     }
     return codeUriPairs;
@@ -151,14 +151,12 @@ const main = lib.asyncf(function*() {
         yield asyncTrySave();
         stdout.clear();
         const codeUriPairs = yield asyncGetCodeUriPairs();
-        const cg = new xx.CodeGenerator();
-        for (const [code, uri] of codeUriPairs) {
-          cg.addModule(uri, code);
-        }
-        const runner = new xx.Runner();
-        runner.setOption("console", mockConsole);
-        runner.setCodeGenerator(cg);
-        runner.run();
+        const uriCodePairs = codeUriPairs.map(pair => [pair[1], pair[0]]);
+        (function() {
+          const console = mockConsole;
+          // jshint evil: true
+          eval(tt.compile(uriCodePairs));
+        })();
         toastr.info("Project run successfully");
       }  catch(e) {
         mockConsole.error(e.stack);
@@ -173,12 +171,8 @@ const main = lib.asyncf(function*() {
       stdout.clear();
       try {
         const codeUriPairs = yield asyncGetCodeUriPairs();
-        const cg = new xx.CodeGenerator();
-        for (const [code, uri] of codeUriPairs) {
-          cg.addModule(uri, code);
-        }
-        cg.process();
-        mockConsole.log(cg.compile());
+        const uriCodePairs = codeUriPairs.map(pair => [pair[1], pair[0]]);
+        mockConsole.log(tt.compile(uriCodePairs));
         toastr.info("Project transpiled successfully");
       }  catch(e) {
         mockConsole.error(e.stack);

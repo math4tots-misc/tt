@@ -3695,13 +3695,5 @@ return exports;
 
 })();
 
-
-if (typeof module !== 'undefined' && module.exports) {
-  // Let's say this means that we're in node.js.
-  // http://stackoverflow.com/questions/4224606
-  // says Underscore uses something like this to detect browser/node.js
-  module.exports = tt;
-}
-
 //// for closure-compiler when compiling for tt.min.js
-// window.tt = tt;
+window['tt'] = tt;
