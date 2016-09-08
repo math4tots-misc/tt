@@ -1,6 +1,14 @@
 tt programming language
 =======================
 
+## Online demo!
+
+You can play with it at https://www.eng-misc.com/demo.html
+
+The syntax highlighting uses C++ rules instead of something customized like `language-tt2` for the atom editor.
+
+You also need to log in with a Google account, as that's how access control is done, although, I might want to modify it in the future such that public projects can be viewed by users who aren't logged in.
+
 ## Install instructions
 
 You need node.js installed, and 'node' must be in your path.
