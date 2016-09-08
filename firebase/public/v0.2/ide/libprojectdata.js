@@ -8,7 +8,7 @@ const DEFAULT_PROJECT_NAME = "New Project";
 const DEFAULT_CONFIG = `
 {
   "dependencies": {
-    "":
+    "-KR66IgUFvagL3DtuBh3":
     "This includes the standard library"
 
 
