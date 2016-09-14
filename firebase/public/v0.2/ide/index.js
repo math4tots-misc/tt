@@ -88,6 +88,9 @@ const main = lib.asyncf(function*() {
     yield userData.asyncSetMostRecentProjectId(id);
     yield userData.asyncSetProjectInfo(id, {"id": id, "name": name});
     yield projectData.asyncSave();
+    if (projectData.isPublic()) {
+      yield userData.asyncSetPublicProjectInfo(id, {"id": id, "name": name});
+    }
     toastr.info("Project " + name + " saved!");
   });
 
@@ -216,7 +219,8 @@ const main = lib.asyncf(function*() {
     lib.runAsyncf(function*() {
       yield asyncTrySave();
       const infos = yield userData.asyncGetProjectInfos();
-      chooseProjectDialog.setProjectInfos(infos);
+      const publicInfos = yield userData.asyncGetPublicProjectInfos();
+      chooseProjectDialog.setProjectInfos(infos, publicInfos);
       chooseProjectDialog.open();
     });
   });
@@ -277,7 +281,8 @@ const main = lib.asyncf(function*() {
     lib.deleteFromFirebase(lib.getProjectDataPath(id));
     lib.runAsyncf(function*() {
       const infos = yield userData.asyncGetProjectInfos();
-      chooseProjectDialog.setProjectInfos(infos);
+      const publicInfos = yield userData.asyncGetPublicProjectInfos();
+      chooseProjectDialog.setProjectInfos(infos, publicInfos);
     });
   });
 

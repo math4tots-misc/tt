@@ -18,6 +18,12 @@
       }
     },
     "v0_2": {
+      "public": {
+        "projects": {
+          ".read": "auth !== null",
+          ".write": "auth !== null"
+        }
+      },
       "users": {
         "$id": {
           ".read": "$id === auth.uid",

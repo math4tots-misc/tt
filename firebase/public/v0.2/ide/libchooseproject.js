@@ -33,9 +33,7 @@ class ChooseProjectDialog {
       },
     });
   }
-  setProjectInfos(infos) {
-    const fieldset = this._node.find("fieldset");
-    fieldset.empty();
+  setProjectInfos(infos, publicInfos) {
     const makeButton =
         (info) => $("<button></button>").text(info.name).click(() => {
           if (this._projectChosenCallback) {
@@ -43,9 +41,16 @@ class ChooseProjectDialog {
           }
         }).addClass("ui-button").addClass("choose-project-button")
         .data("project-info", info);
-    for (const info of infos) {
-      fieldset.append(makeButton(info));
-    }
+    const setFieldSet = (selector, infos) => {
+      const fieldset = $(selector);
+      fieldset.empty();
+      for (const info of infos) {
+        fieldset.append(makeButton(info));
+      }
+    };
+    setFieldSet(this._node.find("#choose-project-fieldset"), infos);
+    setFieldSet(this._node.find(
+        "#choose-public-project-fieldset"), publicInfos);
   }
   onProjectChosen(callback) {
     this._projectChosenCallback = callback;

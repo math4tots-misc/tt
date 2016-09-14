@@ -28,6 +28,14 @@ function getPathToKeyMap(userId) {
   return getUserDataPath(userId) + "/keyMap";
 }
 
+function getPathToPublicProjectInfos() {
+  return "/v0_2/public/projects";
+}
+
+function getPathToPublicProjectInfo(projectId) {
+  return getPathToPublicProjectInfos() + "/" + projectId;
+}
+
 class UserData {
   constructor(userId) {
     if (!userId) {
@@ -63,6 +71,23 @@ UserData.prototype.asyncGetProjectInfos = lib.asyncf(function*() {
     infos.push(infosObject[key]);
   }
   return infos;
+});
+
+UserData.prototype.asyncGetPublicProjectInfos = lib.asyncf(function*() {
+  const infosObject =
+      yield lib.asyncReadFromFirebase(getPathToPublicProjectInfos());
+  if (infosObject === null) {
+    return [];
+  }
+  const infos = [];
+  for (const key in infosObject) {
+    infos.push(infosObject[key]);
+  }
+  return infos;
+});
+
+UserData.prototype.asyncSetPublicProjectInfo = lib.asyncf(function*(id, info) {
+  yield lib.asyncWriteToFirebase(getPathToPublicProjectInfo(id), info);
 });
 
 UserData.prototype.asyncSetMostRecentProjectId = lib.asyncf(function*(id) {

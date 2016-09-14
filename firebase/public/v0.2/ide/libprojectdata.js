@@ -44,6 +44,9 @@ class ProjectData {
   constructor() {
     this._data = null;
   }
+  isPublic() {
+    return this._data && this._data.public;
+  }
   getFileIds() {
     const ids = [];
     for (const id in this._data.files) {
